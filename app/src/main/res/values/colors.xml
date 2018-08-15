@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#fff</color>
+    <color name="colorPrimaryDark">#000</color>
+    <color name="colorAccent">#ccc</color>
+
+    <color name="stroke_border">#aeaeae</color>
+
+
+
+    <color name="text_hint">@color/stroke_border</color>
+</resources>
