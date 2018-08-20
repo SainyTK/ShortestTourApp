@@ -1,7 +1,13 @@
 package com.shortesttour.models;
 
 public class DataManager {
-    public String getData(){
-        return "This is data";
+
+    private static String[] data = {
+            "A","B","C","D","E","F","G","H"
+    };
+
+    public static String[] getData(){
+        return data;
     }
+
 }

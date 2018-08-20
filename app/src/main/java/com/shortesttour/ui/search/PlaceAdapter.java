@@ -61,5 +61,9 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.Holder> {
         return mPlaces.length;
     }
 
+    public void setDataSet(String[] dataSet){
+        mPlaces = dataSet;
+        notifyDataSetChanged();
+    }
 
 }

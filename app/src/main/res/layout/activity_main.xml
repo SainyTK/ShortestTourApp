@@ -17,20 +17,56 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <AutoCompleteTextView
-        android:id="@+id/autocomplete_search"
-        android:hint="Search Here"
-        android:textSize="@dimen/text_normal"
+
+    <LinearLayout
+        android:id="@+id/search_container"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height_search_box"
+        android:orientation="horizontal"
         android:background="@drawable/round_corner_white_bg_stroke"
         android:layout_marginTop="@dimen/margin_top_search_box"
         android:layout_marginLeft="@dimen/margin_vertical"
         android:layout_marginRight="@dimen/margin_vertical"
         android:padding="@dimen/padding_search_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:maxLines="1"/>
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/search_back_btn"
+            android:src="@drawable/ic_back"
+            android:layout_gravity="center_vertical"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="8dp"/>
+
+        <AutoCompleteTextView
+            android:id="@+id/autocomplete_search"
+            android:gravity="center_vertical"
+            android:hint="Search Here"
+            android:textSize="@dimen/text_normal"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:layout_marginLeft="4dp"
+            android:padding="4dp"
+            android:background="@color/transparent"/>
+
+        <ImageView
+            android:id="@+id/search_clear_btn"
+            android:src="@drawable/ic_clear"
+            android:visibility="gone"
+            android:layout_gravity="center_vertical"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_margin="8dp"/>
+
+    </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

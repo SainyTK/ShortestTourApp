@@ -1,55 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:weightSum="100"
-    android:layout_marginTop="@dimen/margin_horizontal">
+    android:paddingLeft="@dimen/margin_horizontal"
+    android:paddingRight="@dimen/margin_horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="10"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:layout_marginRight="@dimen/margin_horizontal"
-        android:layout_marginLeft="@dimen/margin_horizontal">
-        <ImageView
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
-            android:src="@drawable/ic_history" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="90"
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/text_place_title"
-            android:text="Test"
-            android:textSize="@dimen/text_normal"
-            android:layout_width="match_parent"
-            android:maxLines="1"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/text_place_description"
-            android:text="Test Test Test"
-            android:textSize="@dimen/text_small"
-            android:layout_width="match_parent"
-            android:maxLines="1"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_small"/>
+        app:cardCornerRadius="@dimen/corner_radius">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_medium"
-            android:gravity="bottom">
-            <RelativeLayout
+            android:weightSum="100"
+            android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="15"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginRight="0dp"
+            android:layout_marginLeft="@dimen/margin_horizontal">
+            <ImageView
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:src="@drawable/ic_history" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="90"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/text_place_title"
+                android:text="Test"
+                android:textSize="@dimen/text_normal"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/stroke_border"/>
-        </RelativeLayout>
-    </LinearLayout>
+                android:maxLines="1"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/text_place_description"
+                android:text="Test Test Test"
+                android:textSize="@dimen/text_small"
+                android:layout_width="match_parent"
+                android:maxLines="1"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"/>
+
+        </LinearLayout>
+
+        </LinearLayout>
+
+
+
+
+    </android.support.v7.widget.CardView>
+
+
 
 </LinearLayout>

@@ -6,7 +6,7 @@
 
     <color name="stroke_border">#aeaeae</color>
 
-
-
     <color name="text_hint">@color/stroke_border</color>
+
+    <color name="transparent">#00000000</color>
 </resources>
