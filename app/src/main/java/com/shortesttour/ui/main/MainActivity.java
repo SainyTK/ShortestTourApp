@@ -16,14 +16,19 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.shortesttour.R;
+import com.shortesttour.models.Place;
 import com.shortesttour.ui.map.MapFragment;
+import com.shortesttour.ui.search.PlaceParent;
 import com.shortesttour.ui.search.SearchAdapter;
 import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.utils.FragmentUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     @BindView(R.id.autocomplete_search)
-    AutoCompleteTextView autoCompleteTextView;
+    EditText autoCompleteTextView;
     @BindView(R.id.search_back_btn)
     ImageView searchBackButton;
     @BindView(R.id.search_clear_btn)
@@ -44,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment currentFragment;
 
-    private ArrayList<String> mSearchData;
+    private List<PlaceParent> mSearchData;
+    private List<PlaceParent> mSuggestData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mSearchData = new ArrayList<>();
+        mSuggestData = new ArrayList<>();
 
         setupUI();
 
@@ -69,19 +76,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupUI(){
-        String[] countries = getResources().getStringArray(R.array.countries_array);
-        final SearchAdapter searchAdapter = new SearchAdapter(this,android.R.layout.simple_list_item_1,countries);
-        autoCompleteTextView.setAdapter(searchAdapter);
 
-        searchAdapter.registerDataSetObserver(new DataSetObserver() {
+        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onChanged() {
-                super.onChanged();
-                int itemCount = searchAdapter.getCount();
-                mSearchData.clear();
-                for(int i=0;i<itemCount;i++){
-                    mSearchData.add(searchAdapter.getItem(i));
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mSearchData = ((SearchFragment)currentFragment).getPlaceList();
+                mSuggestData.clear();
+                for(PlaceParent place : mSearchData){
+                    if(place.getPlaceTitle().contains(s)){
+                        mSuggestData.add(place);
+                    }
                 }
+                ((SearchFragment)currentFragment).setSearchDataSet(mSuggestData);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
 
@@ -122,5 +138,7 @@ public class MainActivity extends AppCompatActivity {
     void clearSearchBox(){
         autoCompleteTextView.setText("");
     }
+
+
 
 }

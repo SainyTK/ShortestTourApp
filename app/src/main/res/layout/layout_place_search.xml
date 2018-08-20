@@ -39,6 +39,8 @@
                 android:id="@+id/text_place_title"
                 android:text="Test"
                 android:textSize="@dimen/text_normal"
+                android:textColor="#000"
+                android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:maxLines="1"
                 android:layout_height="wrap_content" />
@@ -49,7 +51,8 @@
                 android:layout_width="match_parent"
                 android:maxLines="1"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_small"/>
+                android:layout_marginTop="@dimen/margin_small"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

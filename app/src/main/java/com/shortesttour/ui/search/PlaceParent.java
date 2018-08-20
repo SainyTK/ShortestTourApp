@@ -1,17 +1,19 @@
 package com.shortesttour.ui.search;
 
 import com.bignerdranch.expandablerecyclerview.model.Parent;
+import com.shortesttour.models.Place;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaceTitle implements Parent<String> {
+public class PlaceParent implements Parent<String> {
 
-    private String mPlaceTitle;
+    private Place mPlace;
     private List<String> temp;
 
-    public PlaceTitle(String placeTitle){
-        mPlaceTitle = placeTitle;
+    public PlaceParent(Place place){
+        mPlace = place;
+
         temp = new ArrayList<>();
         temp.add("");
     }
@@ -27,6 +29,6 @@ public class PlaceTitle implements Parent<String> {
     }
 
     public String getPlaceTitle(){
-        return mPlaceTitle;
+        return mPlace.getPlaceTitle();
     }
 }

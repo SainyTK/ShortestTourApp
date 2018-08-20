@@ -10,11 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
+import com.google.android.gms.maps.model.LatLng;
 import com.shortesttour.R;
+import com.shortesttour.models.Place;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,8 @@ public class SearchFragment extends Fragment {
     @BindView(R.id.recycler_view_place_list)
     RecyclerView recyclerView;
 
+    List<PlaceParent> currentPlaceList;
+    List<PlaceParent> placeList;
     PlaceExpandableAdapter adapter;
 
     public static SearchFragment newInstance(){
@@ -41,17 +43,17 @@ public class SearchFragment extends Fragment {
         View root = LayoutInflater.from(getContext()).inflate(R.layout.fragment_search,container,false);
         ButterKnife.bind(this,root);
 
-        String[] places = getContext().getResources().getStringArray(R.array.countries_array);
-        List<PlaceTitle> placeTitleList = createPlaceTitleList(places);
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new PlaceExpandableAdapter(getContext(),placeTitleList);
+        placeList = createPlaceTitleList();
+        currentPlaceList = placeList;
+
+        adapter = new PlaceExpandableAdapter(getContext(), currentPlaceList);
         adapter.setExpandCollapseListener(new ExpandableRecyclerAdapter.ExpandCollapseListener() {
             @Override
             public void onParentExpanded(int parentPosition) {
-                adapter.collapseAllParents();;
+                adapter.collapseAllParents();
                 adapter.expandParent(parentPosition);
             }
 
@@ -66,19 +68,34 @@ public class SearchFragment extends Fragment {
         return root;
     }
 
-    private List<PlaceTitle> createPlaceTitleList(String[] data){
-        List<PlaceTitle> placeTitles = new ArrayList<>();
-        for(int i=0 ; i<data.length ; i++){
-            PlaceTitle title = new PlaceTitle(data[i]);
-            placeTitles.add(title);
-        }
-        return placeTitles;
+    public void setSearchDataSet(List<PlaceParent> dataSet){
+        currentPlaceList = dataSet;
+        adapter.modifyData(currentPlaceList);
     }
 
-    public void setSearchDataSet(ArrayList<String> dataSet){
-        String[] strings = new String[dataSet.size()];
-        dataSet.toArray(strings);
+    public List<PlaceParent> getPlaceList(){
+        return  placeList;
+    }
 
+    private List<PlaceParent> createPlaceTitleList(){
+        List<PlaceParent> placeParents = new ArrayList<>();
+
+        placeParents.add(toPlaceParent(new Place("ภูเก็ต",new LatLng(7.957630,98.337373))));
+        placeParents.add(toPlaceParent(new Place("บางคู",new LatLng(7.955125,98.379756))));
+        placeParents.add(toPlaceParent(new Place("ป่าคลอก",new LatLng(7.963541,98.385762))));
+        placeParents.add(toPlaceParent(new Place("สะปำ",new LatLng(7.939059,98.395983))));
+        placeParents.add(toPlaceParent(new Place("อำเภอกะทู้",new LatLng(7.908874,98.333839))));
+        placeParents.add(toPlaceParent(new Place("ม.อ. ภูเก็ต",new LatLng(7.893656,98.352670))));
+        placeParents.add(toPlaceParent(new Place("ภูเก็ตคันทรี่คลับ",new LatLng(7.900542,98.345292))));
+        placeParents.add(toPlaceParent(new Place("โรงเรียนขจรเกียรติ",new LatLng(7.908321,98.360563))));
+        placeParents.add(toPlaceParent(new Place("ป่าตอง",new LatLng(7.892423,98.297194))));
+        placeParents.add(toPlaceParent(new Place("กะรน",new LatLng(7.845788,98.296189))));
+
+        return placeParents;
+    }
+
+    private PlaceParent toPlaceParent(Place place){
+        return new PlaceParent(place);
     }
 
 

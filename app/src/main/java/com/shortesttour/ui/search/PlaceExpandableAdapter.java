@@ -2,7 +2,7 @@ package com.shortesttour.ui.search;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,22 +12,25 @@ import com.shortesttour.R;
 
 import java.util.List;
 
-public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceTitle,String,PlaceTitleViewHolder,OptionViewHolder>{
+public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParent,String,PlaceViewHolder,OptionViewHolder>{
 
-    List<PlaceTitle> placesTitle;
+    List<PlaceParent> places;
     Context mContext;
+    int allDataCount;
 
-    public PlaceExpandableAdapter(Context context, @NonNull List<PlaceTitle> parentList) {
+    public PlaceExpandableAdapter(Context context, @NonNull List<PlaceParent> parentList) {
         super(parentList);
         mContext = context;
-        placesTitle = parentList;
+        places = parentList;
+
+        allDataCount = places.size();
     }
 
     @NonNull
     @Override
-    public PlaceTitleViewHolder onCreateParentViewHolder(@NonNull ViewGroup parentViewGroup, int viewType) {
+    public PlaceViewHolder onCreateParentViewHolder(@NonNull ViewGroup parentViewGroup, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.layout_place_search,parentViewGroup,false);
-        return new PlaceTitleViewHolder(view);
+        return new PlaceViewHolder(view);
     }
 
     @NonNull
@@ -38,8 +41,9 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceTitle
     }
 
     @Override
-    public void onBindParentViewHolder(@NonNull PlaceTitleViewHolder parentViewHolder, int parentPosition, @NonNull PlaceTitle parent) {
-        parentViewHolder.bind(placesTitle.get(parentPosition));
+    public void onBindParentViewHolder(@NonNull PlaceViewHolder parentViewHolder, int parentPosition, @NonNull PlaceParent parent) {
+        if(parentPosition < places.size())
+            parentViewHolder.bind(places.get(parentPosition));
     }
 
     @Override
@@ -47,9 +51,19 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceTitle
 
     }
 
-    public void modifyData(List<PlaceTitle> newData){
-        placesTitle = newData;
+    @Override
+    public int getItemCount() {
+        if(super.getItemCount() == allDataCount){
+            return places.size();
+        }
+        else
+            return places.size()+1;
+    }
+
+    public void modifyData(List<PlaceParent> newData){
+        places = newData;
         notifyDataSetChanged();
+        notifyParentDataSetChanged(false);
     }
 
 }
