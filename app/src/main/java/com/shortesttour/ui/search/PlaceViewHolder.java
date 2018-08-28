@@ -10,6 +10,7 @@ import com.shortesttour.models.Place;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class PlaceViewHolder extends ParentViewHolder {
 
@@ -24,4 +25,5 @@ public class PlaceViewHolder extends ParentViewHolder {
     public void bind(PlaceParent place){
         textPlaceTitle.setText(place.getPlaceTitle());
     }
+
 }

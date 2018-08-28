@@ -1,6 +1,7 @@
 package com.shortesttour.ui.search;
 
 import com.bignerdranch.expandablerecyclerview.model.Parent;
+import com.google.android.gms.maps.model.LatLng;
 import com.shortesttour.models.Place;
 
 import java.util.ArrayList;
@@ -31,4 +32,6 @@ public class PlaceParent implements Parent<String> {
     public String getPlaceTitle(){
         return mPlace.getPlaceTitle();
     }
+
+    public LatLng getPlaceLatLng(){return mPlace.getPlaceLatLng();}
 }

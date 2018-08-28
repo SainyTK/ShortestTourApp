@@ -18,11 +18,12 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
     Context mContext;
     int allDataCount;
 
+    SearchOptionSelectedListener mListener;
+
     public PlaceExpandableAdapter(Context context, @NonNull List<PlaceParent> parentList) {
         super(parentList);
         mContext = context;
         places = parentList;
-
         allDataCount = places.size();
     }
 
@@ -48,7 +49,20 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
 
     @Override
     public void onBindChildViewHolder(@NonNull OptionViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull String child) {
+        childViewHolder.setOptionClickListener(new OptionViewHolder.OptionClickListener() {
+            @Override
+            public void clickShowInMap(int parentPosition) {
+                if(mListener!=null){
+                    PlaceParent place = places.get(parentPosition);
+                    mListener.showInMap(place.getPlaceLatLng(),place.getPlaceTitle());
+                }
+            }
 
+            @Override
+            public void clickAddToList(int parentPosition) {
+
+            }
+        });
     }
 
     @Override
@@ -64,6 +78,10 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
         places = newData;
         notifyDataSetChanged();
         notifyParentDataSetChanged(false);
+    }
+
+    public void setOptionSelectedListener(SearchOptionSelectedListener listener){
+        mListener = listener;
     }
 
 }

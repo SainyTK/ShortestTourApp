@@ -32,6 +32,8 @@ public class SearchFragment extends Fragment {
     List<PlaceParent> placeList;
     PlaceExpandableAdapter adapter;
 
+    SearchOptionSelectedListener mListener;
+
     public static SearchFragment newInstance(){
         SearchFragment searchFragment = new SearchFragment();
         return searchFragment;
@@ -62,7 +64,7 @@ public class SearchFragment extends Fragment {
 
             }
         });
-
+        adapter.setOptionSelectedListener(mListener);
         recyclerView.setAdapter(adapter);
 
         return root;
@@ -96,6 +98,10 @@ public class SearchFragment extends Fragment {
 
     private PlaceParent toPlaceParent(Place place){
         return new PlaceParent(place);
+    }
+
+    public void setOptionSelectedListener(SearchOptionSelectedListener listener){
+        mListener = listener;
     }
 
 

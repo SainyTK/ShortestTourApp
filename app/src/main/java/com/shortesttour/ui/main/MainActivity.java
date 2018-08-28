@@ -25,6 +25,7 @@ import com.shortesttour.ui.map.MapFragment;
 import com.shortesttour.ui.search.PlaceParent;
 import com.shortesttour.ui.search.SearchAdapter;
 import com.shortesttour.ui.search.SearchFragment;
+import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.utils.FragmentUtils;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener {
 
     private static final String TAG = "MainActivity";
 
@@ -48,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     private FragmentUtils mFragmentUtils;
 
     private Fragment currentFragment;
+
+    private MapFragment mapFragment;
+    private SearchFragment searchFragment;
 
     private List<PlaceParent> mSearchData;
     private List<PlaceParent> mSuggestData;
@@ -71,8 +75,12 @@ public class MainActivity extends AppCompatActivity {
 
         mFragmentUtils = new FragmentUtils(this,R.id.fragment_container);
 
-        currentFragment = MapFragment.newInstance();
-        mFragmentUtils.replace(currentFragment,true);
+        mapFragment = MapFragment.newInstance();
+        searchFragment = SearchFragment.newInstance();
+
+        searchFragment.setOptionSelectedListener(this);
+
+        mFragmentUtils.replace(mapFragment,true);
     }
 
     private void setupUI(){
@@ -85,14 +93,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mSearchData = ((SearchFragment)currentFragment).getPlaceList();
+                mSearchData = searchFragment.getPlaceList();
                 mSuggestData.clear();
                 for(PlaceParent place : mSearchData){
                     if(place.getPlaceTitle().contains(s)){
                         mSuggestData.add(place);
                     }
                 }
-                ((SearchFragment)currentFragment).setSearchDataSet(mSuggestData);
+                searchFragment.setSearchDataSet(mSuggestData);
             }
 
             @Override
@@ -129,8 +137,7 @@ public class MainActivity extends AppCompatActivity {
     void pushFragment(){
         if(mFragmentUtils.getBackStackCount()<2){
             showSearchButtons();
-            currentFragment = SearchFragment.newInstance();
-            mFragmentUtils.add(currentFragment);
+            mFragmentUtils.add(searchFragment);
         }
     }
 
@@ -140,5 +147,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    @Override
+    public void showInMap(LatLng latLng, String placeTitle) {
+        Log.d(TAG, "showInMap: ");
+        if(mapFragment!=null){
+            mapFragment.showLocation(latLng,placeTitle);
+            onBackPressed();
+        }
+    }
 }
