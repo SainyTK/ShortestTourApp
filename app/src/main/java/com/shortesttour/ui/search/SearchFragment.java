@@ -34,11 +34,6 @@ public class SearchFragment extends Fragment {
 
     SearchOptionSelectedListener mListener;
 
-    public static SearchFragment newInstance(){
-        SearchFragment searchFragment = new SearchFragment();
-        return searchFragment;
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
