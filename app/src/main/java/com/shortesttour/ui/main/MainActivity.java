@@ -40,7 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener {
 
     private static final String TAG = "MainActivity";
 
@@ -50,12 +50,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     ImageView searchBackButton;
     @BindView(R.id.search_clear_btn)
     ImageView searchClearButton;
-    @BindView(R.id.bottom_navigation)
-    BottomNavigationView bottomNavigationView;
-    @BindView(R.id.bottom_sheet_container)
-    LinearLayout bottomSheetContainer;
-
-    private BottomSheetBehavior bottomSheetBehavior;
 
     private FragmentUtils mFragmentUtils;
 
@@ -84,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         mFragmentUtils = new FragmentUtils(this,R.id.fragment_container);
 
-        mapFragment = MapFragment.newInstance();
+        mapFragment = new MapFragment();
         searchFragment = SearchFragment.newInstance();
 
         searchFragment.setOptionSelectedListener(this);
@@ -120,38 +114,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         hideSearchButtons();
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(this);
-
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetContainer);
-
-        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                switch (newState){
-                    case BottomSheetBehavior.STATE_COLLAPSED:
-                        Log.d(TAG, "onStateChanged: collapse");
-                        break;
-                    case BottomSheetBehavior.STATE_DRAGGING:
-                        Log.d(TAG, "onStateChanged: dragging");
-                        break;
-                    case BottomSheetBehavior.STATE_EXPANDED:
-                        Log.d(TAG, "onStateChanged: expanded");
-                        break;
-                    case BottomSheetBehavior.STATE_HIDDEN:
-                        Log.d(TAG, "onStateChanged: hidden");
-                        break;
-                    case BottomSheetBehavior.STATE_SETTLING:
-                        Log.d(TAG, "onStateChanged: settling");
-                        break;
-
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-            }
-        });
     }
 
     @OnClick(R.id.search_back_btn)
@@ -198,14 +160,4 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        item.setChecked(true);
-        switch (item.getItemId()){
-            case R.id.menu_driving:
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                return true;
-        }
-        return false;
-    }
 }
