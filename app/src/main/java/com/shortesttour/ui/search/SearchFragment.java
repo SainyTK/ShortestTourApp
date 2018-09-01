@@ -15,6 +15,7 @@ import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.google.android.gms.maps.model.LatLng;
 import com.shortesttour.R;
 import com.shortesttour.models.Place;
+import com.shortesttour.ui.main.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,17 +29,20 @@ public class SearchFragment extends Fragment {
     @BindView(R.id.recycler_view_place_list)
     RecyclerView recyclerView;
 
-    List<PlaceParent> currentPlaceList;
-    List<PlaceParent> placeList;
-    PlaceExpandableAdapter adapter;
+    private List<PlaceParent> currentPlaceList;
+    private List<PlaceParent> placeList;
+    private PlaceExpandableAdapter adapter;
 
-    SearchOptionSelectedListener mListener;
+    private SearchOptionSelectedListener mListener;
+
+    private MainActivity mainActivity;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = LayoutInflater.from(getContext()).inflate(R.layout.fragment_search,container,false);
         ButterKnife.bind(this,root);
+        mainActivity = (MainActivity)getActivity();
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);

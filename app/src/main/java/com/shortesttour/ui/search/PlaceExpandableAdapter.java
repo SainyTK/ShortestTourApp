@@ -60,7 +60,10 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
 
             @Override
             public void clickAddToList(int parentPosition) {
-
+                if(mListener!=null){
+                    PlaceParent placeParent = places.get(parentPosition);
+                    mListener.addToList(placeParent.getPlace());
+                }
             }
         });
     }

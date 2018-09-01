@@ -8,6 +8,8 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -27,6 +29,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.shortesttour.R;
+import com.shortesttour.models.Place;
 import com.shortesttour.ui.search.PlaceParent;
 import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
@@ -55,6 +58,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     BottomNavigationView bottomNavigationView;
     @BindView(R.id.search_container)
     View searchContainer;
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
+
+    private BottomSheetPlaceAdapter adapter;
 
     private BottomSheetBehavior bottomSheetBehavior;
     private GoogleMap mMap;
@@ -65,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     private List<PlaceParent> mSearchData;
     private List<PlaceParent> mSuggestData;
+    private List<Place> mPlaceList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         mSearchData = new ArrayList<>();
         mSuggestData = new ArrayList<>();
+        mPlaceList = new ArrayList<>();
 
         setupMap();
         setupBottomSheet();
@@ -126,10 +135,24 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                Log.d(TAG, "onSlide: offset = " + slideOffset);
-                searchContainer.setAlpha(1-slideOffset);
+                float alpha = 1 - slideOffset;
+                searchContainer.setAlpha(alpha);
+                if(alpha==0)
+                    searchContainer.setVisibility(View.GONE);
+                else
+                    searchContainer.setVisibility(View.VISIBLE);
             }
         });
+
+        setupRecyclerView();
+    }
+
+    private void setupRecyclerView(){
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        adapter = new BottomSheetPlaceAdapter(mPlaceList);
+        recyclerView.setAdapter(adapter);
     }
 
     private void setupBottomNav(){
@@ -261,5 +284,11 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         if(zoom < 10)
             zoom = 16;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+    }
+
+    /*--------------place list manage section---------------*/
+    @Override
+    public void addToList(Place place) {
+        adapter.addPlace(place);
     }
 }

@@ -34,4 +34,8 @@ public class PlaceParent implements Parent<String> {
     }
 
     public LatLng getPlaceLatLng(){return mPlace.getPlaceLatLng();}
+
+    public Place getPlace(){
+        return mPlace;
+    }
 }
