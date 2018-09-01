@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -60,6 +61,18 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     View searchContainer;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+    @BindView(R.id.btn_add)
+    TextView btnAdd;
+    @BindView(R.id.btn_start)
+    TextView btnStart;
+    @BindView(R.id.text_num_place)
+    TextView textNumPlace;
+    @BindView(R.id.text_going_to)
+    TextView textGoingTo;
+    @BindView(R.id.text_total_distance)
+    TextView textTotalDistance;
+    @BindView(R.id.text_total_time)
+    TextView textTotalTime;
 
     private BottomSheetPlaceAdapter adapter;
 
@@ -235,6 +248,36 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
+    private void setButtonNoPlace(){
+        //visible
+        textNumPlace.setVisibility(View.VISIBLE);
+        btnAdd.setVisibility(View.VISIBLE);
+        textNumPlace.setText("No Places");
+
+        //gone
+        btnStart.setVisibility(View.GONE);
+        textGoingTo.setVisibility(View.GONE);
+        textTotalDistance.setVisibility(View.GONE);
+        textTotalTime.setVisibility(View.GONE);
+    }
+
+    private void setButtonHasPlace(boolean isStart){
+        //visible
+        textNumPlace.setVisibility(View.VISIBLE);
+        btnStart.setVisibility(View.VISIBLE);
+        textGoingTo.setVisibility(View.VISIBLE);
+
+        //gone
+        btnAdd.setVisibility(View.GONE);
+        textTotalDistance.setVisibility(View.GONE);
+        textTotalTime.setVisibility(View.GONE);
+
+        if(isStart){
+            textTotalDistance.setVisibility(View.VISIBLE);
+            textTotalTime.setVisibility(View.VISIBLE);
+        }
+    }
+
     /*--------------search control section------------------*/
     private void showSearchButtons(){
         searchBackButton.setVisibility(View.VISIBLE);
@@ -260,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         clearSearchBox();
     }
 
-    @OnClick(R.id.autocomplete_search)
+    @OnClick({R.id.autocomplete_search,R.id.btn_add})
     void pushFragment(){
         if(mFragmentUtils.getBackStackCount()<1){
             showSearchButtons();
@@ -290,5 +333,15 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @Override
     public void addToList(Place place) {
         adapter.addPlace(place);
+
+        if(mPlaceList.size()>0){
+            setButtonHasPlace(false);
+
+            textNumPlace.setText(mPlaceList.size() + " places");
+            textGoingTo.setText("Going to " + mPlaceList.get(0).getPlaceTitle());
+        }
+
+        showLocation(place.getPlaceLatLng(),place.getPlaceTitle());
     }
+
 }
