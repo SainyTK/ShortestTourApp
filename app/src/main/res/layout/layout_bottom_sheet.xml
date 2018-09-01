@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/bottom_sheet_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_behavior="@string/bottom_sheet_behavior"
+    app:behavior_peekHeight="@dimen/peek_height"
+    app:behavior_hideable="true"
+    android:orientation="vertical"
+    android:background="@drawable/bg_round_top_white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/peek_height"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="52dp"
+                android:layout_height="24dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="100">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="70"
+                android:padding="@dimen/margin_medium"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/text_num_place"
+                    android:text="10 places"
+                    android:layout_margin="@dimen/margin_small"
+                    android:textSize="@dimen/text_large"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/text_going_to"
+                    android:text="Going to Hospital"
+                    android:layout_margin="@dimen/margin_small"
+                    android:textSize="@dimen/text_normal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="30"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="@dimen/margin_medium"
+                android:gravity="right">
+                <TextView
+                    android:id="@+id/text_total_time"
+                    android:text="1 hr 15 min"
+                    android:textSize="@dimen/text_normal"
+                    android:layout_margin="@dimen/margin_small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/text_total_distance"
+                    android:text="200 km"
+                    android:textSize="@dimen/text_normal"
+                    android:layout_margin="@dimen/margin_small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/btn_start"
+                    android:text="START"
+                    android:padding="5dp"
+                    android:layout_margin="@dimen/margin_small"
+                    android:background="@drawable/bg_btn_filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </LinearLayout>
+
+</LinearLayout>

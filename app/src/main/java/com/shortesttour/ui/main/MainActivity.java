@@ -3,12 +3,16 @@ package com.shortesttour.ui.main;
 import android.accessibilityservice.AccessibilityService;
 import android.database.DataSetObserver;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -35,7 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener {
+public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
 
@@ -45,10 +50,14 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     ImageView searchBackButton;
     @BindView(R.id.search_clear_btn)
     ImageView searchClearButton;
+    @BindView(R.id.bottom_navigation)
+    BottomNavigationView bottomNavigationView;
+    @BindView(R.id.bottom_sheet_container)
+    LinearLayout bottomSheetContainer;
+
+    private BottomSheetBehavior bottomSheetBehavior;
 
     private FragmentUtils mFragmentUtils;
-
-    private Fragment currentFragment;
 
     private MapFragment mapFragment;
     private SearchFragment searchFragment;
@@ -110,6 +119,39 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         });
 
         hideSearchButtons();
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
+
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetContainer);
+
+        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                switch (newState){
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        Log.d(TAG, "onStateChanged: collapse");
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        Log.d(TAG, "onStateChanged: dragging");
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                        Log.d(TAG, "onStateChanged: expanded");
+                        break;
+                    case BottomSheetBehavior.STATE_HIDDEN:
+                        Log.d(TAG, "onStateChanged: hidden");
+                        break;
+                    case BottomSheetBehavior.STATE_SETTLING:
+                        Log.d(TAG, "onStateChanged: settling");
+                        break;
+
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
     }
 
     @OnClick(R.id.search_back_btn)
@@ -154,5 +196,16 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             mapFragment.showLocation(latLng,placeTitle);
             onBackPressed();
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        item.setChecked(true);
+        switch (item.getItemId()){
+            case R.id.menu_driving:
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                return true;
+        }
+        return false;
     }
 }

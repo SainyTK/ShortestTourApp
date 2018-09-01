@@ -11,4 +11,6 @@
     <color name="colorLine">#efefef</color>
 
     <color name="transparent">#00000000</color>
+
+    <color name="activeTint">#03A9FA</color>
 </resources>

@@ -70,8 +70,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void showLocation(LatLng latLng,String placeTitle){
         mMap.clear();
         mMap.addMarker(new MarkerOptions().position(latLng).title(placeTitle));
-        mMap.moveCamera(CameraUpdateFactory.zoomBy(15f));
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+
+        float zoom = mMap.getCameraPosition().zoom;
+        if(zoom < 10)
+            zoom = 16;
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
     }
 
 }
