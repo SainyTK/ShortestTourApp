@@ -5,6 +5,8 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,11 +17,15 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Space;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,6 +33,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.shortesttour.R;
@@ -73,6 +80,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     TextView textTotalDistance;
     @BindView(R.id.text_total_time)
     TextView textTotalTime;
+    @BindView(R.id.btn_container)
+    RelativeLayout btnContainer;
+    @BindView(R.id.btn_show_all)
+    FloatingActionButton btnShowAll;
 
     private BottomSheetPlaceAdapter adapter;
 
@@ -148,12 +159,29 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                float alpha = 1 - slideOffset;
+                Log.d(TAG, "onSlide: " + slideOffset);
+                float alpha = 1 - slideOffset*1.2f;
                 searchContainer.setAlpha(alpha);
-                if(alpha==0)
+                btnShowAll.setAlpha(alpha);
+
+                if(slideOffset<=-0.75f){
+                    CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) btnContainer.getLayoutParams();
+                    layoutParams.setAnchorId(R.id.space);
+                    btnContainer.setLayoutParams(layoutParams);
+                }else{
+                    CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) btnContainer.getLayoutParams();
+                    layoutParams.setAnchorId(R.id.bottom_sheet_container);
+                    btnContainer.setLayoutParams(layoutParams);
+                }
+
+                if(alpha==0){
                     searchContainer.setVisibility(View.GONE);
-                else
+                    btnShowAll.setVisibility(View.GONE);
+                }
+                else{
                     searchContainer.setVisibility(View.VISIBLE);
+                    searchContainer.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -319,14 +347,33 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             onBackPressed();
     }
 
+    @OnClick(R.id.btn_show_all)
+    public void showAllLocation(){
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        if(mPlaceList!=null&&mPlaceList.size()>0){
+            for(Place place:mPlaceList){
+                builder.include(place.getPlaceLatLng());
+            }
+            LatLngBounds bounds;
+            bounds = builder.build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,60));
+        }
+    }
+
     public void showLocation(LatLng latLng,String placeTitle){
-        mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(latLng).title(placeTitle));
+
+        pinLocation(latLng,placeTitle,true);
 
         float zoom = mMap.getCameraPosition().zoom;
         if(zoom < 10)
             zoom = 16;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+    }
+
+    public void pinLocation(LatLng latLng,String placeTitle,boolean clear){
+        if(clear)
+            mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(latLng).title(placeTitle));
     }
 
     /*--------------place list manage section---------------*/
@@ -341,7 +388,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             textGoingTo.setText("Going to " + mPlaceList.get(0).getPlaceTitle());
         }
 
-        showLocation(place.getPlaceLatLng(),place.getPlaceTitle());
+        pinLocation(place.getPlaceLatLng(),place.getPlaceTitle(),false);
+
     }
 
 }
