@@ -31,8 +31,8 @@
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_weight="80"
-            android:layout_height="wrap_content"
+            android:layout_weight="50"
+            android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:padding="@dimen/margin_medium">
             <TextView
@@ -42,6 +42,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="30"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|right"
+            android:padding="@dimen/margin_medium">
+            <ImageView
+                android:id="@+id/btn_delete_place"
+                android:textSize="@dimen/text_large"
+                android:src="@drawable/ic_clear"
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout

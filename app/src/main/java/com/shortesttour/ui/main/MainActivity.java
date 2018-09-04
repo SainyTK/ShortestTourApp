@@ -50,7 +50,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     private List<PlaceParent> mSearchData;
     private List<PlaceParent> mSuggestData;
-    private List<Place> mPlaceList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         mSearchData = new ArrayList<>();
         mSuggestData = new ArrayList<>();
-        mPlaceList = new ArrayList<>();
 
         setupMap();
         setupBottomSheet();
@@ -192,7 +190,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new BottomSheetPlaceAdapter(mPlaceList);
+        adapter = new BottomSheetPlaceAdapter(new ArrayList<Place>());
+        adapter.setListener(this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -307,6 +306,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     /*--------------search control section------------------*/
+
     private void showSearchButtons(){
         searchBackButton.setVisibility(View.VISIBLE);
         searchClearButton.setVisibility(View.VISIBLE);
@@ -334,6 +334,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @OnClick({R.id.autocomplete_search,R.id.btn_add})
     void pushFragment(){
         if(mFragmentUtils.getBackStackCount()<1){
+            collapseBottomSheet();
             showSearchButtons();
             mFragmentUtils.add(searchFragment);
         }
@@ -350,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @OnClick(R.id.btn_show_all)
     public void showAllLocation(){
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        List<Place> mPlaceList = adapter.getData();
         if(mPlaceList!=null&&mPlaceList.size()>0){
             for(Place place:mPlaceList){
                 builder.include(place.getPlaceLatLng());
@@ -362,7 +364,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     public void showLocation(LatLng latLng,String placeTitle){
 
-        pinLocation(latLng,placeTitle,true);
+        mMap.clear();
+        pinLocation(latLng,placeTitle);
 
         float zoom = mMap.getCameraPosition().zoom;
         if(zoom < 10)
@@ -370,26 +373,61 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
     }
 
-    public void pinLocation(LatLng latLng,String placeTitle,boolean clear){
-        if(clear)
-            mMap.clear();
+    public void pinLocation(LatLng latLng,String placeTitle){
         mMap.addMarker(new MarkerOptions().position(latLng).title(placeTitle));
+    }
+
+    public void pinAllLocation(){
+        List<Place> mPlaceList = adapter.getData();
+        for(Place place:mPlaceList){
+            pinLocation(place.getPlaceLatLng(),place.getPlaceTitle());
+        }
     }
 
     /*--------------place list manage section---------------*/
     @Override
     public void addToList(Place place) {
-        adapter.addPlace(place);
+        List<Place> mPlaceList = adapter.getData();
 
+
+        if(!checkHasPlace(mPlaceList,place)){
+            adapter.addPlace(place);
+            updateBottomSheet();
+            pinLocation(place.getPlaceLatLng(),place.getPlaceTitle());
+
+            mMap.clear();
+            pinAllLocation();
+        }
+    }
+
+    private boolean checkHasPlace(List<Place> placeList,Place newPlace){
+        for(Place place:placeList){
+            if(place.getPlaceTitle().contentEquals(newPlace.getPlaceTitle()))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onRemovePlace(int position) {
+        adapter.removePlace(position);
+
+        updateBottomSheet();
+        mMap.clear();
+        pinAllLocation();
+    }
+
+    public void updateBottomSheet(){
+        List<Place> mPlaceList = adapter.getData();
         if(mPlaceList.size()>0){
             setButtonHasPlace(false);
 
             textNumPlace.setText(mPlaceList.size() + " places");
             textGoingTo.setText("Going to " + mPlaceList.get(0).getPlaceTitle());
+        }else{
+            setButtonNoPlace();
         }
-
-        pinLocation(place.getPlaceLatLng(),place.getPlaceTitle(),false);
-
     }
+
 
 }

@@ -14,10 +14,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPlaceAdapter.Holder>{
 
     public List<Place> mPlaceList;
+    private PlaceListItemClickListener mListener;
 
     class Holder extends RecyclerView.ViewHolder {
 
@@ -31,6 +33,12 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
 
         public void bindData(int position){
             textPlaceTitle.setText(mPlaceList.get(position).getPlaceTitle());
+        }
+
+        @OnClick(R.id.btn_delete_place)
+        void deletePlace(){
+            if(mListener!=null)
+                mListener.onRemovePlace(getAdapterPosition());
         }
     }
 
@@ -56,6 +64,10 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
         return mPlaceList.size();
     }
 
+    public void setListener(PlaceListItemClickListener listener){
+        mListener = listener;
+    }
+
     public void setData(List<Place> placeList){
         mPlaceList = placeList;
         notifyDataSetChanged();
@@ -69,5 +81,9 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
     public void removePlace(int position){
         mPlaceList.remove(position);
         notifyItemRemoved(position);
+    }
+
+    public List<Place> getData(){
+        return mPlaceList;
     }
 }
