@@ -1,13 +1,24 @@
 package com.shortesttour.ui.main;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,15 +28,15 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Space;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -41,16 +52,18 @@ import com.shortesttour.models.Place;
 import com.shortesttour.ui.search.PlaceParent;
 import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
+import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.FragmentUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener {
+public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapLongClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -80,22 +93,30 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     TextView textTotalDistance;
     @BindView(R.id.text_total_time)
     TextView textTotalTime;
-    @BindView(R.id.btn_container)
-    RelativeLayout btnContainer;
+    @BindView(R.id.btn_showall_container)
+    RelativeLayout btnShowAllContainer;
     @BindView(R.id.btn_show_all)
     FloatingActionButton btnShowAll;
+    @BindView(R.id.btn_show_currrent)
+    FloatingActionButton btnShowCurrent;
 
     private BottomSheetPlaceAdapter adapter;
 
     private BottomSheetBehavior bottomSheetBehavior;
     private GoogleMap mMap;
+    private LocationManager mLocationManager;
 
     private FragmentUtils mFragmentUtils;
+    private FindPathUtils mFindPathUtils;
 
     private SearchFragment searchFragment;
 
     private List<PlaceParent> mSearchData;
     private List<PlaceParent> mSuggestData;
+
+    private Location currentLocation;
+    private boolean mLocationPermissionGranted;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +133,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mSearchData = new ArrayList<>();
         mSuggestData = new ArrayList<>();
 
+        mFindPathUtils = new FindPathUtils();
+
         setupMap();
+        setupLocationManager();
         setupBottomSheet();
         setupBottomNav();
         setupSearchBox();
@@ -120,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     /*--------------setup section------------------*/
-    private void setupMap(){
+    private void setupMap() {
         SupportMapFragment mapFragment = new SupportMapFragment();
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -128,6 +152,45 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         ft.commit();
 
         mapFragment.getMapAsync(this);
+
+        getLocationPermission();
+    }
+
+    private void setupLocationManager() {
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (mLocationPermissionGranted)
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+    }
+
+    private void getLocationPermission() {
+        /*
+         * Request location permission, so that we can get the location of the
+         * device. The result of the permission request is handled by a callback,
+         * onRequestPermissionsResult.
+         */
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mLocationPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        mLocationPermissionGranted = false;
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mLocationPermissionGranted = true;
+                }
+            }
+        }
     }
 
     private void setupBottomSheet(){
@@ -158,27 +221,30 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 Log.d(TAG, "onSlide: " + slideOffset);
-                float alpha = 1 - slideOffset*1.2f;
+                float alpha = 1 - slideOffset*1.5f;
                 searchContainer.setAlpha(alpha);
                 btnShowAll.setAlpha(alpha);
+                btnShowCurrent.setAlpha(alpha);
 
                 if(slideOffset<=-0.75f){
-                    CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) btnContainer.getLayoutParams();
+                    CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) btnShowAllContainer.getLayoutParams();
                     layoutParams.setAnchorId(R.id.space);
-                    btnContainer.setLayoutParams(layoutParams);
+                    btnShowAllContainer.setLayoutParams(layoutParams);
                 }else{
-                    CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) btnContainer.getLayoutParams();
+                    CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) btnShowAllContainer.getLayoutParams();
                     layoutParams.setAnchorId(R.id.bottom_sheet_container);
-                    btnContainer.setLayoutParams(layoutParams);
+                    btnShowAllContainer.setLayoutParams(layoutParams);
                 }
 
                 if(alpha==0){
                     searchContainer.setVisibility(View.GONE);
                     btnShowAll.setVisibility(View.GONE);
+                    btnShowCurrent.setVisibility(View.GONE);
                 }
                 else{
                     searchContainer.setVisibility(View.VISIBLE);
-                    searchContainer.setVisibility(View.VISIBLE);
+                    btnShowCurrent.setVisibility(View.VISIBLE);
+                    btnShowAll.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -247,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnMapLongClickListener(this);
 
         try{
             boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.style_json));
@@ -257,9 +324,11 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             Log.d(TAG, "onMapReady: Can't find style ",e);
         }
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        showLocation(sydney,"Sydney");
+        if(mLocationPermissionGranted){
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        }
+
     }
 
     /*--------------bottom sheet control section------------------*/
@@ -306,6 +375,19 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     /*--------------search control section------------------*/
+
+    public void hideSearchBar(){
+        AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this,R.animator.fade_animator);
+        animatorSet.setTarget(searchContainer);
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                searchContainer.setVisibility(View.GONE);
+            }
+        });
+        animatorSet.start();
+    }
 
     private void showSearchButtons(){
         searchBackButton.setVisibility(View.VISIBLE);
@@ -362,6 +444,12 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
+    @OnClick(R.id.btn_show_currrent)
+    public void showCurrentLocation(){
+        LatLng currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,15));
+    }
+
     public void showLocation(LatLng latLng,String placeTitle){
 
         mMap.clear();
@@ -382,6 +470,21 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         for(Place place:mPlaceList){
             pinLocation(place.getPlaceLatLng(),place.getPlaceTitle());
         }
+    }
+
+    @OnClick(R.id.btn_start)
+    void showPath(){
+        mFindPathUtils.findPath(mMap,adapter.getData());
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        hideMapTools();
+    }
+
+    public void hideMapTools(){
+        hideBottomSheet();
+        hideSearchBar();
     }
 
     /*--------------place list manage section---------------*/
@@ -429,5 +532,26 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
+
+    @Override
+    public void onLocationChanged(Location location) {
+        currentLocation = location;
+        Log.d(TAG, "onLocationChanged: lat = " + location.getLatitude() + "lng = " + location.getLongitude());
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 
 }
