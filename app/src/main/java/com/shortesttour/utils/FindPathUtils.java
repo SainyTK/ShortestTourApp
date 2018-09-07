@@ -26,7 +26,10 @@ import java.util.List;
 public class FindPathUtils {
 
     private List<Place> placeList;
+
+
     private GoogleMap mMap;
+
     private Handler handler;
     private Runnable runnable;
 
@@ -36,7 +39,6 @@ public class FindPathUtils {
             @Override
             public void run() { }
         };
-
 
         mMap = map;
         this.placeList = placeList;
@@ -116,35 +118,22 @@ public class FindPathUtils {
         return data;
     }
 
-    // Fetches data from url passed
     private class DownloadTask extends AsyncTask<String, Void, String> {
 
-        // Downloading data in non-ui thread
         @Override
         protected String doInBackground(String... url) {
-
-            // For storing data from web service
             String data = "";
-
             do {
                 try {
-                    // Fetching the data from web service
                     data = downloadUrl(url[0]);
-                    if(data.contains("error"))
-                        handler.postDelayed(runnable,3000);
-
-                    Log.d("data", "doInBackground: " + data);
                 } catch (Exception e) {
                     Log.d("Background Task", e.toString());
                     break;
                 }
             } while (data.contains("error") || data.contentEquals(""));
-
             return data;
         }
 
-        // Executes in UI thread, after the execution of
-        // doInBackground()
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
@@ -156,44 +145,41 @@ public class FindPathUtils {
         }
     }
 
-    /**
-     * A class to parse the Google Places in JSON format
-     */
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+    private class ParserTask extends AsyncTask<String, Integer, JSONParserUtils.ParserData>{
 
         // Parsing the data in non-ui thread
         @Override
-        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+        protected JSONParserUtils.ParserData doInBackground(String... jsonData) {
 
             JSONObject jObject;
-            List<List<HashMap<String, String>>> routes = null;
+            JSONParserUtils.ParserData data = null;
 
             try {
                 jObject = new JSONObject(jsonData[0]);
                 JSONParserUtils parser = new JSONParserUtils();
 
                 // Starts parsing data
-                routes = parser.parse(jObject);
+                data = parser.parse(jObject);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return routes;
+            return data;
         }
 
         // Executes in UI thread, after the parsing process
         @Override
-        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+        protected void onPostExecute(JSONParserUtils.ParserData result) {
             ArrayList<LatLng> points = null;
             PolylineOptions lineOptions = null;
             MarkerOptions markerOptions = new MarkerOptions();
 
             // Traversing through all the routes
-            for (int i = 0; i < result.size(); i++) {
+            for (int i = 0; i < result.getRoutes().size(); i++) {
                 points = new ArrayList<LatLng>();
                 lineOptions = new PolylineOptions();
 
                 // Fetching i-th route
-                List<HashMap<String, String>> path = result.get(i);
+                List<HashMap<String, String>> path = result.getRoutes().get(i);
 
                 // Fetching all the points in i-th route
                 for (int j = 0; j < path.size(); j++) {
@@ -213,6 +199,7 @@ public class FindPathUtils {
             }
 
             // Drawing polyline in the Google Map for the i-th route
+            Log.d("data", "onPostExecute: distance : " + result.getDistance() + ", duration : " + result.getDuration());
             mMap.addPolyline(lineOptions);
         }
     }

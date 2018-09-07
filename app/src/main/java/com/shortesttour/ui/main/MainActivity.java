@@ -63,7 +63,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapLongClickListener {
+public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setOnMapLongClickListener(this);
+        mMap.setOnMapClickListener(this);
 
         try{
             boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.style_json));
@@ -478,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     @Override
-    public void onMapLongClick(LatLng latLng) {
+    public void onMapClick(LatLng latLng) {
         hideMapTools();
     }
 

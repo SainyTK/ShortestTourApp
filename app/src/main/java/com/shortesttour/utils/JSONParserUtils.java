@@ -1,5 +1,8 @@
 package com.shortesttour.utils;
 
+import android.util.Log;
+import android.util.Pair;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -15,9 +18,9 @@ public class JSONParserUtils {
     /**
      * Receives a JSONObject and returns a list of lists containing latitude and longitude
      */
-    public List<List<HashMap<String, String>>> parse(JSONObject jObject) {
+    public ParserData parse(JSONObject jObject) {
 
-        List<List<HashMap<String, String>>> routes = new ArrayList<List<HashMap<String, String>>>();
+        ParserData data = new ParserData();
         JSONArray jRoutes = null;
         JSONArray jLegs = null;
         JSONArray jSteps = null;
@@ -34,7 +37,8 @@ public class JSONParserUtils {
                 /** Traversing all legs */
                 for (int j = 0; j < jLegs.length(); j++) {
                     jSteps = ((JSONObject) jLegs.get(j)).getJSONArray("steps");
-
+                    int distance = (int)(((JSONObject) jLegs.get(j)).getJSONObject("distance")).get("value");
+                    int duration = (int)(((JSONObject)jLegs.get(j)).getJSONObject("duration")).get("value");
                     /** Traversing all steps */
                     for (int k = 0; k < jSteps.length(); k++) {
                         String polyline = "";
@@ -49,18 +53,21 @@ public class JSONParserUtils {
                             path.add(hm);
                         }
                     }
-                    routes.add(path);
+                    data.setDuration(duration);
+                    data.setDistance(distance);
+                    data.getRoutes().add(path);
                 }
             }
 
         } catch (JSONException e) {
+            Log.d("", "parse: distance : error");
             e.printStackTrace();
         } catch (Exception e) {
+            Log.d("", "parse: distance : error");
         }
 
-        return routes;
+        return data;
     }
-
     /**
      * Method to decode polyline points
      * Courtesy : http://jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
@@ -97,6 +104,42 @@ public class JSONParserUtils {
         }
 
         return poly;
+    }
+
+    public class ParserData{
+        private List<List<HashMap<String, String>>> routes;
+        private int distance;
+        private int duration;
+
+        public ParserData(){
+            routes = new ArrayList<>();
+            distance = 0;
+            duration = 0;
+        }
+
+        public List<List<HashMap<String, String>>> getRoutes() {
+            return routes;
+        }
+
+        public void setRoutes(List<List<HashMap<String, String>>> routes) {
+            this.routes = routes;
+        }
+
+        public int getDistance() {
+            return distance;
+        }
+
+        public void setDistance(int distance) {
+            this.distance = distance;
+        }
+
+        public int getDuration() {
+            return duration;
+        }
+
+        public void setDuration(int duration) {
+            this.duration = duration;
+        }
     }
 
 }
