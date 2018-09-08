@@ -26,7 +26,6 @@ public class JSONParserUtils {
         JSONArray jSteps = null;
 
         try {
-
             jRoutes = jObject.getJSONArray("routes");
 
             /** Traversing all routes */
@@ -68,6 +67,8 @@ public class JSONParserUtils {
 
         return data;
     }
+
+
     /**
      * Method to decode polyline points
      * Courtesy : http://jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java

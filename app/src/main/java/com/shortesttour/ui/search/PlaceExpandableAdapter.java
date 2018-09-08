@@ -54,7 +54,7 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
             public void clickShowInMap(int parentPosition) {
                 if(mListener!=null){
                     PlaceParent place = places.get(parentPosition);
-                    mListener.showInMap(place.getPlaceLatLng(),place.getPlaceTitle());
+                    mListener.onShowInMapClick(place.getPlaceLatLng(),place.getPlaceTitle());
                 }
             }
 
@@ -62,7 +62,7 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
             public void clickAddToList(int parentPosition) {
                 if(mListener!=null){
                     PlaceParent placeParent = places.get(parentPosition);
-                    mListener.addToList(placeParent.getPlace());
+                    mListener.onAddToListClick(placeParent.getPlace());
                 }
             }
         });

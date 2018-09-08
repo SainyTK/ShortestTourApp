@@ -1,4 +1,6 @@
 package com.shortesttour.utils;
+import android.util.Log;
+
 import java.util.List;
 
 public class GraphUtils {
@@ -9,6 +11,7 @@ public class GraphUtils {
 
     public GraphUtils(){
         graph = new int[0][0];
+        tempGraph = new int[0][0];
         visited = new boolean[0];
     }
 
@@ -79,7 +82,6 @@ public class GraphUtils {
     }
 
     //Nearest Neightbor
-
     private void cloneGraph(int[][] dest,int[][] src){
         int len = dest.length;
         for(int i=0;i<len;i++){
@@ -92,7 +94,7 @@ public class GraphUtils {
         }
     }
 
-    public void expandGraph(List<Integer> distances){
+    public void expandGraph(List<Integer> values){
         int len = getDimen();
         tempGraph = new int[len][len];
         cloneGraph(tempGraph,graph);
@@ -101,10 +103,13 @@ public class GraphUtils {
         cloneGraph(graph,tempGraph);
 
         for(int i=0;i<len;i++)
-            connectEdge(i,len,distances.get(i));
+            connectEdge(i,len,values.get(i));
 
         visited = new boolean[len+1];
         resetVisit();
+
+        showGraph();
+        showPath();
     }
 
     private int findMinDestination(int row){
@@ -123,28 +128,58 @@ public class GraphUtils {
 
     public int[] createPathNearest(){
         int[] path = new int[getDimen()];
-        int nextDestination = 0;
-
         resetVisit();
 
         visited[0] = true;
         path[0] = 0;
+        int nextDestination = 0;
         for(int i=1;i<getDimen();i++){
             nextDestination = findMinDestination(nextDestination);
             path[i] = nextDestination;
             visited[nextDestination] = true;
         }
+
         return path;
     }
 
-    public int getNearestPathValue(){
-        int[] path = createPathNearest();
+    public int getNearestSumDistance(){
+        int[] nearestDistance = getNearestPathValue();
         int sum = 0;
-        for(int i=0;i<path.length-1;i++){
-            sum += graph[path[i]][path[i+1]];
-        }
-        sum += graph[path[path.length-1]][path[0]];
+        for(int i=0;i<nearestDistance.length;i++)
+            sum+=nearestDistance[i];
         return sum;
+    }
+
+    public int[] getNearestPathValue(){
+        int[] path = createPathNearest();
+        int[] distances = new int[path.length];
+        for(int i=0;i<path.length-1;i++){
+            distances[i] = graph[path[i]][path[i+1]];
+        }
+        distances[path.length-1] = graph[path[path.length-1]][path[0]];
+        return distances;
+    }
+
+    public void showPath(){
+        System.out.println("------------SHOW PATH-------------");
+        int[] path = createPathNearest();
+
+        if(path.length>1){
+            for(int i=0;i<path.length;i++)
+                System.out.print(path[i] + " -> ");
+        }
+
+        System.out.println("0|");
+    }
+
+    public void showGraph(){
+        System.out.println("-------------SHOW GRAPH------------");
+        for(int i=0;i<getDimen();i++){
+            for(int j=0;j<getDimen();j++){
+                System.out.printf("%d ",graph[i][j]/1000);
+            }
+            System.out.printf("\n");
+        }
     }
 
 }

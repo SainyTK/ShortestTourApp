@@ -10,6 +10,8 @@ import android.widget.TextView;
 import com.shortesttour.R;
 import com.shortesttour.models.Place;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -20,11 +22,14 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
 
     public List<Place> mPlaceList;
     private PlaceListItemClickListener mListener;
+    private Holder holder;
 
     class Holder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.text_place_title)
         TextView textPlaceTitle;
+        @BindView(R.id.place_distance)
+        TextView textPlaceDistance;
 
         public Holder(View itemView) {
             super(itemView);
@@ -33,6 +38,7 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
 
         public void bindData(int position){
             textPlaceTitle.setText(mPlaceList.get(position).getPlaceTitle());
+            textPlaceDistance.setText(mPlaceList.get(position).getDistanceText());
         }
 
         @OnClick(R.id.btn_delete_place)
@@ -56,6 +62,7 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
+        this.holder = holder;
         holder.bindData(position);
     }
 
@@ -81,6 +88,11 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
     public void removePlace(int position){
         mPlaceList.remove(position);
         notifyItemRemoved(position);
+    }
+
+    public void updateData(int position,int value){
+        mPlaceList.get(position).setDistance(value);
+        holder.bindData(position);
     }
 
     public List<Place> getData(){

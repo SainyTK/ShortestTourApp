@@ -10,7 +10,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.shortesttour.models.Place;
+import com.shortesttour.ui.main.MainActivity;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -21,40 +23,88 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class FindPathUtils {
-
-    private List<Place> placeList;
-
-
     private GoogleMap mMap;
+    private GraphUtils graphUtils;
 
-    private Handler handler;
-    private Runnable runnable;
+    private Queue<String[]> urlQueue;
+    private OnTaskFinishListener mListener;
+
+    public interface OnTaskFinishListener{
+        void onGetValue();
+        void onDrawPath();
+    }
+
+    public FindPathUtils(){
+        graphUtils = new GraphUtils();
+        urlQueue = new LinkedList<>();
+
+        graphUtils.expandGraph(null);
+    }
+
+    public void setOnTaskFinishListener(OnTaskFinishListener listener){
+        mListener = listener;
+    }
 
     public void findPath(GoogleMap map, List<Place> placeList) {
-        handler = new Handler();
-        runnable = new Runnable() {
-            @Override
-            public void run() { }
-        };
-
         mMap = map;
-        this.placeList = placeList;
 
         List<String> placesUrl = new ArrayList<>();
-        for (int i = 0; i < placeList.size(); i++) {
-            for (int j = i + 1; j < placeList.size(); j++) {
-                placesUrl.add(getDirectionsUrl(placeList.get(i).getPlaceLatLng(), placeList.get(j).getPlaceLatLng()));
-            }
+        for (int i = 0; i < placeList.size()-1; i++) {
+            placesUrl.add(getDirectionsUrl(placeList.get(i).getPlaceLatLng(), placeList.get(i+1).getPlaceLatLng()));
         }
+        placesUrl.add(getDirectionsUrl(placeList.get(placeList.size()-1).getPlaceLatLng(), placeList.get(0).getPlaceLatLng()));
 
         for (String placeUrlString : placesUrl) {
             DownloadTask downloadTask = new DownloadTask();
             downloadTask.execute(placeUrlString);
         }
+    }
 
+    public List<Place> sortNearest(List<Place> placeList){
+        List<Place> sortedPlace = new ArrayList<>();
+        int[] path = graphUtils.createPathNearest();
+        int pathLength = path.length;
+
+        for (int i = 1; i < pathLength; i++) {
+            sortedPlace.add(placeList.get(path[i]));
+        }
+        return sortedPlace;
+    }
+
+    public void addPlace(GoogleMap map, List<Place> placeList, Place newPlace) {
+        mMap = map;
+
+        LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
+
+        List<String> placesUrl = new ArrayList<>();
+        for (int i = 0; i < placeList.size(); i++) {
+            placesUrl.add(getDirectionsUrl(newPlaceLatLng, placeList.get(i).getPlaceLatLng()));
+        }
+
+        String[] placesUrlArr = placesUrl.toArray(new String[placesUrl.size()]);
+
+        urlQueue.add(placesUrlArr);
+        if(urlQueue.size()==1)
+            connectNodes();
+    }
+
+    public void connectNodes(){
+        String[] url = urlQueue.remove();
+        GetValueTask getValueTask = new GetValueTask();
+        getValueTask.execute(url);
+    }
+
+    public int[] getNearestPathValue(){
+        return graphUtils.getNearestPathValue();
+    }
+
+    public int getNeatestSumDistance(){
+        return graphUtils.getNearestSumDistance();
     }
 
     private String getDirectionsUrl(LatLng origin, LatLng dest) {
@@ -116,6 +166,94 @@ public class FindPathUtils {
             urlConnection.disconnect();
         }
         return data;
+    }
+
+    private class GetValueTask extends AsyncTask<String,Integer,String[]>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected String[] doInBackground(String... strings) {
+            String[] result = new String[strings.length];
+            for(int i=0;i<strings.length;i++){
+                do{
+                    try{
+                        result[i] = downloadUrl(strings[i]);
+                    }catch (Exception e){
+                        Log.e("error", "doInBackground: ", e);
+                    }
+                }while (result[i].contains("error"));
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String[] strings) {
+            super.onPostExecute(strings);
+
+            UpdateValueTask task = new UpdateValueTask();
+            task.execute(strings);
+        }
+    }
+
+    private class UpdateValueTask extends AsyncTask<String,Integer,JSONParserUtils.ParserData[]>{
+
+        @Override
+        protected JSONParserUtils.ParserData[] doInBackground(String... strings) {
+            JSONParserUtils.ParserData[] parserData = new JSONParserUtils.ParserData[strings.length];
+            JSONObject jsonObject;
+
+            for(int i=0;i<strings.length;i++){
+                try{
+                    JSONParserUtils jsonParserUtils = new JSONParserUtils();
+                    jsonObject = new JSONObject(strings[i]);
+
+                    parserData[i] = jsonParserUtils.parse(jsonObject);
+
+
+                }catch (JSONException e){
+                    Log.e("error", "doInBackground: ",e );
+                }
+            }
+            return parserData;
+        }
+
+        @Override
+        protected void onPostExecute(JSONParserUtils.ParserData[] parserData) {
+            super.onPostExecute(parserData);
+
+            List<Integer> distances = new ArrayList<>();
+
+            try{
+                for(int i=0;i<parserData.length;i++){
+                    distances.add(parserData[i].getDistance());
+                }
+
+                graphUtils.expandGraph(distances);
+
+                int[] nearestPathValue = graphUtils.getNearestPathValue();
+
+                System.out.println("--------Distances----------");
+                for(int i=0;i<nearestPathValue.length;i++)
+                    System.out.print(nearestPathValue[i] + " + ");
+
+                System.out.println("");
+                System.out.println("--------SUM Distances----------");
+                System.out.println("Sum Distance = " + graphUtils.getNearestSumDistance());
+
+                if(mListener!=null)
+                    mListener.onGetValue();
+
+                if(urlQueue.size()>0)
+                    connectNodes();
+            }catch (Exception e){
+                Log.e("error", "onPostExecute: ",e );
+            }
+        }
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {

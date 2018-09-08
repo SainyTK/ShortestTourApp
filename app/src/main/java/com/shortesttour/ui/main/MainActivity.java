@@ -63,7 +63,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapClickListener {
+public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapClickListener, FindPathUtils.OnTaskFinishListener {
 
     private static final String TAG = "MainActivity";
 
@@ -115,8 +115,13 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     private List<PlaceParent> mSuggestData;
 
     private Location currentLocation;
+    private Place currentPlace;
     private boolean mLocationPermissionGranted;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
+    private static final int STATE_SHOWTOOL = 0;
+    private static final int STATE_HIDETOOL = 1;
+
+    private int screenState = STATE_SHOWTOOL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,10 +135,13 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
 
+        currentPlace = new Place("You",new LatLng(0,0));
+
         mSearchData = new ArrayList<>();
         mSuggestData = new ArrayList<>();
 
         mFindPathUtils = new FindPathUtils();
+        mFindPathUtils.setOnTaskFinishListener(this);
 
         setupMap();
         setupLocationManager();
@@ -220,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                Log.d(TAG, "onSlide: " + slideOffset);
                 float alpha = 1 - slideOffset*1.5f;
                 searchContainer.setAlpha(alpha);
                 btnShowAll.setAlpha(alpha);
@@ -327,6 +334,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         if(mLocationPermissionGranted){
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            showCurrentLocation();
         }
 
     }
@@ -334,10 +342,12 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     /*--------------bottom sheet control section------------------*/
     public void collapseBottomSheet(){
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        screenState = STATE_SHOWTOOL;
     }
 
     public void expandBottomSheet(){
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        screenState = STATE_SHOWTOOL;
     }
 
     public void hideBottomSheet(){
@@ -424,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     /*--------------map control section------------------*/
     @Override
-    public void showInMap(LatLng latLng, String placeTitle) {
+    public void onShowInMapClick(LatLng latLng, String placeTitle) {
         Log.d(TAG, "showInMap: ");
             showLocation(latLng,placeTitle);
             onBackPressed();
@@ -433,7 +443,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @OnClick(R.id.btn_show_all)
     public void showAllLocation(){
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        List<Place> mPlaceList = adapter.getData();
+        List<Place> mPlaceList = includeCurrentPlace();
         if(mPlaceList!=null&&mPlaceList.size()>0){
             for(Place place:mPlaceList){
                 builder.include(place.getPlaceLatLng());
@@ -474,36 +484,54 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     @OnClick(R.id.btn_start)
     void showPath(){
-        mFindPathUtils.findPath(mMap,adapter.getData());
+        hideMapTools();
+        mFindPathUtils.findPath(mMap,includeCurrentPlace());
+        showAllLocation();
     }
 
     @Override
     public void onMapClick(LatLng latLng) {
-        hideMapTools();
+        switch (screenState) {
+            case STATE_SHOWTOOL:
+                hideMapTools();
+                break;
+            case STATE_HIDETOOL:
+                collapseBottomSheet();
+                break;
+        }
     }
 
     public void hideMapTools(){
         hideBottomSheet();
         hideSearchBar();
+        screenState = STATE_HIDETOOL;
     }
 
     /*--------------place list manage section---------------*/
     @Override
-    public void addToList(Place place) {
-        List<Place> mPlaceList = adapter.getData();
+    public void onAddToListClick(Place place) {
 
+        if(!checkHasPlace(adapter.getData(),place)){
+            List<Place> mPlaceList = includeCurrentPlace();
 
-        if(!checkHasPlace(mPlaceList,place)){
             adapter.addPlace(place);
             updateBottomSheet();
-            pinLocation(place.getPlaceLatLng(),place.getPlaceTitle());
-
             mMap.clear();
             pinAllLocation();
+
+            mFindPathUtils.addPlace(mMap,mPlaceList,place);
         }
     }
 
-    private boolean checkHasPlace(List<Place> placeList,Place newPlace){
+    private List<Place> includeCurrentPlace(){
+        List<Place> mPlaceList = new ArrayList<>();
+        mPlaceList.add(currentPlace);
+        for(Place p : adapter.getData())
+            mPlaceList.add(p);
+        return mPlaceList;
+    }
+
+    public boolean checkHasPlace(List<Place> placeList,Place newPlace){
         for(Place place:placeList){
             if(place.getPlaceTitle().contentEquals(newPlace.getPlaceTitle()))
                 return true;
@@ -535,8 +563,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     @Override
     public void onLocationChanged(Location location) {
+        LatLng currentLatLng = new LatLng(location.getLatitude(),location.getLongitude());
+
+        currentPlace.setPlaceLatLng(currentLatLng);
         currentLocation = location;
-        Log.d(TAG, "onLocationChanged: lat = " + location.getLatitude() + "lng = " + location.getLongitude());
     }
 
     @Override
@@ -554,4 +584,34 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     }
 
+    @Override
+    public void onGetValue() {
+        sortNearest();
+        updateDistance();
+
+    }
+
+    private void updateDistance(){
+        int[] nearestPathValue = mFindPathUtils.getNearestPathValue();
+        int sum = 0;
+
+        for(int i=0;i<adapter.getData().size();i++){
+            sum+=nearestPathValue[i];
+            adapter.updateData(i,sum);
+        }
+
+    }
+
+    private void sortNearest(){
+        List<Place> places = includeCurrentPlace();
+        List<Place> sortedPlace = mFindPathUtils.sortNearest(places);
+
+        adapter.setData(sortedPlace);
+        updateBottomSheet();
+    }
+
+    @Override
+    public void onDrawPath() {
+
+    }
 }
