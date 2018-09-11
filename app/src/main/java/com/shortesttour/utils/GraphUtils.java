@@ -6,12 +6,10 @@ import java.util.List;
 public class GraphUtils {
 
     private int[][] graph;
-    private int[][] tempGraph;
     private boolean[] visited;
 
     public GraphUtils(){
         graph = new int[0][0];
-        tempGraph = new int[0][0];
         visited = new boolean[0];
     }
 
@@ -81,6 +79,18 @@ public class GraphUtils {
             visited[i] = false;
     }
 
+    public void updateGraph(int[] path){
+        int[][] newGraph = new int[getDimen()][getDimen()];
+
+        for(int i=0;i<getDimen();i++){
+            for(int j=0;j<getDimen();j++){
+                newGraph[i][j] = graph[path[j]][path[i]];
+            }
+        }
+
+        graph = newGraph;
+    }
+
     //Nearest Neightbor
     private void cloneGraph(int[][] dest,int[][] src){
         int len = dest.length;
@@ -96,7 +106,7 @@ public class GraphUtils {
 
     public void expandGraph(List<Integer> values){
         int len = getDimen();
-        tempGraph = new int[len][len];
+        int[][] tempGraph = new int[len][len];
         cloneGraph(tempGraph,graph);
 
         graph = new int[len+1][len+1];
@@ -108,8 +118,6 @@ public class GraphUtils {
         visited = new boolean[len+1];
         resetVisit();
 
-        showGraph();
-        showPath();
     }
 
     private int findMinDestination(int row){

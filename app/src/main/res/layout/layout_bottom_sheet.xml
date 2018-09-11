@@ -21,6 +21,7 @@
             android:layout_height="wrap_content"
             android:gravity="center">
             <ImageView
+                android:visibility="visible"
                 android:src="@drawable/ic_dash"
                 android:layout_width="52dp"
                 android:layout_height="24dp" />
@@ -108,7 +109,16 @@
         android:paddingTop="3dp"
         android:paddingBottom="3dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:visibility="invisible"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:progressDrawable="@drawable/progress"
+            android:progress="20" />
         <LinearLayout
             android:background="@color/colorLine"
             android:layout_width="match_parent"

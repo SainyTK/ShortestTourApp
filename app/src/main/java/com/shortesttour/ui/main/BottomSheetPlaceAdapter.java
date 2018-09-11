@@ -22,7 +22,6 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
 
     public List<Place> mPlaceList;
     private PlaceListItemClickListener mListener;
-    private Holder holder;
 
     class Holder extends RecyclerView.ViewHolder {
 
@@ -62,13 +61,17 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
-        this.holder = holder;
         holder.bindData(position);
     }
 
     @Override
     public int getItemCount() {
-        return mPlaceList.size();
+        try{
+            return mPlaceList.size();
+        }catch (Exception e){
+
+        }
+        return 0;
     }
 
     public void setListener(PlaceListItemClickListener listener){
@@ -81,6 +84,7 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
     }
 
     public void addPlace(Place place){
+        place.setOrder(getItemCount());
         mPlaceList.add(place);
         notifyItemChanged(getItemCount()-1);
     }
@@ -92,7 +96,7 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
 
     public void updateData(int position,int value){
         mPlaceList.get(position).setDistance(value);
-        holder.bindData(position);
+        notifyItemChanged(position);
     }
 
     public List<Place> getData(){

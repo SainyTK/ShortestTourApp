@@ -2,7 +2,6 @@ package com.shortesttour.utils;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -10,7 +9,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.shortesttour.models.Place;
-import com.shortesttour.ui.main.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,33 +29,51 @@ public class FindPathUtils {
     private GoogleMap mMap;
     private GraphUtils graphUtils;
 
-    private Queue<String[]> urlQueue;
-    private OnTaskFinishListener mListener;
+    private GetValueTask task;
+    private List<Place> mPlaceList;
+    private Queue<Place> placeQueue;
+    private TaskListener mListener;
 
-    public interface OnTaskFinishListener{
-        void onGetValue();
+    private int totalDistance;
+    private int totalDuration;
+
+    private static final int MAX_PROGRESS_GET_VALUE = 70;
+
+    public interface TaskListener {
+        void onFinishTask();
+        void OnStartTask();
+        void onUpdateValue(int value);
         void onDrawPath();
     }
 
-    public FindPathUtils(){
+    public FindPathUtils(List<Place> placeList,GoogleMap map){
+        mPlaceList = placeList;
+        mMap = map;
         graphUtils = new GraphUtils();
-        urlQueue = new LinkedList<>();
+        placeQueue = new LinkedList<>();
+        task = new GetValueTask();
+
+        totalDistance = 0;
+        totalDuration = 0;
 
         graphUtils.expandGraph(null);
     }
 
-    public void setOnTaskFinishListener(OnTaskFinishListener listener){
+    public void setOnTaskFinishListener(TaskListener listener){
         mListener = listener;
     }
 
     public void findPath(GoogleMap map, List<Place> placeList) {
         mMap = map;
 
+        int[] path = graphUtils.createPathNearest();
+        int pathLength = path.length;
+
         List<String> placesUrl = new ArrayList<>();
-        for (int i = 0; i < placeList.size()-1; i++) {
-            placesUrl.add(getDirectionsUrl(placeList.get(i).getPlaceLatLng(), placeList.get(i+1).getPlaceLatLng()));
+        for (int i = 0; i < pathLength-1 ; i++) {
+            placesUrl.add(getDirectionsUrl(placeList.get(path[i]).getPlaceLatLng(), placeList.get(path[i+1]).getPlaceLatLng()));
         }
-        placesUrl.add(getDirectionsUrl(placeList.get(placeList.size()-1).getPlaceLatLng(), placeList.get(0).getPlaceLatLng()));
+        placesUrl.add(getDirectionsUrl(placeList.get(path[pathLength-1]).getPlaceLatLng(), placeList.get(path[0]).getPlaceLatLng()));
 
         for (String placeUrlString : placesUrl) {
             DownloadTask downloadTask = new DownloadTask();
@@ -65,45 +81,51 @@ public class FindPathUtils {
         }
     }
 
-    public List<Place> sortNearest(List<Place> placeList){
+    private void updatePlaceList(int[] path){
         List<Place> sortedPlace = new ArrayList<>();
-        int[] path = graphUtils.createPathNearest();
         int pathLength = path.length;
 
-        for (int i = 1; i < pathLength; i++) {
-            sortedPlace.add(placeList.get(path[i]));
+        for (int i = 0; i < pathLength; i++) {
+            sortedPlace.add(mPlaceList.get(path[i]));
         }
-        return sortedPlace;
+        mPlaceList = sortedPlace;
     }
 
-    public void addPlace(GoogleMap map, List<Place> placeList, Place newPlace) {
-        mMap = map;
+    public List<Place> getPlaceList(){
+        return mPlaceList;
+    }
 
-        LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
+    public void addPlace(Place newPlace) {
 
-        List<String> placesUrl = new ArrayList<>();
-        for (int i = 0; i < placeList.size(); i++) {
-            placesUrl.add(getDirectionsUrl(newPlaceLatLng, placeList.get(i).getPlaceLatLng()));
-        }
+        placeQueue.add(newPlace);
 
-        String[] placesUrlArr = placesUrl.toArray(new String[placesUrl.size()]);
-
-        urlQueue.add(placesUrlArr);
-        if(urlQueue.size()==1)
+        if(task.getStatus()!= AsyncTask.Status.RUNNING)
             connectNodes();
     }
 
     public void connectNodes(){
-        String[] url = urlQueue.remove();
-        GetValueTask getValueTask = new GetValueTask();
-        getValueTask.execute(url);
+        Place newPlace = placeQueue.remove();
+        LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
+
+        mPlaceList.add(newPlace);
+
+        List<String> placesUrl = new ArrayList<>();
+        for (int i = 0; i < mPlaceList.size(); i++) {
+            System.out.println("place title = " + mPlaceList.get(i).getPlaceTitle());
+            placesUrl.add(getDirectionsUrl(newPlaceLatLng, mPlaceList.get(i).getPlaceLatLng()));
+        }
+
+        String[] url = placesUrl.toArray(new String[placesUrl.size()]);
+
+        task = new GetValueTask();
+        task.execute(url);
     }
 
     public int[] getNearestPathValue(){
         return graphUtils.getNearestPathValue();
     }
 
-    public int getNeatestSumDistance(){
+    public int getNearestSumDistance(){
         return graphUtils.getNearestSumDistance();
     }
 
@@ -173,12 +195,24 @@ public class FindPathUtils {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            publishProgress(0);
+            if(mListener!=null)
+                mListener.OnStartTask();
+        }
 
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            if(mListener!=null)
+                mListener.onUpdateValue(values[0]);
         }
 
         @Override
         protected String[] doInBackground(String... strings) {
             String[] result = new String[strings.length];
+
+            int progressValue = 0;
+
             for(int i=0;i<strings.length;i++){
                 do{
                     try{
@@ -187,6 +221,8 @@ public class FindPathUtils {
                         Log.e("error", "doInBackground: ", e);
                     }
                 }while (result[i].contains("error"));
+                progressValue = (i+1)*MAX_PROGRESS_GET_VALUE/strings.length;
+                publishProgress(progressValue);
             }
             return result;
         }
@@ -203,6 +239,13 @@ public class FindPathUtils {
     private class UpdateValueTask extends AsyncTask<String,Integer,JSONParserUtils.ParserData[]>{
 
         @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            if(mListener!=null)
+                mListener.onUpdateValue(values[0]);
+        }
+
+        @Override
         protected JSONParserUtils.ParserData[] doInBackground(String... strings) {
             JSONParserUtils.ParserData[] parserData = new JSONParserUtils.ParserData[strings.length];
             JSONObject jsonObject;
@@ -214,10 +257,10 @@ public class FindPathUtils {
 
                     parserData[i] = jsonParserUtils.parse(jsonObject);
 
-
                 }catch (JSONException e){
                     Log.e("error", "doInBackground: ",e );
                 }
+                publishProgress((i+1)*10/strings.length+MAX_PROGRESS_GET_VALUE);
             }
             return parserData;
         }
@@ -232,10 +275,23 @@ public class FindPathUtils {
                 for(int i=0;i<parserData.length;i++){
                     distances.add(parserData[i].getDistance());
                 }
+                publishProgress(75);
 
                 graphUtils.expandGraph(distances);
 
-                int[] nearestPathValue = graphUtils.getNearestPathValue();
+                publishProgress(80);
+
+                int[] path = graphUtils.createPathNearest();
+
+                updatePlaceList(path);
+                graphUtils.updateGraph(path);
+
+                publishProgress(90);
+
+                graphUtils.showGraph();
+                graphUtils.showPath();
+
+                int[] nearestPathValue = getNearestPathValue();
 
                 System.out.println("--------Distances----------");
                 for(int i=0;i<nearestPathValue.length;i++)
@@ -243,12 +299,16 @@ public class FindPathUtils {
 
                 System.out.println("");
                 System.out.println("--------SUM Distances----------");
-                System.out.println("Sum Distance = " + graphUtils.getNearestSumDistance());
+                System.out.println("Sum Distance = " + getNearestSumDistance());
 
                 if(mListener!=null)
-                    mListener.onGetValue();
+                    mListener.onFinishTask();
 
-                if(urlQueue.size()>0)
+                totalDistance = graphUtils.getNearestSumDistance();
+
+                publishProgress(100);
+
+                if(placeQueue.size()>0)
                     connectNodes();
             }catch (Exception e){
                 Log.e("error", "onPostExecute: ",e );
@@ -340,5 +400,13 @@ public class FindPathUtils {
             Log.d("data", "onPostExecute: distance : " + result.getDistance() + ", duration : " + result.getDuration());
             mMap.addPolyline(lineOptions);
         }
+    }
+
+    public int getTotalDistance(){
+        return totalDistance;
+    }
+
+    public int getTotalDuration(){
+        return totalDuration;
     }
 }

@@ -7,6 +7,7 @@ public class Place {
     private LatLng placeLatLng;
     private int distance;
     private int duration;
+    private int order;
 
     public Place(){
 
@@ -47,6 +48,14 @@ public class Place {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     public String getDistanceText(){
