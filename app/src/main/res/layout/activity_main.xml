@@ -1,29 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.main.MainActivity"
-    android:fitsSystemWindows="true">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.main.MainActivity">
 
-    <include layout="@layout/layout_main_content"
+    <include
+        layout="@layout/layout_main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        app:menu="@menu/menu_bottom_nav"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:itemIconTint="@color/filter_bottom_nav"
-        app:itemTextColor="@color/filter_bottom_nav"
+    <LinearLayout
+        android:id="@+id/bottom_nav_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#fff"
-        app:itemBackground="@color/colorPrimary"/>
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:progress="20"
+            android:progressDrawable="@drawable/progress"
+            android:visibility="invisible" />
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#fff"
+            app:itemBackground="@color/colorPrimary"
+            app:itemIconTint="@color/filter_bottom_nav"
+            app:itemTextColor="@color/filter_bottom_nav"
+            app:menu="@menu/menu_bottom_nav" />
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/fragment_container"
@@ -34,50 +50,49 @@
         android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height_search_box"
-        android:orientation="horizontal"
-        android:background="@drawable/round_corner_white_bg_stroke"
-        android:layout_marginTop="@dimen/margin_top_search_box"
         android:layout_marginLeft="@dimen/margin_vertical"
         android:layout_marginRight="@dimen/margin_vertical"
+        android:layout_marginTop="@dimen/margin_top_search_box"
+        android:background="@drawable/round_corner_white_bg_stroke"
+        android:orientation="horizontal"
         android:padding="@dimen/padding_search_box"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:visibility="gone"
             android:id="@+id/search_back_btn"
-            android:src="@drawable/ic_back"
-            android:layout_gravity="center_vertical"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_gravity="center_vertical"
             android:layout_marginBottom="8dp"
-            android:layout_marginRight="8dp"/>
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_back"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/autocomplete_search"
-            android:gravity="center_vertical"
-            android:hint="Search Here"
-            android:textSize="@dimen/text_normal"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:maxLines="1"
             android:layout_marginLeft="4dp"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:gravity="center_vertical"
+            android:hint="@string/search_here"
+            android:maxLines="1"
             android:padding="4dp"
-            android:background="@color/transparent"/>
+            android:textSize="@dimen/text_normal" />
 
         <ImageView
             android:id="@+id/search_clear_btn"
-            android:src="@drawable/ic_clear"
-            android:visibility="gone"
-            android:layout_gravity="center_vertical"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_margin="8dp"/>
-
+            android:layout_gravity="center_vertical"
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_clear"
+            android:visibility="gone" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

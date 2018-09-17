@@ -220,6 +220,7 @@ public class FindPathUtils {
                     }catch (Exception e){
                         Log.e("error", "doInBackground: ", e);
                     }
+                    Log.d("check", "data =  " + result[i]);
                 }while (result[i].contains("error"));
                 progressValue = (i+1)*MAX_PROGRESS_GET_VALUE/strings.length;
                 publishProgress(progressValue);
@@ -400,6 +401,12 @@ public class FindPathUtils {
             Log.d("data", "onPostExecute: distance : " + result.getDistance() + ", duration : " + result.getDuration());
             mMap.addPolyline(lineOptions);
         }
+    }
+
+    public List<Place> collapseGraph(int position){
+        graphUtils.collapseGraph(position);
+        mPlaceList.remove(position);
+        return mPlaceList;
     }
 
     public int getTotalDistance(){

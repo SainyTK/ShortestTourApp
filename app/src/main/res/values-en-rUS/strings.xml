@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ShortestTour</string>
+    <string name="hello">Hello</string>
+    <string name="driving">Driving</string>
+    <string name="add_place">Add Place</string>
+    <string name="no_place">No Place</string>
+    <string name="going_to">Going to %s</string>
+    <string name="search_here">Search Here</string>
+    <string name="total_duration">Total Duration : %s</string>
+    <string name="total_distance">Total Distance : %s</string>
+    <string name="loading">Loading...</string>
+    <string name="km">km</string>
+    <string name="m">m</string>
+    <string name="min">min</string>
+    <string name="hr">hr</string>
+    <string name="show_in_map">Show in Map</string>
+    <string name="add_to_list">Add to List</string>
+    <string name="places">%d places</string>
+</resources>

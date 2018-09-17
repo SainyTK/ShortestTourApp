@@ -3,11 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_left_right_stroke"
+    android:background="@drawable/bg_round"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
     android:orientation="horizontal">
 
     <LinearLayout
@@ -21,7 +21,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/filter_button"
-                android:padding="12dp"
+                android:padding="8dp"
                 android:clickable="true"
                 android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
@@ -32,7 +32,8 @@
                     android:layout_height="24dp"
                     android:layout_marginRight="8dp"/>
                 <TextView
-                    android:text="Show in Map"
+                    android:text="@string/show_in_map"
+                    android:textSize="@dimen/text_small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -50,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/filter_button"
-            android:padding="12dp"
+            android:padding="8dp"
             android:clickable="true"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"
@@ -61,7 +62,8 @@
                 android:layout_height="24dp"
                 android:layout_marginRight="8dp"/>
             <TextView
-                android:text="Add to List"
+                android:text="@string/add_to_list"
+                android:textSize="@dimen/text_small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
