@@ -117,6 +117,25 @@ public class GraphUtils {
 
         visited = new boolean[len+1];
         resetVisit();
+    }
+
+    public void collapseGraph(int position){
+        int len = getDimen();
+        int[][] tempGraph = new int[len-1][len-1];
+
+        for(int i=0,k=0;i<len;i++){
+            for(int j=0,l=0;j<len;j++){
+                if(i!=position&&j!=position){
+                    tempGraph[k][l] = graph[i][j];
+                    l++;
+                }
+            }
+            if(i!=position)
+                k++;
+        }
+
+        graph = tempGraph;
+        showGraph(tempGraph);
 
     }
 
@@ -178,6 +197,16 @@ public class GraphUtils {
         }
 
         System.out.println("0|");
+    }
+
+    public void showGraph(int[][] g){
+        System.out.println("-------------SHOW G-----------");
+        for(int i=0;i<g.length;i++){
+            for(int j=0;j<g.length;j++){
+                System.out.printf("%d ",g[i][j]/1000);
+            }
+            System.out.printf("\n");
+        }
     }
 
     public void showGraph(){

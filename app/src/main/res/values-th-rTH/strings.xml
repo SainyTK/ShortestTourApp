@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ShortestTour</string>
+    <string name="hello">สวัสดี</string>
+    <string name="driving">ขับขี่</string>
+    <string name="add_place">เพิ่มสถานที่</string>
+    <string name="no_place">ไม่มีสถานที่</string>
+    <string name="going_to">กำลังไปยัง %s</string>
+    <string name="search_here">ค้นหา</string>
+    <string name="total_duration">เวลารวม : %s</string>
+    <string name="total_distance">ระยะทางรวม : %s</string>
+    <string name="loading">กำลังโหลด...</string>
+    <string name="km">กม.</string>
+    <string name="m">ม.</string>
+    <string name="min">นาที</string>
+    <string name="hr">ชม.</string>
+    <string name="show_in_map">แสดงบนแผนที่</string>
+    <string name="add_to_list">เพิ่มในลิสต์</string>
+    <string name="places">%d สถานที่</string>
+</resources>

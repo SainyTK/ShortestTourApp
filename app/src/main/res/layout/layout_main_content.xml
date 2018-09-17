@@ -55,6 +55,6 @@
         android:id="@+id/space"
         android:layout_gravity="bottom"
         android:layout_width="match_parent"
-        android:layout_height="50dp" />
+        android:layout_height="53dp" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -29,8 +29,11 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="676e68" />
-                            <entry key="outputName" value="ic_my_location" />
+                            <entry key="height" value="10" />
+                            <entry key="outputName" value="ic_my_location_black_12dp" />
+                            <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="C:\Users\TK" />
+                            <entry key="width" value="10" />
                           </map>
                         </option>
                       </PersistentState>

@@ -80,8 +80,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     RecyclerView recyclerView;
     @BindView(R.id.btn_add)
     TextView btnAdd;
-    @BindView(R.id.btn_start)
-    TextView btnStart;
     @BindView(R.id.text_num_place)
     TextView textNumPlace;
     @BindView(R.id.text_going_to)
@@ -98,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     FloatingActionButton btnShowCurrent;
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
+    @BindView(R.id.text_loading)
+    TextView textLoading;
 
     private BottomSheetPlaceAdapter adapter;
 
@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mPlaceList.add(currentPlace);
         mFindPathUtils = new FindPathUtils(mPlaceList,mMap);
         mFindPathUtils.setOnTaskFinishListener(this);
+
     }
 
     /*--------------setup section------------------*/
@@ -344,6 +345,27 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     /*--------------bottom sheet control section------------------*/
+
+    public void hideBottomNav(){
+        AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this,R.animator.fade_animator);
+        animatorSet.setTarget(bottomNavigationView);
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                searchContainer.setVisibility(View.GONE);
+            }
+        });
+        animatorSet.start();
+    }
+
+    public void showBottomNav(){
+        bottomNavigationView.setAlpha(1);
+        bottomNavigationView.setVisibility(View.VISIBLE);
+    }
+
+
+    /*--------------bottom sheet control section------------------*/
     public void collapseBottomSheet(){
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         screenState = STATE_SHOWTOOL;
@@ -362,26 +384,25 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         //visible
         textNumPlace.setVisibility(View.VISIBLE);
         btnAdd.setVisibility(View.VISIBLE);
-        textNumPlace.setText("No Places");
+        textNumPlace.setText(getResources().getString(R.string.no_place));
 
         //gone
-        btnStart.setVisibility(View.GONE);
         textGoingTo.setVisibility(View.GONE);
         textTotalDistance.setVisibility(View.GONE);
         textTotalTime.setVisibility(View.GONE);
+        textLoading.setVisibility(View.GONE);
     }
 
-    private void setButtonHasPlace(boolean isStart){
+    private void setButtonHasPlace(){
         //visible
         textNumPlace.setVisibility(View.VISIBLE);
-        btnStart.setVisibility(View.VISIBLE);
         textGoingTo.setVisibility(View.VISIBLE);
         textTotalDistance.setVisibility(View.VISIBLE);
+        textTotalTime.setVisibility(View.VISIBLE);
 
         //gone
         btnAdd.setVisibility(View.GONE);
-        textTotalTime.setVisibility(View.GONE);
-
+        textLoading.setVisibility(View.GONE);
     }
 
     /*--------------search control section------------------*/
@@ -418,14 +439,20 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @OnClick(R.id.search_back_btn)
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        hideSearchButtons();
-        clearSearchBox();
+        if(bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_COLLAPSED||bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED)
+            hideBottomSheet();
+        else{
+            super.onBackPressed();
+            hideSearchButtons();
+            clearSearchBox();
+            showBottomNav();
+        }
     }
 
     @OnClick({R.id.autocomplete_search,R.id.btn_add})
     void pushFragment(){
         if(mFragmentUtils.getBackStackCount()<1){
+            hideBottomNav();
             collapseBottomSheet();
             showSearchButtons();
             mFragmentUtils.add(searchFragment);
@@ -443,13 +470,13 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @OnClick(R.id.btn_show_all)
     public void showAllLocation(){
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        if(excludeCurrentPlace()!=null&&excludeCurrentPlace().size()>0){
-            for(Place place : excludeCurrentPlace()){
+        if(mPlaceList!=null&&mPlaceList.size()>0){
+            for(Place place : mPlaceList){
                 builder.include(place.getPlaceLatLng());
             }
             LatLngBounds bounds;
             bounds = builder.build();
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,60));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,180));
         }
     }
 
@@ -481,11 +508,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
-    @OnClick(R.id.btn_start)
-    void showPath(){
-        hideMapTools();
+    void drawPath(){
         mFindPathUtils.findPath(mMap,mPlaceList);
-        showAllLocation();
     }
 
     @Override
@@ -526,20 +550,31 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     @Override
     public void onRemovePlace(int position) {
-        adapter.removePlace(position);
+        mPlaceList = mFindPathUtils.collapseGraph(position+1);
+        bottomSheetPlaceList = excludeCurrentPlace();
 
+        adapter.setData(bottomSheetPlaceList);
+
+        updateDistance();
         updateBottomSheet();
         mMap.clear();
         pinAllLocation();
+
+        drawPath();
     }
 
     public void updateBottomSheet(){
         if(excludeCurrentPlace().size()>0){
-            setButtonHasPlace(false);
+            setButtonHasPlace();
 
-            textNumPlace.setText(excludeCurrentPlace().size() + " places");
-            textGoingTo.setText("Going to " + excludeCurrentPlace().get(0).getPlaceTitle());
-            textTotalDistance.setText(toDistanceText(mFindPathUtils.getNearestSumDistance()));
+            String strNumPlace = getString(R.string.places,excludeCurrentPlace().size());
+            textNumPlace.setText(strNumPlace);
+
+            String strGoingTo = getString(R.string.going_to,excludeCurrentPlace().get(0).getPlaceTitle());
+            textGoingTo.setText(strGoingTo);
+
+            String strTotalDistance = getString(R.string.total_distance,toDistanceText(mFindPathUtils.getNearestSumDistance()));
+            textTotalDistance.setText(strTotalDistance);
         }else{
             setButtonNoPlace();
         }
@@ -574,6 +609,13 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @Override
     public void OnStartTask() {
         progressBar.setVisibility(View.VISIBLE);
+
+        textGoingTo.setVisibility(View.GONE);
+        textTotalTime.setVisibility(View.GONE);
+        textTotalDistance.setVisibility(View.GONE);
+        btnAdd.setVisibility(View.GONE);
+
+        textLoading.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -583,6 +625,11 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     @Override
     public void onFinishTask() {
+        textTotalTime.setVisibility(View.VISIBLE);
+        textTotalDistance.setVisibility(View.VISIBLE);
+        textGoingTo.setVisibility(View.VISIBLE);
+        textLoading.setVisibility(View.GONE);
+
         mPlaceList = mFindPathUtils.getPlaceList();
 
         adapter.setData(excludeCurrentPlace());
@@ -592,8 +639,9 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         updateDistance();
 
-
         progressBar.setVisibility(View.INVISIBLE);
+
+        drawPath();
     }
 
     private void updateDistance(){
@@ -621,9 +669,9 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     public String toDistanceText(int distance){
         if(distance<1000)
-            return distance + " meters";
+            return distance + " " + getString(R.string.m);
         else
-            return Math.round(distance/1000f) + " km";
+            return Math.round(distance/1000f) + " " + getString(R.string.km);
     }
 
     public String toDurationText(int duration){
@@ -631,8 +679,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         int minutes = duration%60;
         String durationText = "";
         if(hours>0)
-            durationText = hours + " hr ";
-        durationText = durationText + minutes + " min";
+            durationText = hours + " " + getString(R.string.hr) + " ";
+        durationText = durationText + minutes + " " + getString(R.string.min);
         return durationText;
     }
 }
