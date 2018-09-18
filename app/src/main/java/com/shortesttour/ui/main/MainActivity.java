@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -521,6 +522,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             super.onBackPressed();
             clearSearchBox();
             hideSearchButtons();
+            hideKeyboard();
             autoCompleteTextView.setInputType(InputType.TYPE_NULL);
         }
         else if(bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_COLLAPSED||bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED)
@@ -577,13 +579,16 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     public void showLocation(LatLng latLng,String placeTitle){
-        mMap.clear();
-        pinLocation(latLng,placeTitle,mPlaceList.size()-1);
-
         float zoom = mMap.getCameraPosition().zoom;
         if(zoom < 10)
             zoom = 16;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+
+        for(Place place : excludeCurrentPlace()){
+            if(placeTitle.contentEquals(place.getPlaceTitle()))
+                return;
+        }
+        mMap.addMarker(new MarkerOptions().title(placeTitle).position(latLng));
     }
 
     public void pinLocation(LatLng latLng,String placeTitle,int num){
@@ -607,7 +612,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     public void onMapClick(LatLng latLng) {
         switch (screenState) {
             case STATE_SHOWTOOL:
-                hideMapTools();
+                if(mFragmentUtils.getBackStackCount()==0)
+                    hideMapTools();
                 break;
             case STATE_HIDETOOL:
                 collapseBottomSheet();
@@ -826,5 +832,16 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(this);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
