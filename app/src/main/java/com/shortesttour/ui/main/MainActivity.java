@@ -23,12 +23,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -47,6 +51,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.shortesttour.R;
 import com.shortesttour.models.Place;
+import com.shortesttour.ui.search.PlaceParent;
 import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.utils.FindPathUtils;
@@ -94,6 +99,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     ProgressBar progressBar;
     @BindView(R.id.text_loading)
     TextView textLoading;
+    @BindView(R.id.search_back_btn)
+    ImageView searchBackButton;
+    @BindView(R.id.search_clear_btn)
+    ImageView searchClearButton;
 
     private BottomSheetPlaceAdapter adapter;
 
@@ -106,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     private PinUtils mPinUtils;
 
     private SearchFragment searchFragment;
+
+    private List<PlaceParent> mSearchData;
+    private List<PlaceParent> mSuggestData;
 
     private List<Place> mPlaceList;
     private List<Place> bottomSheetPlaceList;
@@ -146,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         currentPlace = new Place("You",new LatLng(0,0));
 
+        mSuggestData = new ArrayList<>();
+        mSearchData = new ArrayList<>();
         mPlaceList = new ArrayList<>();
         bottomSheetPlaceList = new ArrayList<>();
         mLineList = new ArrayList<>();
@@ -155,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         setupBottomSheet();
         setupBottomNav();
         setupFragment();
+        setupSearchBox();
         updateShowLineButton();
 
         mPlaceList.add(currentPlace);
@@ -302,6 +317,47 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         searchFragment.setOptionSelectedListener(this);
     }
 
+    private void setupSearchBox(){
+        mSearchData = new ArrayList<>();
+        mSuggestData = new ArrayList<>();
+
+        autoCompleteTextView.setInputType(InputType.TYPE_NULL);
+
+        autoCompleteTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus){
+                    searchBoxClick();
+                }
+            }
+        });
+
+        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mSearchData = searchFragment.getPlaceList();
+                mSuggestData.clear();
+                for(PlaceParent place : mSearchData){
+                    if(place.getPlaceTitle().contains(s)){
+                        mSuggestData.add(place);
+                    }
+                }
+                searchFragment.setSearchDataSet(mSuggestData);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        hideSearchButtons();
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -429,6 +485,16 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     /*--------------search control section------------------*/
 
+    private void showSearchButtons(){
+        searchBackButton.setVisibility(View.VISIBLE);
+        searchClearButton.setVisibility(View.VISIBLE);
+    }
+
+    private void hideSearchButtons(){
+        searchBackButton.setVisibility(View.GONE);
+        searchClearButton.setVisibility(View.GONE);
+    }
+
     public void hideSearchBar(){
         AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this,R.animator.fade_animator);
         animatorSet.setTarget(searchContainer);
@@ -442,29 +508,40 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         animatorSet.start();
     }
 
+    @OnClick(R.id.search_clear_btn)
+    void clearSearchBox(){
+        autoCompleteTextView.setText("");
+    }
+
     /*--------------fragment control section------------------*/
+    @OnClick(R.id.search_back_btn)
     @Override
     public void onBackPressed() {
-        if(bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_COLLAPSED||bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED)
+        if(mFragmentUtils.getBackStackCount()>0){
+            super.onBackPressed();
+            clearSearchBox();
+            hideSearchButtons();
+            autoCompleteTextView.setInputType(InputType.TYPE_NULL);
+        }
+        else if(bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_COLLAPSED||bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED)
             hideBottomSheet();
         else{
             super.onBackPressed();
-            showBottomNav();
         }
     }
 
-    @OnClick({R.id.autocomplete_search,R.id.btn_add})
+    @OnClick(R.id.autocomplete_search)
+    void searchBoxClick(){
+        pushFragment();
+        showSearchButtons();
+        autoCompleteTextView.setInputType(InputType.TYPE_CLASS_TEXT);
+    }
+
+    @OnClick({R.id.btn_add})
     void pushFragment(){
         if(mFragmentUtils.getBackStackCount()<1){
-            hideBottomNav();
             collapseBottomSheet();
-            mFragmentUtils.add(searchFragment);
-        }
-    }
-
-    public void popFragment(){
-        if(mFragmentUtils.getBackStackCount()>0){
-            mFragmentUtils.pop();
+            mFragmentUtils.replace(searchFragment,true);
         }
     }
 
