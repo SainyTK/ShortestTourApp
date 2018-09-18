@@ -6,4 +6,6 @@
     <item android:color="@color/colorStrokeBorder"
         android:state_enabled="true"
         android:state_pressed="true"/>
+    <item android:color="#fff"
+        android:state_enabled="false"/>
 </selector>

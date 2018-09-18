@@ -3,10 +3,12 @@ package com.shortesttour.utils;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.shortesttour.models.Place;
 
@@ -26,7 +28,6 @@ import java.util.List;
 import java.util.Queue;
 
 public class FindPathUtils {
-    private GoogleMap mMap;
     private GraphUtils graphUtils;
 
     private GetValueTask task;
@@ -43,12 +44,11 @@ public class FindPathUtils {
         void onFinishTask();
         void OnStartTask();
         void onUpdateValue(int value);
-        void onDrawPath();
+        void onDrawPath(PolylineOptions lineOptions);
     }
 
     public FindPathUtils(List<Place> placeList,GoogleMap map){
         mPlaceList = placeList;
-        mMap = map;
         graphUtils = new GraphUtils();
         placeQueue = new LinkedList<>();
         task = new GetValueTask();
@@ -64,7 +64,6 @@ public class FindPathUtils {
     }
 
     public void findPath(GoogleMap map, List<Place> placeList) {
-        mMap = map;
 
         int[] path = graphUtils.createPathNearest();
         int pathLength = path.length;
@@ -181,11 +180,11 @@ public class FindPathUtils {
 
             br.close();
 
-        } catch (Exception e) {
-            Log.d("Exception ", e.toString());
-        } finally {
             iStream.close();
             urlConnection.disconnect();
+
+        } catch (Exception e) {
+            Log.d("Exception ", e.toString());
         }
         return data;
     }
@@ -221,7 +220,7 @@ public class FindPathUtils {
                         Log.e("error", "doInBackground: ", e);
                     }
                     Log.d("check", "data =  " + result[i]);
-                }while (result[i].contains("error"));
+                }while (result[i].contains("error")||result[i].contentEquals(""));
                 progressValue = (i+1)*MAX_PROGRESS_GET_VALUE/strings.length;
                 publishProgress(progressValue);
             }
@@ -370,7 +369,6 @@ public class FindPathUtils {
         protected void onPostExecute(JSONParserUtils.ParserData result) {
             ArrayList<LatLng> points = null;
             PolylineOptions lineOptions = null;
-            MarkerOptions markerOptions = new MarkerOptions();
 
             // Traversing through all the routes
             for (int i = 0; i < result.getRoutes().size(); i++) {
@@ -399,7 +397,8 @@ public class FindPathUtils {
 
             // Drawing polyline in the Google Map for the i-th route
             Log.d("data", "onPostExecute: distance : " + result.getDistance() + ", duration : " + result.getDuration());
-            mMap.addPolyline(lineOptions);
+            if(mListener!=null)
+                mListener.onDrawPath(lineOptions);
         }
     }
 

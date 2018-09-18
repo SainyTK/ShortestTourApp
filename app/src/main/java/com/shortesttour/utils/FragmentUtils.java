@@ -41,6 +41,11 @@ public class FragmentUtils {
         ft.commit();
     }
 
+    public void pop(){
+        FragmentManager fm = activity.getSupportFragmentManager();
+        fm.popBackStack();
+    }
+
     public int getBackStackCount(){
         return activity.getSupportFragmentManager().getBackStackEntryCount();
     }
