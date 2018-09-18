@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/maps/ic_my_location_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_trending_up_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,11 +29,9 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="676e68" />
-                            <entry key="height" value="10" />
-                            <entry key="outputName" value="ic_my_location_black_12dp" />
+                            <entry key="outputName" value="ic_show_lines" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="C:\Users\TK" />
-                            <entry key="width" value="10" />
                           </map>
                         </option>
                       </PersistentState>

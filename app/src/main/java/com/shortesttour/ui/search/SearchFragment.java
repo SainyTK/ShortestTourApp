@@ -3,13 +3,18 @@ package com.shortesttour.ui.search;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.google.android.gms.maps.model.LatLng;
@@ -27,16 +32,25 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
 
     @BindView(R.id.recycler_view_place_list)
     RecyclerView recyclerView;
+    @BindView(R.id.autocomplete_search)
+    EditText autoCompleteTextView;
+    @BindView(R.id.search_back_btn)
+    ImageView searchBackButton;
+    @BindView(R.id.search_clear_btn)
+    ImageView searchClearButton;
 
     private List<PlaceParent> currentPlaceList;
     private List<PlaceParent> placeList;
     private PlaceExpandableAdapter adapter;
+    private List<PlaceParent> mSearchData;
+    private List<PlaceParent> mSuggestData;
 
     private SearchOptionSelectedListener mListener;
 
@@ -47,6 +61,7 @@ public class SearchFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = LayoutInflater.from(getContext()).inflate(R.layout.fragment_search,container,false);
         ButterKnife.bind(this,root);
+        setupSearchBox();
         mainActivity = (MainActivity)getActivity();
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -72,6 +87,46 @@ public class SearchFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         return root;
+    }
+
+    private void setupSearchBox(){
+        mSearchData = new ArrayList<>();
+        mSuggestData = new ArrayList<>();
+
+        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mSearchData = getPlaceList();
+                mSuggestData.clear();
+                for(PlaceParent place : mSearchData){
+                    if(place.getPlaceTitle().contains(s)){
+                        mSuggestData.add(place);
+                    }
+                }
+                setSearchDataSet(mSuggestData);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        showSearchButtons();
+    }
+
+    private void showSearchButtons(){
+        searchBackButton.setVisibility(View.VISIBLE);
+        searchClearButton.setVisibility(View.VISIBLE);
+    }
+
+    private void hideSearchButtons(){
+        searchBackButton.setVisibility(View.GONE);
+        searchClearButton.setVisibility(View.GONE);
     }
 
     public void setSearchDataSet(List<PlaceParent> dataSet){
@@ -127,5 +182,17 @@ public class SearchFragment extends Fragment {
         mListener = listener;
     }
 
+    @OnClick(R.id.search_back_btn)
+    void back(){
+        try{
+            mainActivity.popFragment();
+        }catch (Exception e){
 
+        }
+    }
+
+    @OnClick(R.id.search_clear_btn)
+    void clearSearchBox(){
+        autoCompleteTextView.setText("");
+    }
 }

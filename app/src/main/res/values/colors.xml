@@ -13,4 +13,7 @@
     <color name="transparent">#00000000</color>
 
     <color name="activeTint">#03A9FA</color>
+    <color name="nonactiveTint">#aeaeae</color>
+
+    <color name="red">#ff4545</color>
 </resources>

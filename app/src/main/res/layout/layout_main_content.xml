@@ -12,27 +12,27 @@
     <include layout="@layout/layout_bottom_sheet"/>
 
     <RelativeLayout
-        android:id="@+id/btn_showcurrent_container"
+        android:id="@+id/btn_showline_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_anchor="@+id/btn_showall_container"
+        app:layout_anchor="@+id/btn_showlocation_container"
         android:gravity="right"
         app:layout_anchorGravity="right|top"
         android:layout_gravity="right|top">
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/btn_show_currrent"
+            android:id="@+id/btn_show_line"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_my_location"
-            android:tint="@color/activeTint"
+            android:src="@drawable/ic_show_line"
+            android:tint="@color/filter_enable"
             app:backgroundTint="@color/filter_button"
             app:elevation="1dp"
             android:layout_marginRight="@dimen/margin_medium"
-            android:clickable="true"/>
+            android:clickable="true" />
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/btn_showall_container"
+        android:id="@+id/btn_showlocation_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_anchor="@+id/bottom_sheet_container"
@@ -40,10 +40,10 @@
         app:layout_anchorGravity="right|top"
         android:layout_gravity="right|top">
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/btn_show_all"
+            android:id="@+id/btn_show_location"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_pin"
+            android:src="@drawable/ic_my_location"
             android:tint="@color/activeTint"
             app:backgroundTint="@color/filter_button"
             app:elevation="1dp"
