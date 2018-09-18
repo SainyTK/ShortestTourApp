@@ -717,6 +717,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @Override
     public void onAddToListClick(Place place) {
         if(!checkHasPlace(bottomSheetPlaceList,place)){
+            String prepareStr = getString(R.string.prepare_to_find_path,place.getPlaceTitle());
+            Toast.makeText(this, prepareStr, Toast.LENGTH_SHORT).show();
             bottomSheetPlaceList.add(place);
 
             mFindPathUtils.addPlace(place);
@@ -756,7 +758,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     /*---------------------Result Handle Section---------------*/
 
     @Override
-    public void OnStartTask() {
+    public void OnStartTask(String placeTitle) {
+        progressBar.setProgress(0);
         progressBar.setVisibility(View.VISIBLE);
 
         textGoingTo.setVisibility(View.GONE);
@@ -766,7 +769,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         textLoading.setVisibility(View.VISIBLE);
 
-
+        String findingPathStr = getString(R.string.finding_path,placeTitle);
+        Toast.makeText(this, findingPathStr, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -775,7 +779,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     @Override
-    public void onFinishTask() {
+    public void onFinishTask(String placeTitle) {
         textTotalTime.setVisibility(View.VISIBLE);
         textTotalDistance.setVisibility(View.VISIBLE);
         textGoingTo.setVisibility(View.VISIBLE);
@@ -792,6 +796,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         progressBar.setVisibility(View.INVISIBLE);
 
+        String findingPathStr = getString(R.string.added_to_list,placeTitle);
+        Toast.makeText(this, findingPathStr, Toast.LENGTH_SHORT).show();
         findPath();
     }
 

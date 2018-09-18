@@ -35,14 +35,16 @@ public class FindPathUtils {
     private Queue<Place> placeQueue;
     private TaskListener mListener;
 
+    private String newPlaceTitle;
+
     private int totalDistance;
     private int totalDuration;
 
     private static final int MAX_PROGRESS_GET_VALUE = 70;
 
     public interface TaskListener {
-        void onFinishTask();
-        void OnStartTask();
+        void onFinishTask(String placeName);
+        void OnStartTask(String placeName);
         void onUpdateValue(int value);
         void onDrawPath(PolylineOptions lineOptions);
     }
@@ -106,11 +108,15 @@ public class FindPathUtils {
         Place newPlace = placeQueue.remove();
         LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
 
+        newPlaceTitle = newPlace.getPlaceTitle();
+
+        if(mListener!=null)
+            mListener.OnStartTask(newPlaceTitle);
+
         mPlaceList.add(newPlace);
 
         List<String> placesUrl = new ArrayList<>();
         for (int i = 0; i < mPlaceList.size(); i++) {
-            System.out.println("place title = " + mPlaceList.get(i).getPlaceTitle());
             placesUrl.add(getDirectionsUrl(newPlaceLatLng, mPlaceList.get(i).getPlaceLatLng()));
         }
 
@@ -195,8 +201,6 @@ public class FindPathUtils {
         protected void onPreExecute() {
             super.onPreExecute();
             publishProgress(0);
-            if(mListener!=null)
-                mListener.OnStartTask();
         }
 
         @Override
@@ -302,7 +306,7 @@ public class FindPathUtils {
                 System.out.println("Sum Distance = " + getNearestSumDistance());
 
                 if(mListener!=null)
-                    mListener.onFinishTask();
+                    mListener.onFinishTask(newPlaceTitle);
 
                 totalDistance = graphUtils.getNearestSumDistance();
 
