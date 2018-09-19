@@ -9,21 +9,22 @@ import android.view.ViewGroup;
 
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.shortesttour.R;
+import com.shortesttour.models.Place;
 
 import java.util.List;
 
-public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParent,String,PlaceViewHolder,OptionViewHolder>{
+public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<Place,String,PlaceViewHolder,OptionViewHolder>{
 
-    List<PlaceParent> places;
+    List<Place> places;
     Context mContext;
     int allDataCount;
 
     SearchOptionSelectedListener mListener;
 
-    public PlaceExpandableAdapter(Context context, @NonNull List<PlaceParent> parentList) {
-        super(parentList);
+    public PlaceExpandableAdapter(Context context, @NonNull List<Place> placeList) {
+        super(placeList);
         mContext = context;
-        places = parentList;
+        places = placeList;
         allDataCount = places.size();
     }
 
@@ -42,7 +43,7 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
     }
 
     @Override
-    public void onBindParentViewHolder(@NonNull PlaceViewHolder parentViewHolder, int parentPosition, @NonNull PlaceParent parent) {
+    public void onBindParentViewHolder(@NonNull PlaceViewHolder parentViewHolder, int parentPosition, @NonNull Place parent) {
         if(parentPosition < places.size())
             parentViewHolder.bind(places.get(parentPosition));
     }
@@ -53,7 +54,7 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
             @Override
             public void clickShowInMap(int parentPosition) {
                 if(mListener!=null){
-                    PlaceParent place = places.get(parentPosition);
+                    Place place = places.get(parentPosition);
                     mListener.onShowInMapClick(place.getPlaceLatLng(),place.getPlaceTitle());
                 }
             }
@@ -61,8 +62,8 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
             @Override
             public void clickAddToList(int parentPosition) {
                 if(mListener!=null){
-                    PlaceParent placeParent = places.get(parentPosition);
-                    mListener.onAddToListClick(placeParent.getPlace());
+                    Place place = places.get(parentPosition);
+                    mListener.onAddToListClick(place);
                 }
             }
         });
@@ -77,7 +78,7 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<PlaceParen
             return places.size()+1;
     }
 
-    public void modifyData(List<PlaceParent> newData){
+    public void modifyData(List<Place> newData){
         places = newData;
         notifyDataSetChanged();
         notifyParentDataSetChanged(false);

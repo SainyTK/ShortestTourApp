@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <FrameLayout
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <include layout="@layout/layout_bottom_sheet"/>
+
+    <RelativeLayout
+        android:id="@+id/btn_showline_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@+id/btn_showlocation_container"
+        android:gravity="right"
+        app:layout_anchorGravity="right|top"
+        android:layout_gravity="right|top">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btn_show_line"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:tint="@color/activeTint"
+            android:src="@drawable/ic_show_line"
+            app:backgroundTint="@color/filter_button"
+            app:elevation="1dp"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:clickable="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/btn_showlocation_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@+id/bottom_sheet_container"
+        android:gravity="right"
+        app:layout_anchorGravity="right|top"
+        android:layout_gravity="right|top">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btn_show_location"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_my_location"
+            android:tint="@color/activeTint"
+            app:backgroundTint="@color/filter_button"
+            app:elevation="1dp"
+            android:layout_margin="@dimen/margin_medium"
+            android:clickable="true"/>
+    </RelativeLayout>
+
+    <Space
+        android:id="@+id/space"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="53dp" />
+
+</android.support.design.widget.CoordinatorLayout>

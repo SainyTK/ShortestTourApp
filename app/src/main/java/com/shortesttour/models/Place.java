@@ -1,8 +1,14 @@
 package com.shortesttour.models;
 
+import com.bignerdranch.expandablerecyclerview.model.Parent;
 import com.google.android.gms.maps.model.LatLng;
 
-public class Place {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Place implements Parent<String> {
+    private int placeId;
+    private String userName;
     private String placeTitle;
     private LatLng placeLatLng;
     private int distance;
@@ -50,6 +56,22 @@ public class Place {
         this.duration = duration;
     }
 
+    public int getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(int placeId) {
+        this.placeId = placeId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public int getOrder() {
         return order;
     }
@@ -73,5 +95,17 @@ public class Place {
             durationText = hours + " hr ";
         durationText = durationText + minutes + " min";
         return durationText;
+    }
+
+    @Override
+    public List<String> getChildList() {
+        List<String> temp = new ArrayList<>();
+        temp.add("");
+        return temp;
+    }
+
+    @Override
+    public boolean isInitiallyExpanded() {
+        return false;
     }
 }

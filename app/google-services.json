@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "578877283268",
+    "firebase_url": "https://shortest-tour.firebaseio.com",
+    "project_id": "shortest-tour",
+    "storage_bucket": "shortest-tour.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:578877283268:android:6b6cacdb7e03c19d",
+        "android_client_info": {
+          "package_name": "com.shortesttour"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "578877283268-vusi011bulqtrent7ls4tchcieihnqti.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shortesttour",
+            "certificate_hash": "8b9e8103f38093b756261af8929a7c48f26fa252"
+          }
+        },
+        {
+          "client_id": "578877283268-2kn4eh0v47aqrke8d80jj3mohhk7r1vi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAL5pNtdqIqCefJ11HeaVEOHupjFBO_MaI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "578877283268-2kn4eh0v47aqrke8d80jj3mohhk7r1vi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,6 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -12,6 +15,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
@@ -52,12 +56,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.shortesttour.R;
 import com.shortesttour.models.Place;
-import com.shortesttour.ui.search.PlaceParent;
 import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
+import com.shortesttour.utils.DatabaseUtils;
 import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.FragmentUtils;
 import com.shortesttour.utils.PinUtils;
+import com.shortesttour.utils.Room.PlaceEntity;
+import com.shortesttour.utils.Room.PlaceViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,8 +123,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     private SearchFragment searchFragment;
 
-    private List<PlaceParent> mSearchData;
-    private List<PlaceParent> mSuggestData;
+    private List<Place> mSearchData;
+    private List<Place> mSuggestData;
 
     private List<Place> mPlaceList;
     private List<Place> bottomSheetPlaceList;
@@ -142,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     private int screenState = STATE_SHOWTOOL;
     private int showLineState = STATE_SHOW_NO_LINE;
     private int showPlaceState = STATE_SHOW_CURRENT_LOCATION;
+
+    private PlaceViewModel placeViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,9 +182,34 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         updateShowLineButton();
 
         mPlaceList.add(currentPlace);
-        mFindPathUtils = new FindPathUtils(mPlaceList,mMap);
+        mFindPathUtils = new FindPathUtils(this,mPlaceList);
         mFindPathUtils.setOnTaskFinishListener(this);
 
+//        placeViewModel = ViewModelProviders.of(this).get(PlaceViewModel.class);
+//        placeViewModel.deleteAll();
+//        List<PlaceData> placeDataList = databaseUtils.createInitialData();
+//        for(int i=0;i<placeDataList.size();i++){
+//            PlaceEntity placeEntity = new PlaceEntity();
+//            placeEntity.setPlaceId(i);
+//            placeEntity.setPlaceTitle(placeDataList.get(i).getPlaceTitle());
+//            placeEntity.setUserName(placeDataList.get(i).getUserName());
+//            placeEntity.setLatitude(placeDataList.get(i).getLatitude());
+//            placeEntity.setLongitude(placeDataList.get(i).getLongitude());
+//            placeViewModel.insert(placeEntity);
+//        }
+
+//        placeViewModel.getPlaceList().observe(this, new Observer<List<PlaceEntity>>() {
+//            @Override
+//            public void onChanged(@Nullable List<PlaceEntity> placeEntities) {
+//                for(PlaceEntity place:placeEntities){
+//                    Log.d(TAG, "PlaceData: placeID = " + place.getPlaceId());
+//                    Log.d(TAG, "PlaceData: placeTitle = " + place.getPlaceTitle());
+//                    Log.d(TAG, "PlaceData: userName = " + place.getUserName());
+//                    Log.d(TAG, "PlaceData: Latitude = " + place.getLatitude());
+//                    Log.d(TAG, "PlaceData: Longitude = " + place.getLongitude());
+//                }
+//            }
+//        });
     }
 
     /*--------------setup section------------------*/
@@ -343,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mSearchData = searchFragment.getPlaceList();
                 mSuggestData.clear();
-                for(PlaceParent place : mSearchData){
+                for(Place place : mSearchData){
                     if(place.getPlaceTitle().contains(s)){
                         mSuggestData.add(place);
                     }
@@ -532,14 +565,13 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
-    @OnClick(R.id.autocomplete_search)
+    @OnClick({R.id.btn_add,R.id.autocomplete_search})
     void searchBoxClick(){
         pushFragment();
         showSearchButtons();
         autoCompleteTextView.setInputType(InputType.TYPE_CLASS_TEXT);
     }
 
-    @OnClick({R.id.btn_add})
     void pushFragment(){
         if(mFragmentUtils.getBackStackCount()<1){
             collapseBottomSheet();
@@ -605,7 +637,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     void findPath(){
         mLineList.clear();
-        mFindPathUtils.findPath(mMap,mPlaceList);
+        mFindPathUtils.findPath(mPlaceList);
     }
 
     @Override
@@ -822,6 +854,14 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         currentPlace.setPlaceLatLng(currentLatLng);
         currentLocation = location;
 
+    }
+
+    /*-----------------------SQLite Database Section----------------*/
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
     }
 
     /*---------------------Other Section-----------------------*/

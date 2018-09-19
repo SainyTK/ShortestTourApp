@@ -22,7 +22,7 @@ public class PlaceViewHolder extends ParentViewHolder {
         ButterKnife.bind(this,itemView);
     }
 
-    public void bind(PlaceParent place){
+    public void bind(Place place){
         textPlaceTitle.setText(place.getPlaceTitle());
     }
 

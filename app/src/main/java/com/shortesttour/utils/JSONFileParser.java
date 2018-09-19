@@ -39,7 +39,6 @@ public class JSONFileParser {
             is.close();
 
             String json = new String(buffer,"UTF-8");
-            //Log.d("json", "getJSONArray: " + json);
             jsonArray = new JSONArray(json);
 
         }catch(IOException e){

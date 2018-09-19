@@ -1,5 +1,6 @@
 package com.shortesttour.utils;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -40,6 +41,8 @@ public class FindPathUtils {
     private int totalDistance;
     private int totalDuration;
 
+    private Activity activity;
+
     private static final int MAX_PROGRESS_GET_VALUE = 70;
 
     public interface TaskListener {
@@ -49,7 +52,9 @@ public class FindPathUtils {
         void onDrawPath(PolylineOptions lineOptions);
     }
 
-    public FindPathUtils(List<Place> placeList,GoogleMap map){
+    public FindPathUtils(Activity activity,List<Place> placeList){
+        this.activity = activity;
+
         mPlaceList = placeList;
         graphUtils = new GraphUtils();
         placeQueue = new LinkedList<>();
@@ -65,8 +70,7 @@ public class FindPathUtils {
         mListener = listener;
     }
 
-    public void findPath(GoogleMap map, List<Place> placeList) {
-
+    public void findPath(List<Place> placeList) {
         int[] path = graphUtils.createPathNearest();
         int pathLength = path.length;
 
@@ -104,7 +108,7 @@ public class FindPathUtils {
             connectNodes();
     }
 
-    public void connectNodes(){
+    private void connectNodes(){
         Place newPlace = placeQueue.remove();
         LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
 
@@ -151,8 +155,10 @@ public class FindPathUtils {
         // Output format
         String output = "json";
 
+        String key = "AIzaSyBCGQy_slw6UDK7NGzcamjxHc7J_LLixW8";
+
         // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + key;
 
         return url;
     }

@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 import com.shortesttour.R;
+import com.shortesttour.models.Place;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,8 +21,8 @@ public class PlaceTitleViewHolder extends ParentViewHolder {
         ButterKnife.bind(this,itemView);
     }
 
-    public void bind(PlaceParent placeParent){
-        textPlaceTitle.setText(placeParent.getPlaceTitle());
+    public void bind(Place place){
+        textPlaceTitle.setText(place.getPlaceTitle());
     }
 
 }

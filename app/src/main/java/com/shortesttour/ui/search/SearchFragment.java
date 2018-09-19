@@ -40,8 +40,8 @@ public class SearchFragment extends Fragment {
     @BindView(R.id.recycler_view_place_list)
     RecyclerView recyclerView;
 
-    private List<PlaceParent> currentPlaceList;
-    private List<PlaceParent> placeList;
+    private List<Place> currentPlaceList;
+    private List<Place> placeList;
     private PlaceExpandableAdapter adapter;
 
     private SearchOptionSelectedListener mListener;
@@ -80,17 +80,17 @@ public class SearchFragment extends Fragment {
         return root;
     }
 
-    public void setSearchDataSet(List<PlaceParent> dataSet){
+    public void setSearchDataSet(List<Place> dataSet){
         currentPlaceList = dataSet;
         adapter.modifyData(currentPlaceList);
     }
 
-    public List<PlaceParent> getPlaceList(){
+    public List<Place> getPlaceList(){
         return  placeList;
     }
 
-    private List<PlaceParent> createPlaceTitleList(){
-        List<PlaceParent> placeParents = new ArrayList<>();
+    private List<Place> createPlaceTitleList(){
+        List<Place> places = new ArrayList<>();
 
         JSONFileParser jsonFileParser = new JSONFileParser(getActivity(),"node.json");
         JSONArray jsonArray = jsonFileParser.getJSONArray();
@@ -102,7 +102,7 @@ public class SearchFragment extends Fragment {
                 double lat = jsonObject.getDouble("latitude");
                 double lng = jsonObject.getDouble("longitude");
 
-                placeParents.add(toPlaceParent(new Place(placeTitle,new LatLng(lat,lng))));
+                places.add(new Place(placeTitle,new LatLng(lat,lng)));
             }
 
         }catch (NullPointerException e){
@@ -122,11 +122,7 @@ public class SearchFragment extends Fragment {
 //        placeParents.add(toPlaceParent(new Place("ป่าตอง",new LatLng(7.892423,98.297194))));
 //        placeParents.add(toPlaceParent(new Place("กะรน",new LatLng(7.845788,98.296189))));
 
-        return placeParents;
-    }
-
-    private PlaceParent toPlaceParent(Place place){
-        return new PlaceParent(place);
+        return places;
     }
 
     public void setOptionSelectedListener(SearchOptionSelectedListener listener){
