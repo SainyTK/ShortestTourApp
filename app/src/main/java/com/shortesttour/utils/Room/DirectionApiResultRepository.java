@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
+import io.reactivex.Single;
+
 public class DirectionApiResultRepository {
     private DirectionApiResultDao dao;
     private LiveData<List<DirectionApiResult>> results;
@@ -21,7 +23,7 @@ public class DirectionApiResultRepository {
         return  results;
     }
 
-    LiveData<DirectionApiResult> getApiResult(int sourceId,int destinationId){
+    LiveData<DirectionApiResult> getApiResult(int sourceId, int destinationId){
         return dao.getApiResult(sourceId,destinationId);
     }
 

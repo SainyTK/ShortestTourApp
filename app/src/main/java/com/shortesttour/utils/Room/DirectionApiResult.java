@@ -12,6 +12,9 @@ public class DirectionApiResult {
     private int destinationId;
 
     @ColumnInfo
+    private String requestUrl;
+
+    @ColumnInfo
     private String apiResult;
 
     public int getSourceId() {
@@ -36,5 +39,13 @@ public class DirectionApiResult {
 
     public void setApiResult(String apiResult) {
         this.apiResult = apiResult;
+    }
+
+    public String getRequestUrl() {
+        return requestUrl;
+    }
+
+    public void setRequestUrl(String requestUrl) {
+        this.requestUrl = requestUrl;
     }
 }

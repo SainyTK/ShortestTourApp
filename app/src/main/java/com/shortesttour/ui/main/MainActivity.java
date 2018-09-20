@@ -182,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mFindPathUtils.setOnTaskFinishListener(this);
 
         DirectionApiResultViewModel viewModel = ViewModelProviders.of(this).get(DirectionApiResultViewModel.class);
-        Log.d(TAG, "onCreate: " + viewModel.getResult(0,2).getValue());
 
     }
 

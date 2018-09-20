@@ -104,19 +104,20 @@ public class GraphUtils {
         }
     }
 
-    public void expandGraph(List<Integer> values){
-        int len = getDimen();
-        int[][] tempGraph = new int[len][len];
-        cloneGraph(tempGraph,graph);
+    public synchronized void expandGraph(List<Integer> values){
 
-        graph = new int[len+1][len+1];
-        cloneGraph(graph,tempGraph);
+            int len = getDimen();
+            int[][] tempGraph = new int[len][len];
+            cloneGraph(tempGraph,graph);
 
-        for(int i=0;i<len;i++)
-            connectEdge(i,len,values.get(i));
+            graph = new int[len+1][len+1];
+            cloneGraph(graph,tempGraph);
 
-        visited = new boolean[len+1];
-        resetVisit();
+            for(int i=0;i<len;i++)
+                connectEdge(i,len,values.get(i));
+
+            visited = new boolean[len+1];
+            resetVisit();
     }
 
     public void collapseGraph(int position){

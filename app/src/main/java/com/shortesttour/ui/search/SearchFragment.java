@@ -87,7 +87,13 @@ public class SearchFragment extends Fragment {
     }
 
     private List<Place> createPlaceList(){
-        return JSONFileParser.getPlaces(getActivity(),"node.js");
+        List<Place> places = null;
+        try{
+            places = JSONFileParser.getPlaces(getActivity(),"node.json");
+        }catch (NullPointerException e){
+            Log.e(TAG, "createPlaceList: NULL", e);
+        }
+        return places;
     }
 
     public void setOptionSelectedListener(SearchOptionSelectedListener listener){

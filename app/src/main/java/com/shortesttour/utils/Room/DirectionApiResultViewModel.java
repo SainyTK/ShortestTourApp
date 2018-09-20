@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
+import io.reactivex.Single;
+
 public class DirectionApiResultViewModel extends AndroidViewModel{
     private DirectionApiResultRepository repository;
     private LiveData<List<DirectionApiResult>> results;
@@ -33,7 +35,7 @@ public class DirectionApiResultViewModel extends AndroidViewModel{
         repository.delete(sourceId,destinationId);
     }
 
-    public LiveData<DirectionApiResult> getResult(int sourceId,int destinationId){
+    public LiveData<DirectionApiResult> getResult(int sourceId, int destinationId){
         return repository.getApiResult(sourceId,destinationId);
     }
 }
