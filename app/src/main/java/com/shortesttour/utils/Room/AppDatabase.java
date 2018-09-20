@@ -8,9 +8,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
-@Database(entities = {PlaceEntity.class},version =  1)
+@Database(entities = {PlaceEntity.class,DirectionApiResult.class},version =  1)
 public abstract class AppDatabase extends RoomDatabase{
     public abstract PlaceDao placeDao();
+    public abstract DirectionApiResultDao directionApiResultDao();
 
     private static volatile AppDatabase INSTANCE;
 

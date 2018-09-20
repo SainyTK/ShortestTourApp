@@ -10,7 +10,8 @@ public class Place implements Parent<String> {
     private int placeId;
     private String userName;
     private String placeTitle;
-    private LatLng placeLatLng;
+    private double latitude;
+    private double longitude;
     private int distance;
     private int duration;
     private int order;
@@ -19,9 +20,12 @@ public class Place implements Parent<String> {
 
     }
 
-    public Place(String placeTitle, LatLng placeLatLng) {
+    public Place(int placeId,String userName,String placeTitle,double latitude,double longitude){
+        this.placeId = placeId;
+        this.userName = userName;
         this.placeTitle = placeTitle;
-        this.placeLatLng = placeLatLng;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public String getPlaceTitle() {
@@ -33,11 +37,28 @@ public class Place implements Parent<String> {
     }
 
     public LatLng getPlaceLatLng() {
-        return placeLatLng;
+        return new LatLng(latitude,longitude);
+    }
+
+    public void setLatitude(double latitude){
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude){
+        this.longitude = longitude;
     }
 
     public void setPlaceLatLng(LatLng placeLatLng) {
-        this.placeLatLng = placeLatLng;
+        latitude = placeLatLng.latitude;
+        longitude = placeLatLng.longitude;
+    }
+
+    public double getLatitude(){
+        return latitude;
+    }
+
+    public double getLongitude(){
+        return longitude;
     }
 
     public int getDistance() {

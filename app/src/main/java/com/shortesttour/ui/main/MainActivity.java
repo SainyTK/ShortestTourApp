@@ -4,8 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -15,7 +13,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
@@ -58,11 +55,10 @@ import com.shortesttour.R;
 import com.shortesttour.models.Place;
 import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
-import com.shortesttour.utils.DatabaseUtils;
 import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.FragmentUtils;
 import com.shortesttour.utils.PinUtils;
-import com.shortesttour.utils.Room.PlaceEntity;
+import com.shortesttour.utils.Room.DirectionApiResultViewModel;
 import com.shortesttour.utils.Room.PlaceViewModel;
 
 import java.util.ArrayList;
@@ -165,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         mPinUtils = new PinUtils(this);
 
-        currentPlace = new Place("You",new LatLng(0,0));
+        currentPlace = new Place(0,"You","Your Location",0,0);
 
         mSuggestData = new ArrayList<>();
         mSearchData = new ArrayList<>();
@@ -185,31 +181,9 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mFindPathUtils = new FindPathUtils(this,mPlaceList);
         mFindPathUtils.setOnTaskFinishListener(this);
 
-//        placeViewModel = ViewModelProviders.of(this).get(PlaceViewModel.class);
-//        placeViewModel.deleteAll();
-//        List<PlaceData> placeDataList = databaseUtils.createInitialData();
-//        for(int i=0;i<placeDataList.size();i++){
-//            PlaceEntity placeEntity = new PlaceEntity();
-//            placeEntity.setPlaceId(i);
-//            placeEntity.setPlaceTitle(placeDataList.get(i).getPlaceTitle());
-//            placeEntity.setUserName(placeDataList.get(i).getUserName());
-//            placeEntity.setLatitude(placeDataList.get(i).getLatitude());
-//            placeEntity.setLongitude(placeDataList.get(i).getLongitude());
-//            placeViewModel.insert(placeEntity);
-//        }
+        DirectionApiResultViewModel viewModel = ViewModelProviders.of(this).get(DirectionApiResultViewModel.class);
+        Log.d(TAG, "onCreate: " + viewModel.getResult(0,2).getValue());
 
-//        placeViewModel.getPlaceList().observe(this, new Observer<List<PlaceEntity>>() {
-//            @Override
-//            public void onChanged(@Nullable List<PlaceEntity> placeEntities) {
-//                for(PlaceEntity place:placeEntities){
-//                    Log.d(TAG, "PlaceData: placeID = " + place.getPlaceId());
-//                    Log.d(TAG, "PlaceData: placeTitle = " + place.getPlaceTitle());
-//                    Log.d(TAG, "PlaceData: userName = " + place.getUserName());
-//                    Log.d(TAG, "PlaceData: Latitude = " + place.getLatitude());
-//                    Log.d(TAG, "PlaceData: Longitude = " + place.getLongitude());
-//                }
-//            }
-//        });
     }
 
     /*--------------setup section------------------*/

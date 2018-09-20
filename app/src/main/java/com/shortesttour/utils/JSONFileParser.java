@@ -1,6 +1,7 @@
 package com.shortesttour.utils;
 
 import android.app.Activity;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -17,20 +18,8 @@ import java.util.List;
 
 public class JSONFileParser {
 
-    private String fileName;
-    private Activity activity;
-
-    public JSONFileParser(Activity activity){
-        this.activity = activity;
-    }
-
-    public JSONFileParser(Activity activity, String fileName){
-        this.fileName = fileName;
-        this.activity = activity;
-    }
-
-    public JSONArray getJSONArray(){
-        JSONArray jsonArray = null;
+    public static List<Place> getPlaces(@NonNull Activity activity,@NonNull String fileName){
+        List<Place> placeList = null;
         try{
             InputStream is = activity.getAssets().open(fileName);
             int size = is.available();
@@ -39,15 +28,28 @@ public class JSONFileParser {
             is.close();
 
             String json = new String(buffer,"UTF-8");
-            jsonArray = new JSONArray(json);
+            JSONArray jsonArray = new JSONArray(json);
 
+            placeList = new ArrayList<>();
+            for(int i=0;i<jsonArray.length();i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                Place place = new Place();
+
+                place.setPlaceId(i+1);
+                place.setPlaceTitle(jsonObject.getString("placeTitle"));
+                place.setUserName(jsonObject.getString("userName"));
+                place.setLatitude(jsonObject.getDouble("latitude"));
+                place.setLongitude(jsonObject.getDouble("longitude"));
+
+                placeList.add(place);
+            }
         }catch(IOException e){
             Log.e("JSONParserFile", "getJSONArray: ", e);
         }catch (JSONException e){
             Log.e("JSONParserFile", "getJSONArray: ", e);
         }
 
-        return jsonArray;
+        return placeList;
     }
 
 
