@@ -439,10 +439,11 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         textNumPlace.setVisibility(View.VISIBLE);
         textGoingTo.setVisibility(View.VISIBLE);
         textTotalDistance.setVisibility(View.VISIBLE);
-        textTotalTime.setVisibility(View.VISIBLE);
+
 
         //gone
         btnAdd.setVisibility(View.GONE);
+        textTotalTime.setVisibility(View.GONE);
         textLoading.setVisibility(View.GONE);
     }
 

@@ -132,8 +132,8 @@ public class FindPathUtils {
     }
 
     private void connectNodes() {
-        final Place newPlace = placeQueue.remove();
-        final LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
+        Place newPlace = placeQueue.remove();
+        LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
 
         newPlaceTitle = newPlace.getPlaceTitle();
 
@@ -142,31 +142,15 @@ public class FindPathUtils {
 
         mPlaceList.add(newPlace);
 
+        List<String> placesUrl = new ArrayList<>();
         for (int i = 0; i < mPlaceList.size(); i++) {
-            final Place place = mPlaceList.get(i);
-            final LiveData<DirectionApiResult> directionResult = viewModel.getResult(newPlace.getPlaceId(), place.getPlaceId());
-            directionResult.observe((MainActivity) activity, new Observer<DirectionApiResult>() {
-                @Override
-                public void onChanged(@Nullable DirectionApiResult result) {
-                    if (result != null) {
-                        Log.d("test",
-                                "onChanged: srcId = " + result.getSourceId() + " desId = " + result.getDestinationId()
-                                        + " result = " + result.getApiResult());
-                        new UpdateValueTask().execute(result.getApiResult());
-                    } else {
-                        Log.d("test", "onChanged: result = null");
-                        DirectionApiResult cache;
-                        String requestUrl = getDirectionsUrl(newPlaceLatLng, place.getPlaceLatLng());
-                        cache = new DirectionApiResult();
-                        cache.setSourceId(newPlace.getPlaceId());
-                        cache.setDestinationId(place.getPlaceId());
-                        cache.setRequestUrl(requestUrl);
-                        new GetValueTask().execute(cache);
-                    }
-                    directionResult.removeObserver(this);
-                }
-            });
+            placesUrl.add(getDirectionsUrl(newPlaceLatLng, mPlaceList.get(i).getPlaceLatLng()));
         }
+
+        String[] url = placesUrl.toArray(new String[placesUrl.size()]);
+
+        task = new GetValueTask();
+        task.execute(url);
     }
 
     public int[] getNearestPathValue() {
@@ -240,7 +224,7 @@ public class FindPathUtils {
         return data;
     }
 
-    private class GetValueTask extends AsyncTask<DirectionApiResult, Integer, String[]> {
+    private class GetValueTask extends AsyncTask<String, Integer, String[]> {
 
         @Override
         protected void onPreExecute() {
@@ -256,25 +240,21 @@ public class FindPathUtils {
         }
 
         @Override
-        protected String[] doInBackground(DirectionApiResult... apiResults) {
-            String[] result = new String[apiResults.length];
+        protected String[] doInBackground(String... strings) {
+            String[] result = new String[strings.length];
 
             int progressValue = 0;
 
-            for (int i = 0; i < apiResults.length; i++) {
+            for (int i = 0; i < strings.length; i++) {
                 do {
                     try {
-                        result[i] = downloadUrl(apiResults[i].getRequestUrl());
+                        result[i] = downloadUrl(strings[i]);
                     } catch (Exception e) {
                         Log.e("error", "doInBackground: ", e);
                     }
                     Log.d("check", "data =  " + result[i]);
                 } while (result[i].contains("error") || result[i].contentEquals(""));
-
-                apiResults[i].setApiResult(result[i]);
-                viewModel.insert(apiResults[i]);
-
-                progressValue = (i + 1) * MAX_PROGRESS_GET_VALUE / result.length;
+                progressValue = (i + 1) * MAX_PROGRESS_GET_VALUE / strings.length;
                 publishProgress(progressValue);
             }
             return result;
