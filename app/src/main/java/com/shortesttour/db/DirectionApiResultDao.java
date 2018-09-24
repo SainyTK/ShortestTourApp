@@ -1,4 +1,4 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -9,17 +9,14 @@ import android.arch.persistence.room.Query;
 
 import java.util.List;
 
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-
 @Dao
 public interface DirectionApiResultDao {
 
-    @Query("SELECT * FROM directionapiresult")
+    @Query("SELECT * FROM directionapiresult ORDER BY sourceId ASC,destinationId ASC")
     LiveData<List<DirectionApiResult>> getAll();
 
-    @Query("SELECT * FROM directionapiresult WHERE sourceId = :sourceId AND destinationId = :destinationId LIMIT 1")
-    LiveData<DirectionApiResult> getApiResult(int sourceId, int destinationId);
+    @Query("SELECT * FROM directionapiresult WHERE sourceId == :sourceId AND destinationId == :destinationId LIMIT 1")
+    DirectionApiResult getApiResult(int sourceId, int destinationId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(DirectionApiResult result);

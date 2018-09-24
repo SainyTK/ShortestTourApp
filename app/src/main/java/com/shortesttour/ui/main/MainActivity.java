@@ -58,15 +58,30 @@ import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.FragmentUtils;
 import com.shortesttour.utils.PinUtils;
-import com.shortesttour.utils.Room.DirectionApiResultViewModel;
-import com.shortesttour.utils.Room.PlaceViewModel;
+import com.shortesttour.db.DirectionApiResultViewModel;
+import com.shortesttour.db.PlaceViewModel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapClickListener, FindPathUtils.TaskListener {
 
@@ -145,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     private int showLineState = STATE_SHOW_NO_LINE;
     private int showPlaceState = STATE_SHOW_CURRENT_LOCATION;
 
-    private PlaceViewModel placeViewModel;
+    private Observable<List<String>> observable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,9 +195,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mPlaceList.add(currentPlace);
         mFindPathUtils = new FindPathUtils(this,mPlaceList);
         mFindPathUtils.setOnTaskFinishListener(this);
-
-        DirectionApiResultViewModel viewModel = ViewModelProviders.of(this).get(DirectionApiResultViewModel.class);
-
     }
 
     /*--------------setup section------------------*/
@@ -718,15 +730,15 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
+
     /*--------------place list manage section---------------*/
     @Override
     public void onAddToListClick(Place place) {
         if(!checkHasPlace(bottomSheetPlaceList,place)){
-            String prepareStr = getString(R.string.prepare_to_find_path,place.getPlaceTitle());
-            Toast.makeText(this, prepareStr, Toast.LENGTH_SHORT).show();
+//            String prepareStr = getString(R.string.prepare_to_find_path,place.getPlaceTitle());
+            //Toast.makeText(this, prepareStr, Toast.LENGTH_SHORT).show();
             bottomSheetPlaceList.add(place);
-
-            mFindPathUtils.addPlace(place);
+            mFindPathUtils.addPlace(mPlaceList,place);
         }
     }
 
@@ -784,13 +796,13 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     @Override
-    public void onFinishTask(String placeTitle) {
+    public void onFinishTask(int[] path) {
         textTotalTime.setVisibility(View.VISIBLE);
         textTotalDistance.setVisibility(View.VISIBLE);
         textGoingTo.setVisibility(View.VISIBLE);
         textLoading.setVisibility(View.GONE);
 
-        mPlaceList = mFindPathUtils.getPlaceList();
+        mPlaceList = updatePlaceList(path);
 
         adapter.setData(excludeCurrentPlace());
         updateBottomSheet();
@@ -801,9 +813,9 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         progressBar.setVisibility(View.INVISIBLE);
 
-        String findingPathStr = getString(R.string.added_to_list,placeTitle);
-        Toast.makeText(this, findingPathStr, Toast.LENGTH_SHORT).show();
-        findPath();
+        //String findingPathStr = getString(R.string.added_to_list,placeTitle);
+        //Toast.makeText(this, findingPathStr, Toast.LENGTH_SHORT).show();
+        //findPath();
     }
 
     @Override
@@ -862,5 +874,15 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             view = new View(this);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private List<Place> updatePlaceList(int[] path) {
+        List<Place> sortedPlace = new ArrayList<>();
+        int pathLength = path.length;
+
+        for (int i = 0; i < pathLength; i++) {
+            sortedPlace.add(mPlaceList.get(path[i]));
+        }
+        return  sortedPlace;
     }
 }

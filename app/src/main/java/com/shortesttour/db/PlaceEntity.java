@@ -1,4 +1,4 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;

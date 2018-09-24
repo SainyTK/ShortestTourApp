@@ -1,13 +1,10 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.persistence.room.RoomDatabase;
 import android.os.AsyncTask;
 
 import java.util.List;
-
-import io.reactivex.Single;
 
 public class DirectionApiResultRepository {
     private DirectionApiResultDao dao;
@@ -23,7 +20,7 @@ public class DirectionApiResultRepository {
         return  results;
     }
 
-    LiveData<DirectionApiResult> getApiResult(int sourceId, int destinationId){
+    DirectionApiResult getApiResult(int sourceId, int destinationId){
         return dao.getApiResult(sourceId,destinationId);
     }
 

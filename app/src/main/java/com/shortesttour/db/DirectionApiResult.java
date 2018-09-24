@@ -1,4 +1,4 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
@@ -8,7 +8,10 @@ import android.arch.persistence.room.PrimaryKey;
 
 public class DirectionApiResult {
 
+    @ColumnInfo
     private int sourceId;
+
+    @ColumnInfo
     private int destinationId;
 
     @ColumnInfo
@@ -47,5 +50,10 @@ public class DirectionApiResult {
 
     public void setRequestUrl(String requestUrl) {
         this.requestUrl = requestUrl;
+    }
+
+    @Override
+    public String toString() {
+        return "SrcId = " + sourceId +" DesId = " + destinationId + " req = " + requestUrl + " res = " + apiResult;
     }
 }
