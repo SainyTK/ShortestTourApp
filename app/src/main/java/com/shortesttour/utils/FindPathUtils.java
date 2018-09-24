@@ -132,41 +132,25 @@ public class FindPathUtils {
     }
 
     private void connectNodes() {
-        final Place newPlace = placeQueue.remove();
-        final LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
+        Place newPlace = placeQueue.remove();
+        LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
 
         newPlaceTitle = newPlace.getPlaceTitle();
 
-        if (mListener != null)
+        if(mListener!=null)
             mListener.OnStartTask(newPlaceTitle);
 
         mPlaceList.add(newPlace);
 
+        List<String> placesUrl = new ArrayList<>();
         for (int i = 0; i < mPlaceList.size(); i++) {
-            final Place place = mPlaceList.get(i);
-            final LiveData<DirectionApiResult> directionResult = viewModel.getResult(newPlace.getPlaceId(), place.getPlaceId());
-            directionResult.observe((MainActivity) activity, new Observer<DirectionApiResult>() {
-                @Override
-                public void onChanged(@Nullable DirectionApiResult result) {
-                    if (result != null) {
-                        Log.d("test",
-                                "onChanged: srcId = " + result.getSourceId() + " desId = " + result.getDestinationId()
-                                        + " result = " + result.getApiResult());
-                        new UpdateValueTask().execute(result.getApiResult());
-                    } else {
-                        Log.d("test", "onChanged: result = null");
-                        DirectionApiResult cache;
-                        String requestUrl = getDirectionsUrl(newPlaceLatLng, place.getPlaceLatLng());
-                        cache = new DirectionApiResult();
-                        cache.setSourceId(newPlace.getPlaceId());
-                        cache.setDestinationId(place.getPlaceId());
-                        cache.setRequestUrl(requestUrl);
-                        new GetValueTask().execute(cache);
-                    }
-                    directionResult.removeObserver(this);
-                }
-            });
+            placesUrl.add(getDirectionsUrl(newPlaceLatLng, mPlaceList.get(i).getPlaceLatLng()));
         }
+
+        String[] url = placesUrl.toArray(new String[placesUrl.size()]);
+
+        task = new GetValueTask();
+        task.execute(url);
     }
 
     public int[] getNearestPathValue() {
@@ -240,7 +224,7 @@ public class FindPathUtils {
         return data;
     }
 
-    private class GetValueTask extends AsyncTask<DirectionApiResult, Integer, String[]> {
+    private class GetValueTask extends AsyncTask<String,Integer,String[]>{
 
         @Override
         protected void onPreExecute() {
@@ -251,30 +235,26 @@ public class FindPathUtils {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            if (mListener != null)
+            if(mListener!=null)
                 mListener.onUpdateValue(values[0]);
         }
 
         @Override
-        protected String[] doInBackground(DirectionApiResult... apiResults) {
-            String[] result = new String[apiResults.length];
+        protected String[] doInBackground(String... strings) {
+            String[] result = new String[strings.length];
 
             int progressValue = 0;
 
-            for (int i = 0; i < apiResults.length; i++) {
-                do {
-                    try {
-                        result[i] = downloadUrl(apiResults[i].getRequestUrl());
-                    } catch (Exception e) {
+            for(int i=0;i<strings.length;i++){
+                do{
+                    try{
+                        result[i] = downloadUrl(strings[i]);
+                    }catch (Exception e){
                         Log.e("error", "doInBackground: ", e);
                     }
                     Log.d("check", "data =  " + result[i]);
-                } while (result[i].contains("error") || result[i].contentEquals(""));
-
-                apiResults[i].setApiResult(result[i]);
-                viewModel.insert(apiResults[i]);
-
-                progressValue = (i + 1) * MAX_PROGRESS_GET_VALUE / result.length;
+                }while (result[i].contains("error")||result[i].contentEquals(""));
+                progressValue = (i+1)*MAX_PROGRESS_GET_VALUE/strings.length;
                 publishProgress(progressValue);
             }
             return result;
@@ -289,12 +269,12 @@ public class FindPathUtils {
         }
     }
 
-    private class UpdateValueTask extends AsyncTask<String, Integer, JSONParserUtils.ParserData[]> {
+    private class UpdateValueTask extends AsyncTask<String,Integer,JSONParserUtils.ParserData[]>{
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            if (mListener != null)
+            if(mListener!=null)
                 mListener.onUpdateValue(values[0]);
         }
 
@@ -303,17 +283,17 @@ public class FindPathUtils {
             JSONParserUtils.ParserData[] parserData = new JSONParserUtils.ParserData[strings.length];
             JSONObject jsonObject;
 
-            for (int i = 0; i < strings.length; i++) {
-                try {
+            for(int i=0;i<strings.length;i++){
+                try{
                     JSONParserUtils jsonParserUtils = new JSONParserUtils();
                     jsonObject = new JSONObject(strings[i]);
 
                     parserData[i] = jsonParserUtils.parse(jsonObject);
 
-                } catch (JSONException e) {
-                    Log.e("error", "doInBackground: ", e);
+                }catch (JSONException e){
+                    Log.e("error", "doInBackground: ",e );
                 }
-                publishProgress((i + 1) * 10 / strings.length + MAX_PROGRESS_GET_VALUE);
+                publishProgress((i+1)*10/strings.length+MAX_PROGRESS_GET_VALUE);
             }
             return parserData;
         }
@@ -324,8 +304,8 @@ public class FindPathUtils {
 
             List<Integer> distances = new ArrayList<>();
 
-            try {
-                for (int i = 0; i < parserData.length; i++) {
+            try{
+                for(int i=0;i<parserData.length;i++){
                     distances.add(parserData[i].getDistance());
                 }
                 publishProgress(75);
@@ -347,24 +327,24 @@ public class FindPathUtils {
                 int[] nearestPathValue = getNearestPathValue();
 
                 System.out.println("--------Distances----------");
-                for (int i = 0; i < nearestPathValue.length; i++)
+                for(int i=0;i<nearestPathValue.length;i++)
                     System.out.print(nearestPathValue[i] + " + ");
 
                 System.out.println("");
                 System.out.println("--------SUM Distances----------");
                 System.out.println("Sum Distance = " + getNearestSumDistance());
 
-                if (mListener != null)
+                if(mListener!=null)
                     mListener.onFinishTask(newPlaceTitle);
 
                 totalDistance = graphUtils.getNearestSumDistance();
 
                 publishProgress(100);
 
-                if (placeQueue.size() > 0)
+                if(placeQueue.size()>0)
                     connectNodes();
-            } catch (Exception e) {
-                Log.e("error", "onPostExecute: ", e);
+            }catch (Exception e){
+                Log.e("error", "onPostExecute: ",e );
             }
         }
     }
@@ -396,7 +376,7 @@ public class FindPathUtils {
         }
     }
 
-    private class ParserTask extends AsyncTask<String, Integer, JSONParserUtils.ParserData> {
+    private class ParserTask extends AsyncTask<String, Integer, JSONParserUtils.ParserData>{
 
         // Parsing the data in non-ui thread
         @Override
@@ -450,22 +430,22 @@ public class FindPathUtils {
 
             // Drawing polyline in the Google Map for the i-th route
             Log.d("data", "onPostExecute: distance : " + result.getDistance() + ", duration : " + result.getDuration());
-            if (mListener != null)
+            if(mListener!=null)
                 mListener.onDrawPath(lineOptions);
         }
     }
 
-    public List<Place> collapseGraph(int position) {
+    public List<Place> collapseGraph(int position){
         graphUtils.collapseGraph(position);
         mPlaceList.remove(position);
         return mPlaceList;
     }
 
-    public int getTotalDistance() {
+    public int getTotalDistance(){
         return totalDistance;
     }
 
-    public int getTotalDuration() {
+    public int getTotalDuration(){
         return totalDuration;
     }
 }
