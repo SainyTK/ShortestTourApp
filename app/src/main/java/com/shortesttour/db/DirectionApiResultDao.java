@@ -13,7 +13,7 @@ import java.util.List;
 public interface DirectionApiResultDao {
 
     @Query("SELECT * FROM directionapiresult ORDER BY sourceId ASC,destinationId ASC")
-    LiveData<List<DirectionApiResult>> getAll();
+    List<DirectionApiResult> getAll();
 
     @Query("SELECT * FROM directionapiresult WHERE sourceId == :sourceId AND destinationId == :destinationId LIMIT 1")
     DirectionApiResult getApiResult(int sourceId, int destinationId);

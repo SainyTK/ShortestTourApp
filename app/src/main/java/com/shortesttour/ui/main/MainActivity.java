@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         updateShowLineButton();
 
         mPlaceList.add(currentPlace);
-        mFindPathUtils = new FindPathUtils(mPlaceList);
+        mFindPathUtils = new FindPathUtils(this,mPlaceList);
         mFindPathUtils.setOnTaskFinishListener(this);
     }
 

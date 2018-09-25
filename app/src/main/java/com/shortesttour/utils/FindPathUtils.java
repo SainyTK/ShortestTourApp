@@ -2,10 +2,13 @@ package com.shortesttour.utils;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.shortesttour.db.DirectionApiResult;
+import com.shortesttour.db.DirectionApiResultRepository;
 import com.shortesttour.models.Place;
 
 import org.json.JSONException;
@@ -15,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,6 +42,8 @@ public class FindPathUtils {
     private int totalDistance;
     private int totalDuration;
 
+    DirectionApiResultRepository repository;
+
     private boolean isTaskRunning = false;
 
     private static final int MAX_PROGRESS_GET_VALUE = 70;
@@ -52,7 +58,7 @@ public class FindPathUtils {
         void onDrawPath(PolylineOptions lineOptions);
     }
 
-    public FindPathUtils(List<Place> placeList) {
+    public FindPathUtils(AppCompatActivity activity,List<Place> placeList) {
 
         mPlaceList = placeList;
         graphUtils = new GraphUtils();
@@ -62,6 +68,9 @@ public class FindPathUtils {
         totalDuration = 0;
 
         graphUtils.expandGraph(null);
+
+        repository = new DirectionApiResultRepository(activity.getApplication());
+
     }
 
     public void setOnTaskFinishListener(TaskListener listener) {
@@ -101,6 +110,7 @@ public class FindPathUtils {
     public void addPlace(Place newPlace) {
 
         placeQueue.add(newPlace);
+        Log.d("Test", "Enqueue Queue Size: " + placeQueue.size());
 
         if (!isTaskRunning) {
             Log.d("test", "addPlace: connectNode");
@@ -108,23 +118,41 @@ public class FindPathUtils {
         }
     }
 
-    private void connectNodes() {
+    synchronized private void connectNodes() {
         isTaskRunning=true;
         final Place newPlace = placeQueue.remove();
+        Log.d("Test", "Dequeue Queue Size: " + placeQueue.size());
         if (mListener != null)
             mListener.OnStartTask(newPlace.getPlaceTitle());
         Observable.fromCallable(new Callable<int[]>() {
             @Override
-            public int[] call() throws Exception {
+            public int[] call(){
+                Log.d("TEST", "call: ");
                 LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
+                String[] apiResponse = new String[mPlaceList.size()];
                 mPlaceList.add(newPlace);
-                List<String> placesUrl = new ArrayList<>();
-                for (int i = 0; i < mPlaceList.size(); i++) {
-                    placesUrl.add(getDirectionsUrl(newPlaceLatLng, mPlaceList.get(i).getPlaceLatLng()));
+                for (int i = 0; i < apiResponse.length; i++) {
+                    DirectionApiResult apiResult = fetchFromDb(newPlace.getPlaceId(),mPlaceList.get(i).getPlaceId()).blockingSingle();
+                    Log.d("Test", "call2: " + apiResponse);
+                    if(apiResult.getApiResult().contentEquals("")){
+                        String url = getDirectionsUrl(newPlaceLatLng, mPlaceList.get(i).getPlaceLatLng());
+                        apiResponse[i] = requestAPI(url).blockingSingle()[0];
+
+                        Log.d("DB", "DB: insert to DB: " + apiResponse[i]);
+
+                        DirectionApiResult directionApiResult = new DirectionApiResult();
+                        directionApiResult.setSourceId(newPlace.getPlaceId());
+                        directionApiResult.setDestinationId(mPlaceList.get(i).getPlaceId());
+                        directionApiResult.setApiResult(apiResponse[i]);
+
+                        repository.insert(directionApiResult);
+                    }else{
+                        Log.d("DB", "DB: fetch data from DB : " + apiResult.getApiResult());
+                        apiResponse[i] = apiResult.getApiResult();
+                    }
                 }
-                String[] url = placesUrl.toArray(new String[placesUrl.size()]);
-                String[] response = requestAPI(url).blockingSingle();
-                JSONParserUtils.ParserData[] parserData = parseJSONData(response).blockingSingle();
+                JSONParserUtils.ParserData[] parserData = parseJSONData(apiResponse).blockingSingle();
+
                 List<Integer> distances = new ArrayList<>();
 
                 for (int i = 0; i < parserData.length; i++) {
@@ -142,7 +170,7 @@ public class FindPathUtils {
                 return path;
             }
         })
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new io.reactivex.Observer<int[]>() {
                     @Override
@@ -185,7 +213,7 @@ public class FindPathUtils {
 
                     @Override
                     public void onError(Throwable e) {
-
+                        Log.e("error", "onError: ", e);
                     }
 
                     @Override
@@ -267,23 +295,47 @@ public class FindPathUtils {
         return data;
     }
 
-    private Observable<String[]> requestAPI(final String[] requestUrls) {
+    private Observable<DirectionApiResult> fetchFromDb(final int id1, final int id2){
+        return Observable.fromCallable(new Callable<DirectionApiResult>() {
+            @Override
+            public DirectionApiResult call() throws Exception {
+                DirectionApiResult apiResult = repository.getApiResult(id1,id2);
+                if(apiResult == null){
+                    apiResult = new DirectionApiResult();
+                    apiResult.setSourceId(id1);
+                    apiResult.setDestinationId(id2);
+                    apiResult.setApiResult("");
+                }
+                return apiResult;
+            }
+        });
+    }
+
+    private Observable<String[]> requestAPI(final String... requestUrls) {
         return Observable.fromCallable(new Callable<String[]>() {
             @Override
             public String[] call() throws Exception {
                 String[] result = new String[requestUrls.length];
 
                 int progressValue = 0;
+                boolean checkError = false;
+                int numError = 0;
 
                 for (int i = 0; i < requestUrls.length; i++) {
                     do {
                         try {
                             result[i] = downloadUrl(requestUrls[i]);
+                            checkError = result[i].contains("error") || result[i].contentEquals("");
+                            if(checkError){
+                                Thread.sleep(1000);
+                                numError++;
+
+                            }
                         } catch (Exception e) {
                             Log.e("error", "call: ", e);
                         }
                         Log.d("check", "data =  " + result[i]);
-                    } while (result[i].contains("error") || result[i].contentEquals(""));
+                    } while (checkError);
                     progressValue = (i + 1) * MAX_PROGRESS_GET_VALUE / requestUrls.length;
                     publishProgress(progressValue);
                 }

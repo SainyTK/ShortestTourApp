@@ -8,31 +8,31 @@ import java.util.List;
 
 public class DirectionApiResultRepository {
     private DirectionApiResultDao dao;
-    private LiveData<List<DirectionApiResult>> results;
+//    private List<DirectionApiResult> results;
 
     public DirectionApiResultRepository(Application application){
         AppDatabase database = AppDatabase.getDatabase(application);
         dao = database.directionApiResultDao();
-        results = dao.getAll();
+        //results = dao.getAll();
     }
 
-    LiveData<List<DirectionApiResult>> getResults(){
-        return  results;
-    }
+//    public List<DirectionApiResult> getResults(){
+//        return  results;
+//    }
 
-    DirectionApiResult getApiResult(int sourceId, int destinationId){
+    public DirectionApiResult getApiResult(int sourceId, int destinationId){
         return dao.getApiResult(sourceId,destinationId);
     }
 
-    void insert(DirectionApiResult apiResult){
+    public void insert(DirectionApiResult apiResult){
         new insertTask(dao).execute(apiResult);
     }
 
-    void deleteAll(){
+    public void deleteAll(){
         new deleteAllTask(dao).execute();
     }
 
-    void delete(int sourceId,int destinationId){
+    public void delete(int sourceId,int destinationId){
         Integer[] indices = {sourceId,destinationId};
         new deleteTask(dao).execute(indices);
     }

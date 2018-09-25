@@ -14,7 +14,7 @@ public class DirectionApiResultViewModel extends AndroidViewModel{
     public DirectionApiResultViewModel(@NonNull Application application) {
         super(application);
         repository = new DirectionApiResultRepository(application);
-        results = repository.getResults();
+//        results = repository.getResults();
     }
 
     public LiveData<List<DirectionApiResult>> getResults(){
