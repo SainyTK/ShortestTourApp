@@ -1,4 +1,4 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;

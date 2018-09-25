@@ -8,17 +8,14 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.common.collect.ArrayTable;
 import com.shortesttour.models.Place;
 import com.shortesttour.ui.main.MainActivity;
-import com.shortesttour.utils.Room.DirectionApiResult;
-import com.shortesttour.utils.Room.DirectionApiResultViewModel;
+import com.shortesttour.db.DirectionApiResult;
+import com.shortesttour.db.DirectionApiResultViewModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -34,34 +32,37 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ExecutorService;
+import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
-import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
-import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 public class FindPathUtils {
+    private static final String TAG = "FindPathUtils";
     private GraphUtils graphUtils;
 
-    private GetValueTask task;
     private List<Place> mPlaceList;
-    private Queue<Place> placeQueue;
     private TaskListener mListener;
-
-    private String newPlaceTitle;
 
     private int totalDistance;
     private int totalDuration;
 
     private Activity activity;
     private DirectionApiResultViewModel viewModel;
+    private List<DirectionApiResult> apiResults;
 
     private static final int MAX_PROGRESS_GET_VALUE = 70;
 
     public interface TaskListener {
-        void onFinishTask(String placeName);
+        void onFinishTask(int[] path);
 
         void OnStartTask(String placeName);
 
@@ -75,9 +76,7 @@ public class FindPathUtils {
 
         mPlaceList = placeList;
         graphUtils = new GraphUtils();
-        placeQueue = new LinkedList<>();
-        task = new GetValueTask();
-
+        apiResults = new ArrayList<>();
 
         totalDistance = 0;
         totalDuration = 0;
@@ -85,7 +84,29 @@ public class FindPathUtils {
         graphUtils.expandGraph(null);
 
         viewModel = ViewModelProviders.of((MainActivity) activity).get(DirectionApiResultViewModel.class);
-        //viewModel.deleteAll();
+
+        viewModel.deleteAll();
+
+//        List<Place> places = JSONFileParser.getPlaces(activity,"node.json");
+//        DirectionApiResult apiResult = new DirectionApiResult();
+//
+//        for(int i=0;i<=places.size();i++){
+//            for(int j=0;j<places.size();j++){
+//                apiResult.setSourceId(i);
+//                apiResult.setDestinationId(j);
+//                apiResults.add(apiResult);
+//                viewModel.insert(apiResult);
+//            }
+//        }
+//
+//        LiveData<List<DirectionApiResult>> res = viewModel.getResults();
+//        res.observe((MainActivity) activity, new Observer<List<DirectionApiResult>>() {
+//            @Override
+//            public void onChanged(@Nullable List<DirectionApiResult> directionApiResults) {
+//                apiResults = directionApiResults;
+//                Log.d("test", "FindPathUtils: " + apiResults.get(0));
+//            }
+//        });
 
     }
 
@@ -109,34 +130,114 @@ public class FindPathUtils {
         }
     }
 
-    private void updatePlaceList(int[] path) {
-        List<Place> sortedPlace = new ArrayList<>();
-        int pathLength = path.length;
+    private Observable<List<String>> requestAPI(final List<String> reqList) {
+        return Observable.fromCallable(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+                List<String> response = new ArrayList<>();
+                publishProgress(0);
+                for (int i = 0; i < reqList.size(); i++) {
+                    try {
+                        String reqString = reqList.get(i);
+                        String res = downloadUrl(reqString);
+                        if (res.contains("error")) {
+                            Thread.sleep(1000);
+                            i--;
+                            Log.d(TAG, "call: error request");
+                        } else {
+                            Log.d(TAG, "call: got response");
+                            response.add(res);
+                            publishProgress((i / reqList.size()) * 50);
+                        }
+                    } catch (IOException e) {
+                        Log.d(TAG, "call() returned: " + response);
+                    } catch (InterruptedException Ie) {
+                        Log.e(TAG, "call: ", Ie);
+                    }
+                }
+                return response;
+            }
+        });
+    }
 
-        for (int i = 0; i < pathLength; i++) {
-            sortedPlace.add(mPlaceList.get(path[i]));
+    private Observable<List<Integer>> parseResponse(final List<String> responseList) {
+        return Observable.fromCallable(new Callable<List<Integer>>() {
+            @Override
+            public List<Integer> call() throws Exception {
+                Log.d(TAG, "call: !@#%$@*#^*");
+                JSONObject jsonObject;
+                List<Integer> distances = new ArrayList<>();
+                for (int i = 0; i < responseList.size(); i++) {
+                    try {
+                        JSONParserUtils jsonParserUtils = new JSONParserUtils();
+                        jsonObject = new JSONObject(responseList.get(i));
+                        JSONParserUtils.ParserData p = jsonParserUtils.parse(jsonObject);
+                        distances.add(p.getDistance());
+
+                        publishProgress((i / responseList.size()) * 40 + 50);
+                    } catch (JSONException e) {
+                        Log.e("error", "doInBackground: ", e);
+                    }
+                }
+                return distances;
+            }
+        });
+    }
+
+    public void addPlace(final List<Place> placeList, final Place newPlace) {
+        final List<String> requestStrings = new ArrayList<>();
+        for (Place place : placeList) {
+            String reqString = getDirectionsUrl(newPlace.getPlaceLatLng(), place.getPlaceLatLng());
+            requestStrings.add(reqString);
         }
-        mPlaceList = sortedPlace;
-    }
+        Observable.fromCallable(new Callable<List<Integer>>() {
+            @Override
+            public List<Integer> call() throws Exception {
+                List<String> res = requestAPI(requestStrings).blockingSingle();
+                List<Integer> distances = parseResponse(res).blockingSingle();
+                return distances;
+            }
+        })
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new io.reactivex.Observer<List<Integer>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-    public List<Place> getPlaceList() {
-        return mPlaceList;
-    }
+                    }
 
-    public void addPlace(Place newPlace) {
+                    @Override
+                    public void onNext(List<Integer> distances) {
+                        Log.d(TAG, "onNext: size = " + graphUtils.getDimen());
+                        graphUtils.expandGraph(distances);
+                        int[] path = graphUtils.createPathNearest();
+                        graphUtils.updateGraph(path);
+//                        placeList.add(newPlace);
+                        publishProgress(50);
+                        graphUtils.showGraph();
+                        graphUtils.showPath();
 
-        placeQueue.add(newPlace);
+                        int[] nearestPathValue = getNearestPathValue();
 
-        if (task.getStatus() != AsyncTask.Status.RUNNING)
-            connectNodes();
-    }
+                        System.out.println("--------Distances----------");
+                        for (int i = 0; i < nearestPathValue.length; i++)
+                            Log.d(TAG, "onNext: " + nearestPathValue[i] + " + ");
 
+<<<<<<< HEAD
     private void connectNodes() {
         Place newPlace = placeQueue.remove();
         LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
+=======
+                        System.out.println("");
+                        System.out.println("--------SUM Distances----------");
+                        System.out.println("Sum Distance = " + getNearestSumDistance());
+>>>>>>> 9f9019ef1284a6cb317ea32d52c2c84a681ed4a7
 
-        newPlaceTitle = newPlace.getPlaceTitle();
+                        placeList.add(newPlace);
+                        if (mListener != null)
+                            mListener.onFinishTask(path);
 
+<<<<<<< HEAD
         if(mListener!=null)
             mListener.OnStartTask(newPlaceTitle);
 
@@ -151,7 +252,25 @@ public class FindPathUtils {
 
         task = new GetValueTask();
         task.execute(url);
+=======
+                        totalDistance = graphUtils.getNearestSumDistance();
+
+                        publishProgress(100);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError() returned: " + e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+>>>>>>> 9f9019ef1284a6cb317ea32d52c2c84a681ed4a7
     }
+
 
     public int[] getNearestPathValue() {
         return graphUtils.getNearestPathValue();
@@ -224,6 +343,7 @@ public class FindPathUtils {
         return data;
     }
 
+<<<<<<< HEAD
     private class GetValueTask extends AsyncTask<String,Integer,String[]>{
 
         @Override
@@ -348,6 +468,136 @@ public class FindPathUtils {
             }
         }
     }
+=======
+//    private class GetValueTask extends AsyncTask<DirectionApiResult, Integer, String[]> {
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            publishProgress(0);
+//        }
+//
+//        @Override
+//        protected void onProgressUpdate(Integer... values) {
+//            super.onProgressUpdate(values);
+//            if (mListener != null)
+//                mListener.onUpdateValue(values[0]);
+//        }
+//
+//        @Override
+//        protected String[] doInBackground(DirectionApiResult... apiResults) {
+//            String[] result = new String[apiResults.length];
+//
+//            int progressValue = 0;
+//
+//            for (int i = 0; i < apiResults.length; i++) {
+//                do {
+//                    try {
+//                        result[i] = downloadUrl(apiResults[i].getRequestUrl());
+//                    } catch (Exception e) {
+//                        Log.e("error", "doInBackground: ", e);
+//                    }
+//                    Log.d("check", "data =  " + result[i]);
+//                } while (result[i].contains("error") || result[i].contentEquals(""));
+//
+//                apiResults[i].setApiResult(result[i]);
+//                viewModel.insert(apiResults[i]);
+//
+//                progressValue = (i + 1) * MAX_PROGRESS_GET_VALUE / result.length;
+//                publishProgress(progressValue);
+//            }
+//            return result;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String[] strings) {
+//            super.onPostExecute(strings);
+//
+//            UpdateValueTask task = new UpdateValueTask();
+//            task.execute(strings);
+//        }
+//    }
+//
+//    private class UpdateValueTask extends AsyncTask<String, Integer, JSONParserUtils.ParserData[]> {
+//
+//        @Override
+//        protected void onProgressUpdate(Integer... values) {
+//            super.onProgressUpdate(values);
+//            if (mListener != null)
+//                mListener.onUpdateValue(values[0]);
+//        }
+//
+//        @Override
+//        protected JSONParserUtils.ParserData[] doInBackground(String... strings) {
+//            JSONParserUtils.ParserData[] parserData = new JSONParserUtils.ParserData[strings.length];
+//            JSONObject jsonObject;
+//
+//            for (int i = 0; i < strings.length; i++) {
+//                try {
+//                    JSONParserUtils jsonParserUtils = new JSONParserUtils();
+//                    jsonObject = new JSONObject(strings[i]);
+//
+//                    parserData[i] = jsonParserUtils.parse(jsonObject);
+//
+//                } catch (JSONException e) {
+//                    Log.e("error", "doInBackground: ", e);
+//                }
+//                publishProgress((i + 1) * 10 / strings.length + MAX_PROGRESS_GET_VALUE);
+//            }
+//            return parserData;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(JSONParserUtils.ParserData[] parserData) {
+//            super.onPostExecute(parserData);
+//
+//            List<Integer> distances = new ArrayList<>();
+//
+//            try {
+//                for (int i = 0; i < parserData.length; i++) {
+//                    distances.add(parserData[i].getDistance());
+//                }
+//                publishProgress(75);
+//
+//                graphUtils.expandGraph(distances);
+//
+//                publishProgress(80);
+//
+//                int[] path = graphUtils.createPathNearest();
+//
+////                updatePlaceList(path);
+//                graphUtils.updateGraph(path);
+//
+//                publishProgress(90);
+//
+//                graphUtils.showGraph();
+//                graphUtils.showPath();
+//
+//                int[] nearestPathValue = getNearestPathValue();
+//
+//                System.out.println("--------Distances----------");
+//                for (int i = 0; i < nearestPathValue.length; i++)
+//                    System.out.print(nearestPathValue[i] + " + ");
+//
+//                System.out.println("");
+//                System.out.println("--------SUM Distances----------");
+//                System.out.println("Sum Distance = " + getNearestSumDistance());
+//
+//                if (mListener != null)
+//                    mListener.onFinishTask(path);
+//
+//                totalDistance = graphUtils.getNearestSumDistance();
+//
+//                publishProgress(100);
+//
+//                if (placeQueue.size() > 0)
+//                    connectNodes();
+//            } catch (Exception e) {
+//                Log.e("error", "onPostExecute: ", e);
+//            }
+//        }
+//    }
+>>>>>>> 9f9019ef1284a6cb317ea32d52c2c84a681ed4a7
 
     private class DownloadTask extends AsyncTask<String, Void, String> {
 
@@ -448,4 +698,13 @@ public class FindPathUtils {
     public int getTotalDuration(){
         return totalDuration;
     }
+<<<<<<< HEAD
 }
+=======
+
+    private void publishProgress(int value) {
+        if (mListener != null)
+            mListener.onUpdateValue(value);
+    }
+}
+>>>>>>> 9f9019ef1284a6cb317ea32d52c2c84a681ed4a7

@@ -1,4 +1,4 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;

@@ -105,7 +105,6 @@ public class GraphUtils {
     }
 
     public synchronized void expandGraph(List<Integer> values){
-
             int len = getDimen();
             int[][] tempGraph = new int[len][len];
             cloneGraph(tempGraph,graph);

@@ -1,4 +1,4 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
@@ -6,8 +6,6 @@ import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
 import java.util.List;
-
-import io.reactivex.Single;
 
 public class DirectionApiResultViewModel extends AndroidViewModel{
     private DirectionApiResultRepository repository;
@@ -35,7 +33,7 @@ public class DirectionApiResultViewModel extends AndroidViewModel{
         repository.delete(sourceId,destinationId);
     }
 
-    public LiveData<DirectionApiResult> getResult(int sourceId, int destinationId){
+    public DirectionApiResult getResult(int sourceId, int destinationId){
         return repository.getApiResult(sourceId,destinationId);
     }
 }
