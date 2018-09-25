@@ -135,6 +135,9 @@ public class FindPathUtils {
         Place newPlace = placeQueue.remove();
         LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
 
+
+
+
         newPlaceTitle = newPlace.getPlaceTitle();
 
         if (mListener != null)
