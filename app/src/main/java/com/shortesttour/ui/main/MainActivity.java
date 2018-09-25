@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         updateShowLineButton();
 
         mPlaceList.add(currentPlace);
-        mFindPathUtils = new FindPathUtils(this,mPlaceList);
+        mFindPathUtils = new FindPathUtils(mPlaceList);
         mFindPathUtils.setOnTaskFinishListener(this);
     }
 
@@ -739,7 +739,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 //            String prepareStr = getString(R.string.prepare_to_find_path,place.getPlaceTitle());
             //Toast.makeText(this, prepareStr, Toast.LENGTH_SHORT).show();
             bottomSheetPlaceList.add(place);
-            mFindPathUtils.addPlace(mPlaceList,place);
+            mFindPathUtils.addPlace(place);
         }
     }
 
@@ -793,6 +793,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     @Override
     public void onUpdateValue(int value) {
+        Log.d(TAG, "onUpdateValue: " + value);
         progressBar.setProgress(value);
     }
 
@@ -803,7 +804,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         textGoingTo.setVisibility(View.VISIBLE);
         textLoading.setVisibility(View.GONE);
 
-        mPlaceList = updatePlaceList(path);
+        mPlaceList = mFindPathUtils.getPlaceList();
 
         adapter.setData(excludeCurrentPlace());
         updateBottomSheet();
@@ -816,7 +817,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         //String findingPathStr = getString(R.string.added_to_list,placeTitle);
         //Toast.makeText(this, findingPathStr, Toast.LENGTH_SHORT).show();
-        //findPath();
+        findPath();
     }
 
     @Override

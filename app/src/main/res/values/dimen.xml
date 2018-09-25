@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <dimen name="height_status_bar">25dp</dimen>
     <dimen name="height_search_box">42dp</dimen>
     <dimen name="margin_top_search_box">30dp</dimen>
     <dimen name="padding_search_box">4dp</dimen>
-    <dimen name="padding_oprion_button">12dp</dimen>
 
     <dimen name="margin_horizontal">12dp</dimen>
     <dimen name="margin_vertical">12dp</dimen>
     <dimen name="margin_small">2dp</dimen>
     <dimen name="margin_medium">10dp</dimen>
     <dimen name="corner_radius">5dp</dimen>
-    <dimen name="default_elevation">3dp</dimen>
     <dimen name="stroke_width">1dp</dimen>
-    <dimen name="icon_size">24dp</dimen>
 
 
     <dimen name="text_small">12sp</dimen>
     <dimen name="text_normal">14sp</dimen>
-    <dimen name="text_large">18sp</dimen>
-    <dimen name="text_huge">24sp</dimen>
 
     <dimen name="peek_height">200dp</dimen>
     <dimen name="bottom_sheet_radius">20dp</dimen>
