@@ -13,6 +13,7 @@ import com.shortesttour.models.Place;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.Parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,11 +29,19 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.operators.observable.ObservableAll;
 import io.reactivex.schedulers.Schedulers;
 
 public class FindPathUtils {
+
+    private long totalRuntime = 0;
+    private long startRuntime;
+    private long runtime;
+
     private GraphUtils graphUtils;
 
     private List<Place> mPlaceList;
@@ -70,27 +79,79 @@ public class FindPathUtils {
         graphUtils.expandGraph(null);
 
         repository = new DirectionApiResultRepository(activity.getApplication());
-        //repository.deleteAll();
+      //  repository.deleteAll();
     }
 
     public void setOnTaskFinishListener(TaskListener listener) {
         mListener = listener;
     }
 
-    public void findPath(List<Place> placeList) {
-        int[] path = graphUtils.createPathNearest();
-        int pathLength = path.length;
+    public void findPath(final List<Place> placeList) {
+        final int[] path = graphUtils.createPathNearest();
+        final int pathLength = path.length;
 
-        List<String> placesUrl = new ArrayList<>();
-        for (int i = 0; i < pathLength - 1; i++) {
-            placesUrl.add(getDirectionsUrl(placeList.get(path[i]).getPlaceLatLng(), placeList.get(path[i + 1]).getPlaceLatLng()));
-        }
-        placesUrl.add(getDirectionsUrl(placeList.get(path[pathLength - 1]).getPlaceLatLng(), placeList.get(path[0]).getPlaceLatLng()));
+        Observable.fromCallable(new Callable<JSONParserUtils.ParserData[]>() {
+            @Override
+            public JSONParserUtils.ParserData[] call(){
+                Log.d("TEST", "call: ");
+                String[] apiResponse = new String[mPlaceList.size()];
+                for (int i = 0; i < pathLength; i++) {
+                    int src = i<pathLength-1 ? path[i] : path[pathLength-1];
+                    int des = i<pathLength-1 ? path[i+1] : 0;
+                    DirectionApiResult apiResult = fetchFromDb(placeList.get(src).getPlaceId(),mPlaceList.get(des).getPlaceId()).blockingSingle();
+                    Log.d("Test", "call2: " + apiResponse);
+                    if(apiResult.getApiResult().contentEquals("")){
+                        String url = getDirectionsUrl(placeList.get(src).getPlaceLatLng(), placeList.get(des).getPlaceLatLng());
 
-        for (String placeUrlString : placesUrl) {
-            DownloadTask downloadTask = new DownloadTask();
-            downloadTask.execute(placeUrlString);
-        }
+                        apiResponse[i] = requestAPI(url).blockingSingle()[0];
+
+                        DirectionApiResult directionApiResult = new DirectionApiResult();
+                        directionApiResult.setSourceId(placeList.get(src).getPlaceId());
+                        directionApiResult.setDestinationId(mPlaceList.get(des).getPlaceId());
+                        directionApiResult.setApiResult(apiResponse[i]);
+
+                        repository.insert(directionApiResult);
+                    }else{
+                        Log.d("DB", "DB: fetch data from DB : " + apiResult.getApiResult());
+                        apiResponse[i] = apiResult.getApiResult();
+                    }
+                }
+                JSONParserUtils.ParserData[] parserData = parseJSONData(apiResponse).blockingSingle();
+
+                return parserData;
+            }
+        })
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new io.reactivex.Observer<JSONParserUtils.ParserData[]>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(JSONParserUtils.ParserData[] parserData) {
+                        try {
+
+                            for(JSONParserUtils.ParserData data:parserData){
+                                drawPath(data);
+                            }
+
+                        } catch (Exception e) {
+                            Log.e("error", "onPostExecute: ", e);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("error", "onError: ", e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d("response", "onComplete: ");
+                    }
+                });
     }
 
     private void updatePlaceList(int[] path) {
@@ -108,7 +169,6 @@ public class FindPathUtils {
     }
 
     public void addPlace(Place newPlace) {
-
         placeQueue.add(newPlace);
         Log.d("Test", "Enqueue Queue Size: " + placeQueue.size());
 
@@ -119,38 +179,24 @@ public class FindPathUtils {
     }
 
     synchronized private void connectNodes() {
-        isTaskRunning=true;
+
+        startRuntime = System.currentTimeMillis();
+
+        isTaskRunning = true;
         final Place newPlace = placeQueue.remove();
         Log.d("Test", "Dequeue Queue Size: " + placeQueue.size());
         if (mListener != null)
             mListener.OnStartTask(newPlace.getPlaceTitle());
+
         Observable.fromCallable(new Callable<int[]>() {
             @Override
             public int[] call(){
                 Log.d("TEST", "call: ");
-                LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
-                String[] apiResponse = new String[mPlaceList.size()];
+
+                String[] apiResponse = getApiResponse(newPlace);
+
                 mPlaceList.add(newPlace);
-                for (int i = 0; i < apiResponse.length; i++) {
-                    DirectionApiResult apiResult = fetchFromDb(newPlace.getPlaceId(),mPlaceList.get(i).getPlaceId()).blockingSingle();
-                    Log.d("Test", "call2: " + apiResponse);
-                    if(apiResult.getApiResult().contentEquals("")){
-                        String url = getDirectionsUrl(newPlaceLatLng, mPlaceList.get(i).getPlaceLatLng());
-                        apiResponse[i] = requestAPI(url).blockingSingle()[0];
 
-                        Log.d("DB", "DB: insert to DB: " + apiResponse[i]);
-
-                        DirectionApiResult directionApiResult = new DirectionApiResult();
-                        directionApiResult.setSourceId(newPlace.getPlaceId());
-                        directionApiResult.setDestinationId(mPlaceList.get(i).getPlaceId());
-                        directionApiResult.setApiResult(apiResponse[i]);
-
-                        repository.insert(directionApiResult);
-                    }else{
-                        Log.d("DB", "DB: fetch data from DB : " + apiResult.getApiResult());
-                        apiResponse[i] = apiResult.getApiResult();
-                    }
-                }
                 JSONParserUtils.ParserData[] parserData = parseJSONData(apiResponse).blockingSingle();
 
                 List<Integer> distances = new ArrayList<>();
@@ -220,8 +266,39 @@ public class FindPathUtils {
                     public void onComplete() {
                         Log.d("response", "onComplete: ");
                         isTaskRunning = false;
+
+                        runtime = System.currentTimeMillis() - startRuntime;
+                        totalRuntime += runtime;
+
+                        Log.d("Runtime", "Number of nodes = " + mPlaceList.size());
+                        Log.d("Runtime", "Runtime = " + runtime +" ms");
+                        Log.d("Runtime", "Runtime = " + runtime/1000 +" s");
+                        Log.d("Runtime", "Total Runtime =  " + totalRuntime + " ms");
+                        Log.d("Runtime", "Total Runtime =  " + totalRuntime/1000 + " s");
                     }
                 });
+    }
+
+    private String[] getApiResponse(Place newPlace){
+
+        String[] apiResponse = new String[mPlaceList.size()];
+
+        for (int i = 0; i < apiResponse.length; i++) {
+            DirectionApiResult apiResult = fetchFromDb(newPlace.getPlaceId(),mPlaceList.get(i).getPlaceId()).blockingSingle();
+            if(apiResult.getApiResult().contentEquals("")){
+                String url = getDirectionsUrl(newPlace.getPlaceLatLng(), mPlaceList.get(i).getPlaceLatLng());
+                apiResponse[i] = requestAPI(url).blockingSingle()[0];
+                DirectionApiResult directionApiResult = new DirectionApiResult();
+                directionApiResult.setSourceId(newPlace.getPlaceId());
+                directionApiResult.setDestinationId(mPlaceList.get(i).getPlaceId());
+                directionApiResult.setApiResult(apiResponse[i]);
+                repository.insert(directionApiResult);
+            }else{
+                apiResponse[i] = apiResult.getApiResult();
+            }
+        }
+
+        return apiResponse;
     }
 
     public int[] getNearestPathValue() {
@@ -324,12 +401,13 @@ public class FindPathUtils {
                 for (int i = 0; i < requestUrls.length; i++) {
                     do {
                         try {
+                            Log.d("url", "request url : " + requestUrls[i]);
                             result[i] = downloadUrl(requestUrls[i]);
+                            Log.d("url", "response : " + result[i]);
                             checkError = result[i].contains("error") || result[i].contentEquals("");
                             if(checkError){
                                 Thread.sleep(1000);
                                 numError++;
-
                             }
                         } catch (Exception e) {
                             Log.e("error", "call: ", e);
@@ -373,90 +451,39 @@ public class FindPathUtils {
             mListener.onUpdateValue(value);
     }
 
-    private class DownloadTask extends AsyncTask<String, Void, String> {
+    private void drawPath(JSONParserUtils.ParserData result) {
+        ArrayList<LatLng> points = null;
+        PolylineOptions lineOptions = null;
 
-        @Override
-        protected String doInBackground(String... url) {
-            String data = "";
-            do {
-                try {
-                    data = downloadUrl(url[0]);
-                } catch (Exception e) {
-                    Log.d("Background Task", e.toString());
-                    break;
-                }
-            } while (data.contains("error") || data.contentEquals(""));
-            return data;
-        }
+        // Traversing through all the routes
+        for (int i = 0; i < result.getRoutes().size(); i++) {
+            points = new ArrayList<LatLng>();
+            lineOptions = new PolylineOptions();
 
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
+            // Fetching i-th route
+            List<HashMap<String, String>> path = result.getRoutes().get(i);
 
-            ParserTask parserTask = new ParserTask();
+            // Fetching all the points in i-th route
+            for (int j = 0; j < path.size(); j++) {
+                HashMap<String, String> point = path.get(j);
 
-            // Invokes the thread for parsing the JSON data
-            parserTask.execute(result);
-        }
-    }
+                double lat = Double.parseDouble(point.get("lat"));
+                double lng = Double.parseDouble(point.get("lng"));
+                LatLng position = new LatLng(lat, lng);
 
-    private class ParserTask extends AsyncTask<String, Integer, JSONParserUtils.ParserData> {
-
-        // Parsing the data in non-ui thread
-        @Override
-        protected JSONParserUtils.ParserData doInBackground(String... jsonData) {
-
-            JSONObject jObject;
-            JSONParserUtils.ParserData data = null;
-
-            try {
-                jObject = new JSONObject(jsonData[0]);
-                JSONParserUtils parser = new JSONParserUtils();
-
-                // Starts parsing data
-                data = parser.parse(jObject);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return data;
-        }
-
-        // Executes in UI thread, after the parsing process
-        @Override
-        protected void onPostExecute(JSONParserUtils.ParserData result) {
-            ArrayList<LatLng> points = null;
-            PolylineOptions lineOptions = null;
-
-            // Traversing through all the routes
-            for (int i = 0; i < result.getRoutes().size(); i++) {
-                points = new ArrayList<LatLng>();
-                lineOptions = new PolylineOptions();
-
-                // Fetching i-th route
-                List<HashMap<String, String>> path = result.getRoutes().get(i);
-
-                // Fetching all the points in i-th route
-                for (int j = 0; j < path.size(); j++) {
-                    HashMap<String, String> point = path.get(j);
-
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
-
-                    points.add(position);
-                }
-
-                // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(2);
-                lineOptions.color(Color.RED);
+                points.add(position);
             }
 
-            // Drawing polyline in the Google Map for the i-th route
-            Log.d("data", "onPostExecute: distance : " + result.getDistance() + ", duration : " + result.getDuration());
-            if (mListener != null)
-                mListener.onDrawPath(lineOptions);
+            // Adding all the points in the route to LineOptions
+            lineOptions.addAll(points);
+            lineOptions.width(2);
+            lineOptions.color(Color.RED);
         }
+
+        // Drawing polyline in the Google Map for the i-th route
+        Log.d("data", "onPostExecute: distance : " + result.getDistance() + ", duration : " + result.getDuration());
+        if (mListener != null)
+            mListener.onDrawPath(lineOptions);
     }
 
     public List<Place> collapseGraph(int position) {
