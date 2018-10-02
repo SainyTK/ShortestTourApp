@@ -70,7 +70,7 @@ public class FindPathUtils {
         graphUtils.expandGraph(null);
 
         repository = new DirectionApiResultRepository(activity.getApplication());
-
+        //repository.deleteAll();
     }
 
     public void setOnTaskFinishListener(TaskListener listener) {

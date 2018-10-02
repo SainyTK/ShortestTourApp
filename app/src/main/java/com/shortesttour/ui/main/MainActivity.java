@@ -213,15 +213,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     private void setupLocationManager() {
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (mLocationPermissionGranted)
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20, 5, this);
     }
 
     private void getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -840,7 +835,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         currentPlace.setPlaceLatLng(currentLatLng);
         currentLocation = location;
-
     }
 
     /*-----------------------SQLite Database Section----------------*/
