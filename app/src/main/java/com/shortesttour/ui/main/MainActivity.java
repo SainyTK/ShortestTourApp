@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -58,30 +57,14 @@ import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.FragmentUtils;
 import com.shortesttour.utils.PinUtils;
-import com.shortesttour.db.DirectionApiResultViewModel;
-import com.shortesttour.db.PlaceViewModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.PublishSubject;
 
 public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapClickListener, FindPathUtils.TaskListener {
 
@@ -174,8 +157,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
 
-        mPinUtils = new PinUtils(this);
+        Log.d(TAG, "onCreate: START");
 
+        mPinUtils = new PinUtils(this);
+//
         currentPlace = new Place(0,"You","Your Location",0,0);
 
         mSuggestData = new ArrayList<>();
@@ -183,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mPlaceList = new ArrayList<>();
         bottomSheetPlaceList = new ArrayList<>();
         mLineList = new ArrayList<>();
-
+//
         setupMap();
         setupLocationManager();
         setupBottomSheet();
@@ -197,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mFindPathUtils.setOnTaskFinishListener(this);
     }
 
-    /*--------------setup section------------------*/
+    /*--------------A: setup section------------------*/
     private void setupMap() {
         SupportMapFragment mapFragment = new SupportMapFragment();
 
@@ -394,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     }
 
-    /*--------------bottom sheet control section------------------*/
+    /*--------------B: bottom sheet control section------------------*/
 
     public void hideBottomNav(){
         AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this,R.animator.fade_animator);
@@ -446,11 +431,11 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         textNumPlace.setVisibility(View.VISIBLE);
         textGoingTo.setVisibility(View.VISIBLE);
         textTotalDistance.setVisibility(View.VISIBLE);
+        textTotalTime.setVisibility(View.VISIBLE);
 
 
         //gone
         btnAdd.setVisibility(View.GONE);
-        textTotalTime.setVisibility(View.GONE);
         textLoading.setVisibility(View.GONE);
     }
 
@@ -466,6 +451,9 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
             String strTotalDistance = getString(R.string.total_distance,toDistanceText(mFindPathUtils.getNearestSumDistance()));
             textTotalDistance.setText(strTotalDistance);
+
+            String strTotalDuration = getString(R.string.total_duration,toDurationText(mFindPathUtils.getNearestSumDuration()));
+            textTotalTime.setText(strTotalDuration);
         }else{
             setButtonNoPlace();
         }
@@ -479,8 +467,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     public String toDurationText(int duration){
-        int hours = Math.round(duration/60f);
-        int minutes = duration%60;
+        int hours = Math.round(duration/3600);
+        int minutes = Math.round(duration/3600%60);
         String durationText = "";
         if(hours>0)
             durationText = hours + " " + getString(R.string.hr) + " ";
@@ -489,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     private void updateDistance(){
-        int[] nearestPathValue = mFindPathUtils.getNearestPathValue();
+        int[] nearestPathValue = mFindPathUtils.getNearestDistance();
         int sum = 0;
 
         for(int i=0;i<adapter.getData().size();i++){
@@ -498,7 +486,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
-    /*--------------search control section------------------*/
+    /*--------------C: search control section------------------*/
 
     private void showSearchButtons(){
         searchBackButton.setVisibility(View.VISIBLE);
@@ -528,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         autoCompleteTextView.setText("");
     }
 
-    /*--------------fragment control section------------------*/
+    /*--------------D: fragment control section------------------*/
     @OnClick(R.id.search_back_btn)
     @Override
     public void onBackPressed() {
@@ -560,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
-    /*--------------map control section------------------*/
+    /*--------------E: map control section------------------*/
     @Override
     public void onShowInMapClick(LatLng latLng, String placeTitle) {
         Log.d(TAG, "showInMap: ");
@@ -618,7 +606,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     void findPath(){
         mLineList.clear();
-        mFindPathUtils.findPath(mPlaceList);
+        mFindPathUtils.findPath();
     }
 
     @Override
@@ -665,7 +653,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         updateShowLineButton();
     }
 
-    /*------------------Map Tools Section------------------*/
+    /*------------------F: Map Tools Section------------------*/
     public void hideMapTools(){
         hideBottomSheet();
         hideSearchBar();
@@ -727,12 +715,17 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
 
-    /*--------------place list manage section---------------*/
+    /*--------------G: place list manage section---------------*/
     @Override
     public void onAddToListClick(Place place) {
+
+//        List<Place> searchPlaceList = searchFragment.getPlaceList();
+//        for(int i=0;i<60;i++){
+//            Place p = searchPlaceList.get(i);
+//            bottomSheetPlaceList.add(p);
+//            mFindPathUtils.addPlace(p);
+//        }
         if(!checkHasPlace(bottomSheetPlaceList,place)){
-//            String prepareStr = getString(R.string.prepare_to_find_path,place.getPlaceTitle());
-            //Toast.makeText(this, prepareStr, Toast.LENGTH_SHORT).show();
             bottomSheetPlaceList.add(place);
             mFindPathUtils.addPlace(place);
         }
@@ -788,7 +781,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     @Override
     public void onUpdateValue(int value) {
-        Log.d(TAG, "onUpdateValue: " + value);
+//        Log.d(TAG, "onUpdateValue: " + value);
         progressBar.setProgress(value);
     }
 

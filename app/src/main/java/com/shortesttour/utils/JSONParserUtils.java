@@ -4,6 +4,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.shortesttour.utils.graph.GraphNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,9 +19,9 @@ public class JSONParserUtils {
     /**
      * Receives a JSONObject and returns a list of lists containing latitude and longitude
      */
-    public ParserData parse(JSONObject jObject) {
+    public GraphNode parse(JSONObject jObject) {
 
-        ParserData data = new ParserData();
+        GraphNode data = new GraphNode();
         JSONArray jRoutes = null;
         JSONArray jLegs = null;
         JSONArray jSteps = null;
@@ -105,42 +106,6 @@ public class JSONParserUtils {
         }
 
         return poly;
-    }
-
-    public class ParserData{
-        private List<List<HashMap<String, String>>> routes;
-        private int distance;
-        private int duration;
-
-        public ParserData(){
-            routes = new ArrayList<>();
-            distance = 0;
-            duration = 0;
-        }
-
-        public List<List<HashMap<String, String>>> getRoutes() {
-            return routes;
-        }
-
-        public void setRoutes(List<List<HashMap<String, String>>> routes) {
-            this.routes = routes;
-        }
-
-        public int getDistance() {
-            return distance;
-        }
-
-        public void setDistance(int distance) {
-            this.distance = distance;
-        }
-
-        public int getDuration() {
-            return duration;
-        }
-
-        public void setDuration(int duration) {
-            this.duration = duration;
-        }
     }
 
 }

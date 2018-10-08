@@ -4,15 +4,21 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
-@Entity(primaryKeys = {"sourceId","destinationId"})
+@Entity(primaryKeys = {"srcLat","srcLng","desLat","desLng"})
 
 public class DirectionApiResult {
 
     @ColumnInfo
-    private int sourceId;
+    private double srcLat;
 
     @ColumnInfo
-    private int destinationId;
+    private double srcLng;
+
+    @ColumnInfo
+    private double desLat;
+
+    @ColumnInfo
+    private double desLng;
 
     @ColumnInfo
     private String requestUrl;
@@ -20,20 +26,36 @@ public class DirectionApiResult {
     @ColumnInfo
     private String apiResult;
 
-    public int getSourceId() {
-        return sourceId;
+    public double getSrcLat() {
+        return srcLat;
     }
 
-    public void setSourceId(int sourceId) {
-        this.sourceId = sourceId;
+    public void setSrcLat(double srcLat) {
+        this.srcLat = srcLat;
     }
 
-    public int getDestinationId() {
-        return destinationId;
+    public double getSrcLng() {
+        return srcLng;
     }
 
-    public void setDestinationId(int destinationId) {
-        this.destinationId = destinationId;
+    public void setSrcLng(double srcLng) {
+        this.srcLng = srcLng;
+    }
+
+    public double getDesLat() {
+        return desLat;
+    }
+
+    public void setDesLat(double desLat) {
+        this.desLat = desLat;
+    }
+
+    public double getDesLng() {
+        return desLng;
+    }
+
+    public void setDesLng(double desLng) {
+        this.desLng = desLng;
     }
 
     public String getApiResult() {
@@ -54,6 +76,6 @@ public class DirectionApiResult {
 
     @Override
     public String toString() {
-        return "SrcId = " + sourceId +" DesId = " + destinationId + " req = " + requestUrl + " res = " + apiResult;
+        return "Src = " + srcLat + "," + srcLng + " Des = " + desLat + "," + desLng + " req = " + requestUrl + " res = " + apiResult;
     }
 }

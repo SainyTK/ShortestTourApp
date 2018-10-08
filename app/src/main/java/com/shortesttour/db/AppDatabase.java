@@ -8,14 +8,13 @@ import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-@Database(entities = {PlaceEntity.class,DirectionApiResult.class},version =  2)
+@Database(entities = {DirectionApiResult.class},version =  3)
 public abstract class AppDatabase extends RoomDatabase{
-    public abstract PlaceDao placeDao();
     public abstract DirectionApiResultDao directionApiResultDao();
 
     private static volatile AppDatabase INSTANCE;
 
-    static final Migration MIGRATION = new Migration(1,2) {
+    static final Migration MIGRATION = new Migration(2,3) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
 

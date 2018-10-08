@@ -20,8 +20,8 @@ public class DirectionApiResultRepository {
 //        return  results;
 //    }
 
-    public DirectionApiResult getApiResult(int sourceId, int destinationId){
-        return dao.getApiResult(sourceId,destinationId);
+    public DirectionApiResult getApiResult(double srcLat,double srcLng,double desLat,double desLng){
+        return dao.getApiResult(srcLat,srcLng,desLat,desLng);
     }
 
     public void insert(DirectionApiResult apiResult){
@@ -32,9 +32,9 @@ public class DirectionApiResultRepository {
         new deleteAllTask(dao).execute();
     }
 
-    public void delete(int sourceId,int destinationId){
-        Integer[] indices = {sourceId,destinationId};
-        new deleteTask(dao).execute(indices);
+    public void delete(double srcLat,double srcLng,double desLat,double desLng){
+        Double[] latLng = {srcLat,srcLng,desLat,desLng};
+        new deleteTask(dao).execute(latLng);
     }
 
     private static class insertTask extends AsyncTask<DirectionApiResult,Void,Void>{
@@ -65,7 +65,7 @@ public class DirectionApiResultRepository {
         }
     }
 
-    private static class deleteTask extends AsyncTask<Integer,Void,Void>{
+    private static class deleteTask extends AsyncTask<Double,Void,Void>{
         private DirectionApiResultDao dao;
 
         deleteTask(DirectionApiResultDao dao){
@@ -73,10 +73,12 @@ public class DirectionApiResultRepository {
         }
 
         @Override
-        protected Void doInBackground(Integer... integers) {
-            int sourceId = integers[0];
-            int destinationId = integers[1];
-            dao.delete(sourceId,destinationId);
+        protected Void doInBackground(Double... latLngs) {
+            double srcLat = latLngs[0];
+            double srcLng = latLngs[1];
+            double desLat = latLngs[2];
+            double desLng = latLngs[3];
+            dao.delete(srcLat,srcLng,desLat,desLng);
             return null;
         }
     }

@@ -12,11 +12,14 @@ import java.util.List;
 @Dao
 public interface DirectionApiResultDao {
 
-    @Query("SELECT * FROM directionapiresult ORDER BY sourceId ASC,destinationId ASC")
+    @Query("SELECT * FROM directionapiresult")
     List<DirectionApiResult> getAll();
 
-    @Query("SELECT * FROM directionapiresult WHERE sourceId == :sourceId AND destinationId == :destinationId LIMIT 1")
-    DirectionApiResult getApiResult(int sourceId, int destinationId);
+    @Query("SELECT * FROM directionapiresult WHERE srcLat == :srcLat " +
+            " AND srcLng == :srcLng " +
+            " AND desLat == :desLat " +
+            " AND desLng == :desLng ")
+    DirectionApiResult getApiResult(double srcLat,double srcLng,double desLat,double desLng);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(DirectionApiResult result);
@@ -24,8 +27,11 @@ public interface DirectionApiResultDao {
     @Query("DELETE FROM DirectionApiResult")
     void deleteAll();
 
-    @Query("DELETE FROM DirectionApiResult WHERE sourceId = :sourceId AND destinationId = :destinationId")
-    void delete(int sourceId,int destinationId);
+    @Query("DELETE FROM DirectionApiResult WHERE srcLat == :srcLat " +
+            " AND srcLng == :srcLng " +
+            " AND desLat == :desLat " +
+            " AND desLng == :desLng ")
+    void delete(double srcLat,double srcLng,double desLat,double desLng);
 
     @Delete
     void delete(DirectionApiResult... directionApiResults);
