@@ -6,8 +6,6 @@
 
     <color name="colorStrokeBorder">#aeaeae</color>
 
-    <color name="text_hint">@color/colorStrokeBorder</color>
-
     <color name="colorLine">#efefef</color>
 
     <color name="transparent">#00000000</color>

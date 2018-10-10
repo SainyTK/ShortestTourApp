@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ShortestTour</string>
-    <string name="hello">สวัสดี</string>
     <string name="driving">ขับขี่</string>
     <string name="add_place">เพิ่มสถานที่</string>
     <string name="no_place">ไม่มีสถานที่</string>
@@ -17,7 +16,5 @@
     <string name="show_in_map">แสดงบนแผนที่</string>
     <string name="add_to_list">เพิ่มในลิสต์</string>
     <string name="places">%d สถานที่</string>
-    <string name="prepare_to_find_path">กำลังเตรียมหาเส้นทางของ %s</string>
     <string name="finding_path">กำลังหาเส้นทางของ %s</string>
-    <string name="added_to_list">เพิ่ม %s ลงในลิสต์แล้ว</string>
 </resources>

@@ -25,7 +25,7 @@ public class PinUtils {
     }
 
     public Bitmap createNumberPin(int num){
-        String text = num+"";
+        String text = num+1+"";
         Bitmap bm = null;
         if(num==0){
             bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.pin_blue)
@@ -54,10 +54,10 @@ public class PinUtils {
             paint.setTextSize(convertToPixels(activity, 7));        //Scaling needs to be used for different dpi's
 
         //Calculate the positions
-        int xPos = (canvas.getWidth() / 2);     //-2 is for regulating the x position offset
+        int xPos = (canvas.getWidth() / 2)+1;     //-2 is for regulating the x position offset
 
         //"- ((paint.descent() + paint.ascent()) / 2)" is the distance from the baseline to the center.
-        int yPos = (int) ((canvas.getHeight() / 2));
+        int yPos = (int) ((canvas.getHeight() / 2))-2;
 
         canvas.drawText(text, xPos, yPos, paint);
 
