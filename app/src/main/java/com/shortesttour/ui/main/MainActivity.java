@@ -21,7 +21,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputType;
@@ -286,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     private void setupRecyclerView(){
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManager = new BottomSheetLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
         adapter = new BottomSheetPlaceAdapter(new ArrayList<Place>());
@@ -468,10 +467,12 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     public String toDurationText(int duration){
         int hours = Math.round(duration/3600);
-        int minutes = Math.round(duration/3600%60);
+        int minutes = Math.round(duration%60);
         String durationText = "";
-        if(hours>0)
+        if(hours>0){
             durationText = hours + " " + getString(R.string.hr) + " ";
+            minutes = Math.round(duration/3600%60);
+        }
         durationText = durationText + minutes + " " + getString(R.string.min);
         return durationText;
     }
@@ -482,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
         for(int i=0;i<adapter.getData().size();i++){
             sum+=nearestPathValue[i];
-            adapter.updateData(i,sum);
+            adapter.updateDistance(i,sum);
         }
     }
 
@@ -598,13 +599,13 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     public void pinAllLocation(){
         List<Place> placeList = excludeCurrentPlace();
-        for(int i=0;i<placeList.size();i++){
+        for(int i=placeList.size()-1;i>=0;i--){
             Place place = placeList.get(i);
             pinLocation(place.getPlaceLatLng(),place.getPlaceTitle(),i);
         }
     }
 
-    void findPath(){
+    void findPath() {
         mLineList.clear();
         mFindPathUtils.findPath();
     }
@@ -634,9 +635,12 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     private void drawAllPath(){
-        for(PolylineOptions line:mLineList){
+        for(int i=1;i<mLineList.size();i++){
+            PolylineOptions line = mLineList.get(i);
             mMap.addPolyline(line);
         }
+        if(mLineList.size()>0)
+            mMap.addPolyline(mLineList.get(0));
     }
 
     public void showCurrentLine(){
@@ -720,7 +724,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     public void onAddToListClick(Place place) {
 
 //        List<Place> searchPlaceList = searchFragment.getPlaceList();
-//        for(int i=0;i<60;i++){
+//        for(int i=0;i<40;i++){
 //            Place p = searchPlaceList.get(i);
 //            bottomSheetPlaceList.add(p);
 //            mFindPathUtils.addPlace(p);
@@ -731,7 +735,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
-    public boolean checkHasPlace(List<Place> placeList,Place newPlace){
+    synchronized public boolean checkHasPlace(List<Place> placeList,Place newPlace){
         for(Place place:placeList){
             if(place.getPlaceTitle().contentEquals(newPlace.getPlaceTitle()))
                 return true;
@@ -743,15 +747,14 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     public void onRemovePlace(int position) {
         mPlaceList = mFindPathUtils.collapseGraph(position+1);
         bottomSheetPlaceList = excludeCurrentPlace();
-
         adapter.setData(bottomSheetPlaceList);
 
         updateDistance();
         updateBottomSheet();
         updateShowLineButton();
         mMap.clear();
-        pinAllLocation();
 
+        pinAllLocation();
         findPath();
     }
 
@@ -809,14 +812,11 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     @Override
-    public void onDrawPath(PolylineOptions polylineOptions) {
-        if(polylineOptions!=null){
-            if(mLineList.size()==0)
-                polylineOptions.color(getResources().getColor(R.color.activeTint));
-            mLineList.add(polylineOptions);
+    public void onDrawPath(List<PolylineOptions> polylineOptions) {
+        if(polylineOptions.size()>0) {
+            polylineOptions.get(0).color(getResources().getColor(R.color.activeTint));
+            mLineList = polylineOptions;
             showAllLine();
-        }else{
-            Toast.makeText(this, "Error Get Path", Toast.LENGTH_SHORT).show();
         }
     }
 

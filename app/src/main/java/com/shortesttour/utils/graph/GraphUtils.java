@@ -43,7 +43,7 @@ public class GraphUtils {
             }
         }
 
-        graph = newGraph;
+        this.graph = newGraph;
     }
 
     //Nearest Neightbor
@@ -76,7 +76,7 @@ public class GraphUtils {
             resetVisit();
     }
 
-    public void collapseGraph(int position){
+    public synchronized void collapseGraph(int position){
         int len = getDimen();
         GraphNode[][] tempGraph = new GraphNode[len-1][len-1];
 
@@ -98,13 +98,13 @@ public class GraphUtils {
         int minDesIdx = 0;
         GraphNode[] destinations = graph[row];
         for(int i = 0;i<destinations.length;i++){
-            if(!visited[i]&&destinations[i].getDistance()!=0)
+            if(!visited[i]&&destinations[i].getDistance()!=-1)
                 minDesIdx = i;
         }
         for(int i=0;i<destinations.length;i++){
             int dis = destinations[i].getDistance();
             int currentMin = destinations[minDesIdx].getDistance();
-            if(!visited[i]&&dis!=0 && dis<=currentMin)
+            if(!visited[i]&&dis!=-1 && dis<=currentMin)
                 minDesIdx = i;
         }
         return minDesIdx;

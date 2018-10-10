@@ -12,8 +12,8 @@ public class GraphNode {
 
     public GraphNode(){
         routes = new ArrayList<>();
-        distance = 0;
-        duration = 0;
+        distance = -1;
+        duration = -1;
     }
 
     public List<List<HashMap<String, String>>> getRoutes() {

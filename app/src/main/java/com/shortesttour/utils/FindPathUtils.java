@@ -1,6 +1,7 @@
 package com.shortesttour.utils;
 
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -23,14 +24,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class FindPathUtils {
@@ -59,7 +63,7 @@ public class FindPathUtils {
 
         void onUpdateValue(int value);
 
-        void onDrawPath(PolylineOptions lineOptions);
+        void onDrawPath(List<PolylineOptions> lineOptions);
     }
 
     public FindPathUtils(AppCompatActivity activity,List<Place> placeList) {
@@ -79,11 +83,34 @@ public class FindPathUtils {
     }
 
     public void findPath() {
-//        List<List<HashMap<String,String>>>[] route = graphUtils.getRoutes().toArray(new List[graphUtils.getRoutes().size()]);
 
-//        for(List<List<HashMap<String,String>>> path:graphUtils.getRoutes()){
-//            drawPath(path);
-//        }
+        if(placeQueue.size()<1){
+                extractPolyline(graphUtils.getRoutes())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new io.reactivex.Observer<List<PolylineOptions>>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onNext(List<PolylineOptions> polylineOptions) {
+                                if (mListener != null)
+                                    mListener.onDrawPath(polylineOptions);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
+            }
     }
 
     private void updatePlaceList(int[] path) {
@@ -379,6 +406,47 @@ public class FindPathUtils {
         });
     }
 
+    private Observable<List<PolylineOptions>> extractPolyline(final List<List<List<HashMap<String,String>>>> pathList){
+        return Observable.fromCallable(new Callable<List<PolylineOptions>>() {
+            @Override
+            public List<PolylineOptions> call() throws Exception {
+                ArrayList<LatLng> points = null;
+                PolylineOptions lineOptions = null;
+                List<PolylineOptions> lineList = new ArrayList<>();
+
+                for(int i=0; i < pathList.size(); i++){
+                    // Traversing through all the routes
+                    List<List<HashMap<String, String>>> paths = pathList.get(i);
+                    for (int j = 0; j < paths.size(); j++) {
+                        // Fetching i-th route
+                        List<HashMap<String, String>> path = paths.get(j);
+
+                        points = new ArrayList<>();
+                        lineOptions = new PolylineOptions();
+
+                        // Fetching all the points in i-th route
+                        for (int k = 0; k < path.size()-1; k++) {
+                            HashMap<String, String> point = path.get(k);
+
+                            double lat = Double.parseDouble(point.get("lat"));
+                            double lng = Double.parseDouble(point.get("lng"));
+                            LatLng position = new LatLng(lat, lng);
+
+                            points.add(position);
+                        }
+                        // Adding all the points in the route to LineOptions
+                        lineOptions.width(1);
+                        lineOptions.color(Color.RED);
+                        lineOptions.addAll(points);
+                        lineList.add(lineOptions);
+                    }
+                }
+
+                return lineList;
+            }
+        });
+    }
+
     private void publishProgress(int value) {
         if (mListener != null)
             mListener.onUpdateValue(value);
@@ -414,13 +482,18 @@ public class FindPathUtils {
         }
 
         // Drawing polyline in the Google Map for the i-th route
-        if (mListener != null)
-            mListener.onDrawPath(lineOptions);
+
     }
 
     public List<Place> collapseGraph(int position) {
         graphUtils.collapseGraph(position);
         mPlaceList.remove(position);
+
+        int[] path = graphUtils.createNearestPath();
+        updatePlaceList(path);
+        graphUtils.updateGraph(path);
+        Log.d("text", "collapseGraph: " + graphUtils);
+
         return mPlaceList;
     }
 

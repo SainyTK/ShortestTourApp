@@ -100,7 +100,7 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
         notifyItemRemoved(position);
     }
 
-    public void updateData(int position,int value){
+    public void updateDistance(int position, int value){
         mPlaceList.get(position).setDistance(value);
         notifyItemChanged(position);
     }
