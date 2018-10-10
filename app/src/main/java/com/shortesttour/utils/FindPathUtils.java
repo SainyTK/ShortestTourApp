@@ -1,24 +1,17 @@
 package com.shortesttour.utils;
 
-import android.app.Activity;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
-import android.os.AsyncTask;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.shortesttour.db.DirectionApiResult;
+import com.shortesttour.db.DirectionApiResultRepository;
 import com.shortesttour.models.Place;
-import com.shortesttour.ui.main.MainActivity;
-import com.shortesttour.utils.Room.DirectionApiResult;
-import com.shortesttour.utils.Room.DirectionApiResultViewModel;
+import com.shortesttour.utils.graph.GraphNode;
+import com.shortesttour.utils.graph.GraphUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,82 +24,93 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observer;
 import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import io.reactivex.Maybe;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
+import java.util.concurrent.Callable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class FindPathUtils {
+
+    private long totalRuntime = 0;
+    private long startRuntime = 0;
+    private ArrayList<Long> runtimes = new ArrayList<>();
+
+
     private GraphUtils graphUtils;
 
-    private GetValueTask task;
     private List<Place> mPlaceList;
     private Queue<Place> placeQueue;
     private TaskListener mListener;
 
-    private String newPlaceTitle;
+    DirectionApiResultRepository repository;
 
-    private int totalDistance;
-    private int totalDuration;
-
-    private Activity activity;
-    private DirectionApiResultViewModel viewModel;
+    private boolean isTaskRunning = false;
 
     private static final int MAX_PROGRESS_GET_VALUE = 70;
 
     public interface TaskListener {
-        void onFinishTask(String placeName);
+        void onFinishTask(int[] path);
 
         void OnStartTask(String placeName);
 
         void onUpdateValue(int value);
 
-        void onDrawPath(PolylineOptions lineOptions);
+        void onDrawPath(List<PolylineOptions> lineOptions);
     }
 
-    public FindPathUtils(Activity activity, List<Place> placeList) {
-        this.activity = activity;
+    public FindPathUtils(AppCompatActivity activity,List<Place> placeList) {
 
         mPlaceList = placeList;
         graphUtils = new GraphUtils();
         placeQueue = new LinkedList<>();
-        task = new GetValueTask();
-
-
-        totalDistance = 0;
-        totalDuration = 0;
 
         graphUtils.expandGraph(null);
 
-        viewModel = ViewModelProviders.of((MainActivity) activity).get(DirectionApiResultViewModel.class);
-        //viewModel.deleteAll();
-
+        repository = new DirectionApiResultRepository(activity.getApplication());
+        //repository.deleteAll();
     }
 
     public void setOnTaskFinishListener(TaskListener listener) {
         mListener = listener;
     }
 
-    public void findPath(List<Place> placeList) {
-        int[] path = graphUtils.createPathNearest();
-        int pathLength = path.length;
+    public void findPath() {
 
-        List<String> placesUrl = new ArrayList<>();
-        for (int i = 0; i < pathLength - 1; i++) {
-            placesUrl.add(getDirectionsUrl(placeList.get(path[i]).getPlaceLatLng(), placeList.get(path[i + 1]).getPlaceLatLng()));
-        }
-        placesUrl.add(getDirectionsUrl(placeList.get(path[pathLength - 1]).getPlaceLatLng(), placeList.get(path[0]).getPlaceLatLng()));
+        if(placeQueue.size()<1){
+                extractPolyline(graphUtils.getRoutes())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new io.reactivex.Observer<List<PolylineOptions>>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
 
-        for (String placeUrlString : placesUrl) {
-            DownloadTask downloadTask = new DownloadTask();
-            downloadTask.execute(placeUrlString);
-        }
+                            }
+
+                            @Override
+                            public void onNext(List<PolylineOptions> polylineOptions) {
+                                if (mListener != null)
+                                    mListener.onDrawPath(polylineOptions);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
+            }
     }
 
     private void updatePlaceList(int[] path) {
@@ -124,23 +128,33 @@ public class FindPathUtils {
     }
 
     public void addPlace(Place newPlace) {
-
         placeQueue.add(newPlace);
+        Log.d("Test", "Enqueue Queue Size: " + placeQueue.size());
 
-        if (task.getStatus() != AsyncTask.Status.RUNNING)
+        if (!isTaskRunning) {
+            Log.d("test", "addPlace: connectNode");
             connectNodes();
+        }
     }
 
+<<<<<<< HEAD
     private void connectNodes() {
         Place newPlace = placeQueue.remove();
         LatLng newPlaceLatLng = newPlace.getPlaceLatLng();
 
 
 
+=======
+    synchronized private void connectNodes() {
+>>>>>>> dev
 
-        newPlaceTitle = newPlace.getPlaceTitle();
+        startRuntime = System.currentTimeMillis();
 
+        isTaskRunning = true;
+        final Place newPlace = placeQueue.remove();
+        Log.d("Test", "Dequeue Queue Size: " + placeQueue.size());
         if (mListener != null)
+<<<<<<< HEAD
             mListener.OnStartTask(newPlaceTitle);
 
         mPlaceList.add(newPlace);
@@ -154,14 +168,128 @@ public class FindPathUtils {
 
         task = new GetValueTask();
         task.execute(url);
+=======
+            mListener.OnStartTask(newPlace.getPlaceTitle());
+
+        Observable.fromCallable(new Callable<int[]>() {
+            @Override
+            public int[] call(){
+                Log.d("TEST", "call: ");
+
+                String[] apiResponse = getApiResponse(newPlace);
+
+                mPlaceList.add(newPlace);
+
+                GraphNode[] nodes = parseJSONData(apiResponse).blockingSingle();
+
+                publishProgress(75);
+                graphUtils.expandGraph(nodes);
+
+                publishProgress(80);
+                int[] path = graphUtils.createNearestPath();
+
+                updatePlaceList(path);
+                graphUtils.updateGraph(path);
+                return path;
+            }
+        })
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new io.reactivex.Observer<int[]>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(int[] path) {
+                        try {
+
+                            publishProgress(90);
+
+                            Log.d("test", "Show Graph : " + graphUtils);
+
+                            publishProgress(100);
+
+                            if (placeQueue.size() > 0)
+                                connectNodes();
+                            if (mListener != null)
+                                mListener.onFinishTask(path);
+                        } catch (Exception e) {
+                            Log.e("error", "onPostExecute: ", e);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("error", "onError: ", e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d("response", "onComplete: ");
+                        isTaskRunning = false;
+
+                        long finishTime = System.currentTimeMillis();
+                        long runtime = finishTime - startRuntime;
+                        totalRuntime += runtime;
+                        runtimes.add(runtime);
+
+                        String s = "";
+
+                        Log.d("Runtime", "Number of nodes : " + mPlaceList.size());
+                        Log.d("Runtime", "Runtime : ");
+                        for(Long time: runtimes){
+                            s += time.toString() + " ";
+                        }
+                        Log.d("Runtime", s);
+
+                    }
+                });
     }
 
-    public int[] getNearestPathValue() {
-        return graphUtils.getNearestPathValue();
+    private String[] getApiResponse(Place newPlace){
+
+        String[] apiResponse = new String[mPlaceList.size()];
+
+        for (int i = 0; i < apiResponse.length; i++) {
+            DirectionApiResult apiResult = fetchFromDb(newPlace.getLatitude(),newPlace.getLongitude(),
+                    mPlaceList.get(i).getLatitude(),mPlaceList.get(i).getLongitude()).blockingSingle();
+            if(apiResult.getApiResult().contentEquals("")){
+                String url = getDirectionsUrl(newPlace.getPlaceLatLng(), mPlaceList.get(i).getPlaceLatLng());
+                apiResponse[i] = requestAPI(url).blockingSingle()[0];
+                DirectionApiResult directionApiResult = new DirectionApiResult();
+
+                directionApiResult.setSrcLat(newPlace.getLatitude());
+                directionApiResult.setSrcLng(newPlace.getLongitude());
+                directionApiResult.setDesLat(mPlaceList.get(i).getLatitude());
+                directionApiResult.setDesLng(mPlaceList.get(i).getLongitude());
+
+                directionApiResult.setApiResult(apiResponse[i]);
+                repository.insert(directionApiResult);
+            }else{
+                apiResponse[i] = apiResult.getApiResult();
+            }
+        }
+
+        return apiResponse;
+>>>>>>> dev
+    }
+
+    public int[] getNearestDistance() {
+        return graphUtils.getNearestPathDistance();
     }
 
     public int getNearestSumDistance() {
         return graphUtils.getNearestSumDistance();
+    }
+
+    public int[] getNearestDuration() {
+        return graphUtils.getNearestPathDuration();
+    }
+
+    public int getNearestSumDuration() {
+        return graphUtils.getNearestSumDuration();
     }
 
     private String getDirectionsUrl(LatLng origin, LatLng dest) {
@@ -227,6 +355,7 @@ public class FindPathUtils {
         return data;
     }
 
+<<<<<<< HEAD
     private class GetValueTask extends AsyncTask<String, Integer, String[]> {
 
         @Override
@@ -259,196 +388,176 @@ public class FindPathUtils {
                 } while (result[i].contains("error") || result[i].contentEquals(""));
                 progressValue = (i + 1) * MAX_PROGRESS_GET_VALUE / strings.length;
                 publishProgress(progressValue);
+=======
+    private Observable<DirectionApiResult> fetchFromDb(final double srcLat, final double srcLng,final double desLat,final double desLng){
+        return Observable.fromCallable(new Callable<DirectionApiResult>() {
+            @Override
+            public DirectionApiResult call() throws Exception {
+                DirectionApiResult apiResult = repository.getApiResult(srcLat,srcLng,desLat,desLng);
+                if(apiResult == null){
+                    apiResult = new DirectionApiResult();
+                    apiResult.setSrcLat(srcLat);
+                    apiResult.setSrcLng(srcLng);
+                    apiResult.setDesLat(desLat);
+                    apiResult.setDesLng(desLng);
+                    apiResult.setApiResult("");
+                }
+                return apiResult;
+>>>>>>> dev
             }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String[] strings) {
-            super.onPostExecute(strings);
-
-            UpdateValueTask task = new UpdateValueTask();
-            task.execute(strings);
-        }
+        });
     }
 
-    private class UpdateValueTask extends AsyncTask<String, Integer, JSONParserUtils.ParserData[]> {
+    private Observable<String[]> requestAPI(final String... requestUrls) {
+        return Observable.fromCallable(new Callable<String[]>() {
+            @Override
+            public String[] call() throws Exception {
+                String[] result = new String[requestUrls.length];
 
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-            if (mListener != null)
-                mListener.onUpdateValue(values[0]);
-        }
+                int progressValue = 0;
+                boolean checkError = false;
+                int numError = 0;
 
-        @Override
-        protected JSONParserUtils.ParserData[] doInBackground(String... strings) {
-            JSONParserUtils.ParserData[] parserData = new JSONParserUtils.ParserData[strings.length];
-            JSONObject jsonObject;
-
-            for (int i = 0; i < strings.length; i++) {
-                try {
-                    JSONParserUtils jsonParserUtils = new JSONParserUtils();
-                    jsonObject = new JSONObject(strings[i]);
-
-                    parserData[i] = jsonParserUtils.parse(jsonObject);
-
-                } catch (JSONException e) {
-                    Log.e("error", "doInBackground: ", e);
+                for (int i = 0; i < requestUrls.length; i++) {
+                    do {
+                        try {
+                            Log.d("url", "request url : " + requestUrls[i]);
+                            result[i] = downloadUrl(requestUrls[i]);
+                            Log.d("url", "response : " + result[i]);
+                            checkError = result[i].contains("error") || result[i].contentEquals("");
+                            if(checkError){
+                                Thread.sleep(1000);
+                                numError++;
+                            }
+                        } catch (Exception e) {
+                            Log.e("error", "call: ", e);
+                        }
+                        Log.d("check", "data =  " + result[i]);
+                    } while (checkError);
+                    progressValue = (i + 1) * MAX_PROGRESS_GET_VALUE / requestUrls.length;
+                    publishProgress(progressValue);
                 }
-                publishProgress((i + 1) * 10 / strings.length + MAX_PROGRESS_GET_VALUE);
+                return result;
             }
-            return parserData;
-        }
-
-        @Override
-        protected void onPostExecute(JSONParserUtils.ParserData[] parserData) {
-            super.onPostExecute(parserData);
-
-            List<Integer> distances = new ArrayList<>();
-
-            try {
-                for (int i = 0; i < parserData.length; i++) {
-                    distances.add(parserData[i].getDistance());
-                }
-                publishProgress(75);
-
-                graphUtils.expandGraph(distances);
-
-                publishProgress(80);
-
-                int[] path = graphUtils.createPathNearest();
-
-                updatePlaceList(path);
-                graphUtils.updateGraph(path);
-
-                publishProgress(90);
-
-                graphUtils.showGraph();
-                graphUtils.showPath();
-
-                int[] nearestPathValue = getNearestPathValue();
-
-                System.out.println("--------Distances----------");
-                for (int i = 0; i < nearestPathValue.length; i++)
-                    System.out.print(nearestPathValue[i] + " + ");
-
-                System.out.println("");
-                System.out.println("--------SUM Distances----------");
-                System.out.println("Sum Distance = " + getNearestSumDistance());
-
-                if (mListener != null)
-                    mListener.onFinishTask(newPlaceTitle);
-
-                totalDistance = graphUtils.getNearestSumDistance();
-
-                publishProgress(100);
-
-                if (placeQueue.size() > 0)
-                    connectNodes();
-            } catch (Exception e) {
-                Log.e("error", "onPostExecute: ", e);
-            }
-        }
+        });
     }
 
-    private class DownloadTask extends AsyncTask<String, Void, String> {
+    private Observable<GraphNode[]> parseJSONData(final String[] response) {
+        return Observable.fromCallable(new Callable<GraphNode[]>() {
+            @Override
+            public GraphNode[] call() throws Exception {
+                GraphNode[] parserData = new GraphNode[response.length];
+                JSONObject jsonObject;
 
-        @Override
-        protected String doInBackground(String... url) {
-            String data = "";
-            do {
-                try {
-                    data = downloadUrl(url[0]);
-                } catch (Exception e) {
-                    Log.d("Background Task", e.toString());
-                    break;
+                for (int i = 0; i < response.length; i++) {
+                    try {
+                        JSONParserUtils jsonParserUtils = new JSONParserUtils();
+                        jsonObject = new JSONObject(response[i]);
+
+                        parserData[i] = jsonParserUtils.parse(jsonObject);
+
+                    } catch (JSONException e) {
+                        Log.e("error", "doInBackground: ", e);
+                    }
+                    publishProgress((i + 1) * 10 / response.length + MAX_PROGRESS_GET_VALUE);
                 }
-            } while (data.contains("error") || data.contentEquals(""));
-            return data;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            ParserTask parserTask = new ParserTask();
-
-            // Invokes the thread for parsing the JSON data
-            parserTask.execute(result);
-        }
+                return parserData;
+            }
+        });
     }
 
-    private class ParserTask extends AsyncTask<String, Integer, JSONParserUtils.ParserData> {
+    private Observable<List<PolylineOptions>> extractPolyline(final List<List<List<HashMap<String,String>>>> pathList){
+        return Observable.fromCallable(new Callable<List<PolylineOptions>>() {
+            @Override
+            public List<PolylineOptions> call() throws Exception {
+                ArrayList<LatLng> points = null;
+                PolylineOptions lineOptions = null;
+                List<PolylineOptions> lineList = new ArrayList<>();
 
-        // Parsing the data in non-ui thread
-        @Override
-        protected JSONParserUtils.ParserData doInBackground(String... jsonData) {
+                for(int i=0; i < pathList.size(); i++){
+                    // Traversing through all the routes
+                    List<List<HashMap<String, String>>> paths = pathList.get(i);
+                    for (int j = 0; j < paths.size(); j++) {
+                        // Fetching i-th route
+                        List<HashMap<String, String>> path = paths.get(j);
 
-            JSONObject jObject;
-            JSONParserUtils.ParserData data = null;
+                        points = new ArrayList<>();
+                        lineOptions = new PolylineOptions();
 
-            try {
-                jObject = new JSONObject(jsonData[0]);
-                JSONParserUtils parser = new JSONParserUtils();
+                        // Fetching all the points in i-th route
+                        for (int k = 0; k < path.size()-1; k++) {
+                            HashMap<String, String> point = path.get(k);
 
-                // Starts parsing data
-                data = parser.parse(jObject);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return data;
-        }
+                            double lat = Double.parseDouble(point.get("lat"));
+                            double lng = Double.parseDouble(point.get("lng"));
+                            LatLng position = new LatLng(lat, lng);
 
-        // Executes in UI thread, after the parsing process
-        @Override
-        protected void onPostExecute(JSONParserUtils.ParserData result) {
-            ArrayList<LatLng> points = null;
-            PolylineOptions lineOptions = null;
-
-            // Traversing through all the routes
-            for (int i = 0; i < result.getRoutes().size(); i++) {
-                points = new ArrayList<LatLng>();
-                lineOptions = new PolylineOptions();
-
-                // Fetching i-th route
-                List<HashMap<String, String>> path = result.getRoutes().get(i);
-
-                // Fetching all the points in i-th route
-                for (int j = 0; j < path.size(); j++) {
-                    HashMap<String, String> point = path.get(j);
-
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
-
-                    points.add(position);
+                            points.add(position);
+                        }
+                        // Adding all the points in the route to LineOptions
+                        lineOptions.width(1);
+                        lineOptions.color(Color.RED);
+                        lineOptions.addAll(points);
+                        lineList.add(lineOptions);
+                    }
                 }
 
-                // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(2);
-                lineOptions.color(Color.RED);
+                return lineList;
+            }
+        });
+    }
+
+    private void publishProgress(int value) {
+        if (mListener != null)
+            mListener.onUpdateValue(value);
+    }
+
+    private void drawPath(List<List<HashMap<String, String>>> paths) {
+        ArrayList<LatLng> points = null;
+        PolylineOptions lineOptions = null;
+
+        // Traversing through all the routes
+        for (int i = 0; i < paths.size(); i++) {
+            points = new ArrayList<LatLng>();
+            lineOptions = new PolylineOptions();
+
+            // Fetching i-th route
+            List<HashMap<String, String>> path = paths.get(i);
+
+            // Fetching all the points in i-th route
+            for (int j = 0; j < path.size(); j++) {
+                HashMap<String, String> point = path.get(j);
+
+                double lat = Double.parseDouble(point.get("lat"));
+                double lng = Double.parseDouble(point.get("lng"));
+                LatLng position = new LatLng(lat, lng);
+
+                points.add(position);
             }
 
-            // Drawing polyline in the Google Map for the i-th route
-            Log.d("data", "onPostExecute: distance : " + result.getDistance() + ", duration : " + result.getDuration());
-            if (mListener != null)
-                mListener.onDrawPath(lineOptions);
+            // Adding all the points in the route to LineOptions
+            lineOptions.addAll(points);
+            lineOptions.width(2);
+            lineOptions.color(Color.RED);
         }
+
+        // Drawing polyline in the Google Map for the i-th route
+
     }
 
     public List<Place> collapseGraph(int position) {
         graphUtils.collapseGraph(position);
         mPlaceList.remove(position);
+
+        int[] path = graphUtils.createNearestPath();
+        updatePlaceList(path);
+        graphUtils.updateGraph(path);
+        Log.d("text", "collapseGraph: " + graphUtils);
+
         return mPlaceList;
     }
+<<<<<<< HEAD
+=======
 
-    public int getTotalDistance() {
-        return totalDistance;
-    }
-
-    public int getTotalDuration() {
-        return totalDuration;
-    }
+>>>>>>> dev
 }

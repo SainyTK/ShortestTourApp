@@ -1,42 +1,6 @@
 <resources>
     <string name="app_name">ShortestTour</string>
 
-    <string-array name="countries_array">
-        <item>Afghanistan</item>
-        <item>Albania</item>
-        <item>Algeria</item>
-        <item>American Samoa</item>
-        <item>Andorra</item>
-        <item>Angola</item>
-        <item>Anguilla</item>
-        <item>Antarctica</item>
-        <item>Afghanistan</item>
-        <item>Albania</item>
-        <item>Algeria</item>
-        <item>American Samoa</item>
-        <item>Andorra</item>
-        <item>Angola</item>
-        <item>Anguilla</item>
-        <item>Antarctica</item>
-        <item>Afghanistan</item>
-        <item>Albania</item>
-        <item>Algeria</item>
-        <item>American Samoa</item>
-        <item>Andorra</item>
-        <item>Angola</item>
-        <item>Anguilla</item>
-        <item>Antarctica</item>
-        <item>Afghanistan</item>
-        <item>Albania</item>
-        <item>Algeria</item>
-        <item>American Samoa</item>
-        <item>Andorra</item>
-        <item>Angola</item>
-        <item>Anguilla</item>
-        <item>Antarctica</item>
-    </string-array>
-    <string name="hello">hello</string>
-
     <string name="driving">Driving</string>
     <string name="add_place">Add Place</string>
     <string name="no_place">No Place</string>
@@ -52,7 +16,5 @@
     <string name="show_in_map">Show in Map</string>
     <string name="add_to_list">Add to List</string>
     <string name="places">%d places</string>
-    <string name="prepare_to_find_path">Preparing to find %s\'s paths</string>
     <string name="finding_path">Finding paths for %s</string>
-    <string name="added_to_list">%s is added to list</string>
 </resources>

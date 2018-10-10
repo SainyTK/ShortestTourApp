@@ -1,4 +1,4 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -9,17 +9,17 @@ import android.arch.persistence.room.Query;
 
 import java.util.List;
 
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-
 @Dao
 public interface DirectionApiResultDao {
 
     @Query("SELECT * FROM directionapiresult")
-    LiveData<List<DirectionApiResult>> getAll();
+    List<DirectionApiResult> getAll();
 
-    @Query("SELECT * FROM directionapiresult WHERE sourceId = :sourceId AND destinationId = :destinationId LIMIT 1")
-    LiveData<DirectionApiResult> getApiResult(int sourceId, int destinationId);
+    @Query("SELECT * FROM directionapiresult WHERE srcLat == :srcLat " +
+            " AND srcLng == :srcLng " +
+            " AND desLat == :desLat " +
+            " AND desLng == :desLng ")
+    DirectionApiResult getApiResult(double srcLat,double srcLng,double desLat,double desLng);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(DirectionApiResult result);
@@ -27,8 +27,11 @@ public interface DirectionApiResultDao {
     @Query("DELETE FROM DirectionApiResult")
     void deleteAll();
 
-    @Query("DELETE FROM DirectionApiResult WHERE sourceId = :sourceId AND destinationId = :destinationId")
-    void delete(int sourceId,int destinationId);
+    @Query("DELETE FROM DirectionApiResult WHERE srcLat == :srcLat " +
+            " AND srcLng == :srcLng " +
+            " AND desLat == :desLat " +
+            " AND desLng == :desLng ")
+    void delete(double srcLat,double srcLng,double desLat,double desLng);
 
     @Delete
     void delete(DirectionApiResult... directionApiResults);

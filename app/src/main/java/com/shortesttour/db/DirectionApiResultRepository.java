@@ -1,43 +1,40 @@
-package com.shortesttour.utils.Room;
+package com.shortesttour.db;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.persistence.room.RoomDatabase;
 import android.os.AsyncTask;
 
 import java.util.List;
 
-import io.reactivex.Single;
-
 public class DirectionApiResultRepository {
     private DirectionApiResultDao dao;
-    private LiveData<List<DirectionApiResult>> results;
+//    private List<DirectionApiResult> results;
 
     public DirectionApiResultRepository(Application application){
         AppDatabase database = AppDatabase.getDatabase(application);
         dao = database.directionApiResultDao();
-        results = dao.getAll();
+        //results = dao.getAll();
     }
 
-    LiveData<List<DirectionApiResult>> getResults(){
-        return  results;
+//    public List<DirectionApiResult> getResults(){
+//        return  results;
+//    }
+
+    public DirectionApiResult getApiResult(double srcLat,double srcLng,double desLat,double desLng){
+        return dao.getApiResult(srcLat,srcLng,desLat,desLng);
     }
 
-    LiveData<DirectionApiResult> getApiResult(int sourceId, int destinationId){
-        return dao.getApiResult(sourceId,destinationId);
-    }
-
-    void insert(DirectionApiResult apiResult){
+    public void insert(DirectionApiResult apiResult){
         new insertTask(dao).execute(apiResult);
     }
 
-    void deleteAll(){
+    public void deleteAll(){
         new deleteAllTask(dao).execute();
     }
 
-    void delete(int sourceId,int destinationId){
-        Integer[] indices = {sourceId,destinationId};
-        new deleteTask(dao).execute(indices);
+    public void delete(double srcLat,double srcLng,double desLat,double desLng){
+        Double[] latLng = {srcLat,srcLng,desLat,desLng};
+        new deleteTask(dao).execute(latLng);
     }
 
     private static class insertTask extends AsyncTask<DirectionApiResult,Void,Void>{
@@ -68,7 +65,7 @@ public class DirectionApiResultRepository {
         }
     }
 
-    private static class deleteTask extends AsyncTask<Integer,Void,Void>{
+    private static class deleteTask extends AsyncTask<Double,Void,Void>{
         private DirectionApiResultDao dao;
 
         deleteTask(DirectionApiResultDao dao){
@@ -76,10 +73,12 @@ public class DirectionApiResultRepository {
         }
 
         @Override
-        protected Void doInBackground(Integer... integers) {
-            int sourceId = integers[0];
-            int destinationId = integers[1];
-            dao.delete(sourceId,destinationId);
+        protected Void doInBackground(Double... latLngs) {
+            double srcLat = latLngs[0];
+            double srcLng = latLngs[1];
+            double desLat = latLngs[2];
+            double desLng = latLngs[3];
+            dao.delete(srcLat,srcLng,desLat,desLng);
             return null;
         }
     }

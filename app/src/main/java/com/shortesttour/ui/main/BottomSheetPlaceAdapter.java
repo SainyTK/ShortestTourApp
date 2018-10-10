@@ -2,6 +2,7 @@ package com.shortesttour.ui.main;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,8 +61,13 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
     }
 
     @Override
-    public void onBindViewHolder(@NonNull Holder holder, int position) {
-        holder.bindData(position);
+    synchronized public void onBindViewHolder(@NonNull Holder holder, int position) {
+        try{
+            holder.bindData(position);
+        }catch(Exception e){
+            Log.e("Error", "onBindViewHolder: ", e);
+        }
+
     }
 
     @Override
@@ -94,7 +100,7 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
         notifyItemRemoved(position);
     }
 
-    public void updateData(int position,int value){
+    public void updateDistance(int position, int value){
         mPlaceList.get(position).setDistance(value);
         notifyItemChanged(position);
     }
