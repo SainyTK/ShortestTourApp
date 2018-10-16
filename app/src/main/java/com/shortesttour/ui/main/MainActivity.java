@@ -724,7 +724,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     public void onAddToListClick(Place place) {
 
 //        List<Place> searchPlaceList = searchFragment.getPlaceList();
-//        for(int i=0;i<40;i++){
+//        for(int i=0;i<30;i++){
 //            Place p = searchPlaceList.get(i);
 //            bottomSheetPlaceList.add(p);
 //            mFindPathUtils.addPlace(p);

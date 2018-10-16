@@ -1,5 +1,9 @@
 package com.shortesttour.utils.graph;
 
+import android.util.Pair;
+
+import com.shortesttour.utils.graph.Algorithms.NearestNeighbor;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,11 +11,14 @@ import java.util.List;
 public class GraphUtils {
 
     private GraphNode[][] graph;
-    private boolean[] visited;
+    private List<Pair<Integer,GraphNode>> path;
+
+    private NearestNeighbor nearestNeighbor;
 
     public GraphUtils(){
         graph = new GraphNode[0][0];
-        visited = new boolean[0];
+        path = new ArrayList<>();
+        nearestNeighbor = new NearestNeighbor();
     }
 
     public void connectEdge(int row,int col,int distance,int duration,List<List<HashMap<String, String>>> route){
@@ -29,11 +36,6 @@ public class GraphUtils {
         return graph.length;
     }
 
-    public void resetVisit(){
-        for(int i=0;i<visited.length;i++)
-            visited[i] = false;
-    }
-
     public void updateGraph(int[] path){
         GraphNode[][] newGraph = new GraphNode[getDimen()][getDimen()];
 
@@ -46,7 +48,6 @@ public class GraphUtils {
         this.graph = newGraph;
     }
 
-    //Nearest Neightbor
     private void cloneGraph(GraphNode[][] dest,GraphNode[][] src){
         int len = dest.length;
         for(int i=0;i<len;i++){
@@ -72,8 +73,7 @@ public class GraphUtils {
                 connectEdge(i,len,node.getDistance(),node.getDuration(),node.getRoutes());
             }
 
-            visited = new boolean[len+1];
-            resetVisit();
+            setPath(nearestNeighbor.createPath(graph));
     }
 
     public synchronized void collapseGraph(int position){
@@ -90,49 +90,23 @@ public class GraphUtils {
             if(i!=position)
                 k++;
         }
-
         graph = tempGraph;
+
+        setPath(nearestNeighbor.createPath(graph));
     }
 
-    private int findMinDestination(int row){
-        int minDesIdx = 0;
-        GraphNode[] destinations = graph[row];
-        for(int i = 0;i<destinations.length;i++){
-            if(!visited[i]&&destinations[i].getDistance()!=-1)
-                minDesIdx = i;
+    private void setPath(int[] newPath){
+        for(int i=0;i<newPath.length-1;i++){
+            GraphNode node = graph[newPath[i]][newPath[i+1]];
+            path.set(i,new Pair<>(newPath[i],node));
         }
-        for(int i=0;i<destinations.length;i++){
-            int dis = destinations[i].getDistance();
-            int currentMin = destinations[minDesIdx].getDistance();
-            if(!visited[i]&&dis!=-1 && dis<=currentMin)
-                minDesIdx = i;
-        }
-        return minDesIdx;
-    }
-
-    public int[] createNearestPath(){
-        int[] path = new int[getDimen()];
-        resetVisit();
-
-        visited[0] = true;
-        path[0] = 0;
-        int nextDestination = 0;
-        for(int i=1;i<getDimen();i++){
-            nextDestination = findMinDestination(nextDestination);
-            path[i] = nextDestination;
-            visited[nextDestination] = true;
-        }
-
-        return path;
     }
 
     public int[] getNearestPathDuration(){
-        int[] path = createNearestPath();
-        int[] durations = new int[path.length];
-        for(int i=0;i<path.length-1;i++){
-            durations[i] = graph[path[i]][path[i+1]].getDuration();
+        int durations[] = new int[path.size()];
+        for(int i=0;i < path.size();i++){
+            durations[i] = path.get(i).second.getDuration();
         }
-        durations[path.length-1] = graph[path[path.length-1]][path[0]].getDuration();
         return durations;
     }
 
@@ -144,14 +118,11 @@ public class GraphUtils {
         return sum;
     }
 
-
     public int[] getNearestPathDistance(){
-        int[] path = createNearestPath();
-        int[] distances = new int[path.length];
-        for(int i=0;i<path.length-1;i++){
-            distances[i] = graph[path[i]][path[i+1]].getDistance();
+        int[] distances = new int[path.size()];
+        for(int i=0;i<path.size();i++){
+            distances[i] = path.get(i).second.getDistance();
         }
-        distances[path.length-1] = graph[path[path.length-1]][path[0]].getDistance();
         return distances;
     }
 
@@ -165,11 +136,9 @@ public class GraphUtils {
 
     public List<List<List<HashMap<String,String>>>> getRoutes(){
         List<List<List<HashMap<String,String>>>> nearestRoutes = new ArrayList<>();
-        int[] path = createNearestPath();
-        for(int i=0;i<path.length-1;i++){
-            nearestRoutes.add(graph[path[i]][path[i+1]].getRoutes());
+        for(int i=0;i<path.size();i++) {
+            nearestRoutes.add(path.get(i).second.getRoutes());
         }
-        nearestRoutes.add(graph[path[path.length-1]][path[0]].getRoutes());
         return nearestRoutes;
     }
 
@@ -187,11 +156,10 @@ public class GraphUtils {
     public String pathText(){
         StringBuilder sb = new StringBuilder();
         sb.append("------------SHOW PATH-------------\n");
-        int[] path = createNearestPath();
 
-        if(path.length>1){
-            for(Integer p : path)
-                sb.append(p + " -> ");
+        if(path.size()>1){
+            for(Pair<Integer,GraphNode> p : path)
+                sb.append(p.first + " -> ");
         }
 
         sb.append("0|\n");

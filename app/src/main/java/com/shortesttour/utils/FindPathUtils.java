@@ -435,7 +435,7 @@ public class FindPathUtils {
                             points.add(position);
                         }
                         // Adding all the points in the route to LineOptions
-                        lineOptions.width(1);
+                        lineOptions.width(5);
                         lineOptions.color(Color.RED);
                         lineOptions.addAll(points);
                         lineList.add(lineOptions);
