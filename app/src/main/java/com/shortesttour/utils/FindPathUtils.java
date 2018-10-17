@@ -162,7 +162,7 @@ public class FindPathUtils {
                 graphUtils.expandGraph(nodes);
 
                 publishProgress(80);
-                int[] path = graphUtils.createNearestPath();
+                int[] path = graphUtils.getPath();
 
                 updatePlaceList(path);
                 graphUtils.updateGraph(path);
@@ -489,7 +489,7 @@ public class FindPathUtils {
         graphUtils.collapseGraph(position);
         mPlaceList.remove(position);
 
-        int[] path = graphUtils.createNearestPath();
+        int[] path = graphUtils.getPath();
         updatePlaceList(path);
         graphUtils.updateGraph(path);
         Log.d("text", "collapseGraph: " + graphUtils);

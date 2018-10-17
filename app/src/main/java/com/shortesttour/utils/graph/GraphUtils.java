@@ -11,13 +11,13 @@ import java.util.List;
 public class GraphUtils {
 
     private GraphNode[][] graph;
-    private List<Pair<Integer,GraphNode>> path;
+    private int[] path;
 
     private NearestNeighbor nearestNeighbor;
 
     public GraphUtils(){
         graph = new GraphNode[0][0];
-        path = new ArrayList<>();
+        path = new int[0];
         nearestNeighbor = new NearestNeighbor();
     }
 
@@ -44,7 +44,6 @@ public class GraphUtils {
                 newGraph[i][j] = graph[path[j]][path[i]];
             }
         }
-
         this.graph = newGraph;
     }
 
@@ -73,7 +72,7 @@ public class GraphUtils {
                 connectEdge(i,len,node.getDistance(),node.getDuration(),node.getRoutes());
             }
 
-            setPath(nearestNeighbor.createPath(graph));
+            setPath(nearestNeighbor.createPath(getDistanceGraph()));
     }
 
     public synchronized void collapseGraph(int position){
@@ -92,20 +91,17 @@ public class GraphUtils {
         }
         graph = tempGraph;
 
-        setPath(nearestNeighbor.createPath(graph));
+        setPath(nearestNeighbor.createPath(getDistanceGraph()));
     }
 
     private void setPath(int[] newPath){
-        for(int i=0;i<newPath.length-1;i++){
-            GraphNode node = graph[newPath[i]][newPath[i+1]];
-            path.set(i,new Pair<>(newPath[i],node));
-        }
+        path = newPath;
     }
 
     public int[] getNearestPathDuration(){
-        int durations[] = new int[path.size()];
-        for(int i=0;i < path.size();i++){
-            durations[i] = path.get(i).second.getDuration();
+        int durations[] = new int[path.length-1];
+        for(int i=0;i < path.length-1;i++){
+            durations[i] = graph[path[i]][path[i+1]].getDuration();
         }
         return durations;
     }
@@ -119,9 +115,9 @@ public class GraphUtils {
     }
 
     public int[] getNearestPathDistance(){
-        int[] distances = new int[path.size()];
-        for(int i=0;i<path.size();i++){
-            distances[i] = path.get(i).second.getDistance();
+        int[] distances = new int[path.length-1];
+        for(int i=0;i<path.length-1;i++){
+            distances[i] = graph[path[i]][path[i+1]].getDistance();
         }
         return distances;
     }
@@ -136,10 +132,24 @@ public class GraphUtils {
 
     public List<List<List<HashMap<String,String>>>> getRoutes(){
         List<List<List<HashMap<String,String>>>> nearestRoutes = new ArrayList<>();
-        for(int i=0;i<path.size();i++) {
-            nearestRoutes.add(path.get(i).second.getRoutes());
+        for(int i=0;i<path.length-1;i++) {
+            nearestRoutes.add(graph[path[i]][path[i+1]].getRoutes());
         }
         return nearestRoutes;
+    }
+
+    public int[][] getDistanceGraph(){
+        int[][] distanceGraph = new int[getDimen()][getDimen()];
+        for(int i=0;i<getDimen();i++){
+            for(int j=0;j<getDimen();j++){
+                distanceGraph[i][j] = graph[i][j].getDistance();
+            }
+        }
+        return distanceGraph;
+    }
+
+    public int[] getPath(){
+        return path;
     }
 
     @Override
@@ -157,9 +167,9 @@ public class GraphUtils {
         StringBuilder sb = new StringBuilder();
         sb.append("------------SHOW PATH-------------\n");
 
-        if(path.size()>1){
-            for(Pair<Integer,GraphNode> p : path)
-                sb.append(p.first + " -> ");
+        if(path.length>1){
+            for(int p : path)
+                sb.append(p + " -> ");
         }
 
         sb.append("0|\n");
@@ -205,5 +215,4 @@ public class GraphUtils {
         sb.append("\n");
         return sb.toString();
     }
-
 }
