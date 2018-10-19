@@ -12,15 +12,16 @@ import android.widget.TextView;
 
 import com.shortesttour.R;
 import com.shortesttour.models.Place;
+import com.shortesttour.ui.main.MainActivity;
 import com.shortesttour.ui.main.PlaceListItemClickListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class TravelFragment extends Fragment implements PlaceListItemClickListener {
+public class TravelFragment extends Fragment{
 
     @BindView(R.id.text_num_place)
     TextView textNumPlace;
@@ -36,35 +37,120 @@ public class TravelFragment extends Fragment implements PlaceListItemClickListen
     TextView textLoading;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
-    
+
     private TravelListAdapter adapter;
     
     private List<Place> placeList;
-    private int sumDuration;
-    private int sumDistance;
+    private MainActivity activity;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = LayoutInflater.from(container.getContext()).inflate(R.layout.layout_travel,container,false);
         ButterKnife.bind(this,root);
+        activity = (MainActivity)getActivity();
 
         adapter = new TravelListAdapter(placeList);
-        adapter.setListener(this);
         recyclerView.setLayoutManager(new TravelListLayoutManager(container.getContext()));
         recyclerView.setAdapter(adapter);
 
+        setButtonNoPlace();
+
         return root;
     }
-    
+
+    private void setButtonNoPlace(){
+        //visible
+        textNumPlace.setVisibility(View.VISIBLE);
+        btnAdd.setVisibility(View.VISIBLE);
+        textNumPlace.setText(getResources().getString(R.string.no_place));
+
+        //gone
+        textGoingTo.setVisibility(View.GONE);
+        textTotalDistance.setVisibility(View.GONE);
+        textTotalDuration.setVisibility(View.GONE);
+        textLoading.setVisibility(View.GONE);
+    }
+
+    private void setButtonHasPlace(){
+        //visible
+        textNumPlace.setVisibility(View.VISIBLE);
+        textGoingTo.setVisibility(View.VISIBLE);
+        textTotalDistance.setVisibility(View.VISIBLE);
+        textTotalDuration.setVisibility(View.VISIBLE);
+
+        //gone
+        btnAdd.setVisibility(View.GONE);
+        textLoading.setVisibility(View.GONE);
+    }
+
+    public void updateView(){
+        if(placeList.size()>0){
+            setButtonHasPlace();
+
+            String strNumPlace = getString(R.string.places,placeList.size());
+            textNumPlace.setText(strNumPlace);
+
+            String strGoingTo = getString(R.string.going_to,placeList.get(0).getPlaceTitle());
+            textGoingTo.setText(strGoingTo);
+
+            String strTotalDistance = getString(R.string.total_distance,toDistanceText(activity.getSumDistance()));
+            textTotalDistance.setText(strTotalDistance);
+
+            String strTotalDuration = getString(R.string.total_duration,toDurationText(activity.getSumDuration()));
+            textTotalDuration.setText(strTotalDuration);
+        }else{
+            setButtonNoPlace();
+        }
+    }
+
+    public String toDistanceText(int distance){
+        if(distance<1000)
+            return distance + " " + getString(R.string.m);
+        else
+            return Math.round(distance/1000f) + " " + getString(R.string.km);
+    }
+
+    public String toDurationText(int duration){
+        int hours = Math.round(duration/3600);
+        int minutes = Math.round(duration%60);
+        String durationText = "";
+        if(hours>0){
+            durationText = hours + " " + getString(R.string.hr) + " ";
+            minutes = Math.round(duration/3600%60);
+        }
+        durationText = durationText + minutes + " " + getString(R.string.min);
+        return durationText;
+    }
+
+    public void updateDistance(int[] pathValues){
+        int sum = 0;
+
+        for(int i=0;i<adapter.getData().size();i++){
+            sum+=pathValues[i];
+            adapter.updateDistance(i,sum);
+        }
+    }
+
+    public void setListener(PlaceListItemClickListener listener){
+        adapter.setListener(listener);
+    }
+
     public void setPlaceList(List<Place> placeList){
         this.placeList = placeList;
         adapter.setData(placeList);
     }
 
+    public List<Place> getPlaceList(){
+        return placeList;
+    }
 
-    @Override
-    public void onRemovePlace(int position) {
+    public void addPlace(Place place){
+        adapter.addPlace(place);
+    }
 
+    @OnClick(R.id.btn_add)
+    void addPlace(){
+        activity.openSearchPage();
     }
 }

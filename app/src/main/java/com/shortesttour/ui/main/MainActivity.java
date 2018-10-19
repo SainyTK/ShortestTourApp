@@ -53,6 +53,7 @@ import com.shortesttour.R;
 import com.shortesttour.models.Place;
 import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
+import com.shortesttour.ui.travel.TravelFragment;
 import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.FragmentUtils;
 import com.shortesttour.utils.PinUtils;
@@ -111,16 +112,17 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     private LocationManager mLocationManager;
 
     private FragmentUtils mFragmentUtils;
+    private FragmentUtils bottomFragmentUtils;
     private FindPathUtils mFindPathUtils;
     private PinUtils mPinUtils;
 
     private SearchFragment searchFragment;
+    private TravelFragment travelFragment;
 
     private List<Place> mSearchData;
     private List<Place> mSuggestData;
 
     private List<Place> mPlaceList;
-    private List<Place> bottomSheetPlaceList;
     private List<PolylineOptions> mLineList;
 
     private Location currentLocation;
@@ -156,23 +158,21 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
 
-        Log.d(TAG, "onCreate: START");
-
         mPinUtils = new PinUtils(this);
-//
+
         currentPlace = new Place(0,"You","Your Location",0,0);
 
         mSuggestData = new ArrayList<>();
         mSearchData = new ArrayList<>();
         mPlaceList = new ArrayList<>();
-        bottomSheetPlaceList = new ArrayList<>();
         mLineList = new ArrayList<>();
-//
+
         setupMap();
         setupLocationManager();
         setupBottomSheet();
         setupBottomNav();
         setupFragment();
+        setupBottomFragment();
         setupSearchBox();
         updateShowLineButton();
 
@@ -281,16 +281,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             }
         });
 
-        setupRecyclerView();
-    }
-
-    private void setupRecyclerView(){
-        RecyclerView.LayoutManager layoutManager = new BottomSheetLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        adapter = new BottomSheetPlaceAdapter(new ArrayList<Place>());
-        adapter.setListener(this);
-        recyclerView.setAdapter(adapter);
     }
 
     private void setupBottomNav(){
@@ -300,7 +290,11 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
                 item.setChecked(true);
                 switch (item.getItemId()){
                     case R.id.menu_driving:
-                        collapseBottomSheet();
+                        if( bottomNavigationView.getSelectedItemId()==R.id.menu_driving)
+                            collapseBottomSheet();
+                        else{
+                            bottomFragmentUtils.replace(travelFragment,false);
+                        }
                         return true;
                 }
                 return false;
@@ -315,6 +309,15 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         searchFragment.setOptionSelectedListener(this);
     }
 
+    private void setupBottomFragment(){
+        bottomFragmentUtils = new FragmentUtils(this,R.id.bottom_fragment_container);
+
+        travelFragment = new TravelFragment();
+        travelFragment.setListener(this);
+
+        bottomFragmentUtils.replace(travelFragment,false);
+    }
+
     private void setupSearchBox(){
         mSearchData = new ArrayList<>();
         mSuggestData = new ArrayList<>();
@@ -325,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus){
-                    searchBoxClick();
+                    openSearchPage();
                 }
             }
         });
@@ -412,81 +415,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
-    private void setButtonNoPlace(){
-        //visible
-        textNumPlace.setVisibility(View.VISIBLE);
-        btnAdd.setVisibility(View.VISIBLE);
-        textNumPlace.setText(getResources().getString(R.string.no_place));
-
-        //gone
-        textGoingTo.setVisibility(View.GONE);
-        textTotalDistance.setVisibility(View.GONE);
-        textTotalTime.setVisibility(View.GONE);
-        textLoading.setVisibility(View.GONE);
-    }
-
-    private void setButtonHasPlace(){
-        //visible
-        textNumPlace.setVisibility(View.VISIBLE);
-        textGoingTo.setVisibility(View.VISIBLE);
-        textTotalDistance.setVisibility(View.VISIBLE);
-        textTotalTime.setVisibility(View.VISIBLE);
-
-
-        //gone
-        btnAdd.setVisibility(View.GONE);
-        textLoading.setVisibility(View.GONE);
-    }
-
-    public void updateBottomSheet(){
-        if(excludeCurrentPlace().size()>0){
-            setButtonHasPlace();
-
-            String strNumPlace = getString(R.string.places,excludeCurrentPlace().size());
-            textNumPlace.setText(strNumPlace);
-
-            String strGoingTo = getString(R.string.going_to,excludeCurrentPlace().get(0).getPlaceTitle());
-            textGoingTo.setText(strGoingTo);
-
-            String strTotalDistance = getString(R.string.total_distance,toDistanceText(mFindPathUtils.getNearestSumDistance()));
-            textTotalDistance.setText(strTotalDistance);
-
-            String strTotalDuration = getString(R.string.total_duration,toDurationText(mFindPathUtils.getNearestSumDuration()));
-            textTotalTime.setText(strTotalDuration);
-        }else{
-            setButtonNoPlace();
-        }
-    }
-
-    public String toDistanceText(int distance){
-        if(distance<1000)
-            return distance + " " + getString(R.string.m);
-        else
-            return Math.round(distance/1000f) + " " + getString(R.string.km);
-    }
-
-    public String toDurationText(int duration){
-        int hours = Math.round(duration/3600);
-        int minutes = Math.round(duration%60);
-        String durationText = "";
-        if(hours>0){
-            durationText = hours + " " + getString(R.string.hr) + " ";
-            minutes = Math.round(duration/3600%60);
-        }
-        durationText = durationText + minutes + " " + getString(R.string.min);
-        return durationText;
-    }
-
-    private void updateDistance(){
-        int[] nearestPathValue = mFindPathUtils.getNearestDistance();
-        int sum = 0;
-
-        for(int i=0;i<adapter.getData().size();i++){
-            sum+=nearestPathValue[i];
-            adapter.updateDistance(i,sum);
-        }
-    }
-
     /*--------------C: search control section------------------*/
 
     private void showSearchButtons(){
@@ -535,8 +463,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         }
     }
 
-    @OnClick({R.id.btn_add,R.id.autocomplete_search})
-    void searchBoxClick(){
+    @OnClick({R.id.autocomplete_search})
+    public void openSearchPage(){
         pushFragment();
         showSearchButtons();
         autoCompleteTextView.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -729,8 +657,8 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 //            bottomSheetPlaceList.add(p);
 //            mFindPathUtils.addPlace(p);
 //        }
-        if(!checkHasPlace(bottomSheetPlaceList,place)){
-            bottomSheetPlaceList.add(place);
+        if(!checkHasPlace(travelFragment.getPlaceList(),place)){
+            travelFragment.addPlace(place);
             mFindPathUtils.addPlace(place);
         }
     }
@@ -746,11 +674,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     @Override
     public void onRemovePlace(int position) {
         mPlaceList = mFindPathUtils.collapseGraph(position+1);
-        bottomSheetPlaceList = excludeCurrentPlace();
-        adapter.setData(bottomSheetPlaceList);
+        travelFragment.setPlaceList(excludeCurrentPlace());
 
-        updateDistance();
-        updateBottomSheet();
+        travelFragment.updateView();
+        travelFragment.updateView();
         updateShowLineButton();
         mMap.clear();
 
@@ -798,16 +725,14 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mPlaceList = mFindPathUtils.getPlaceList();
 
         adapter.setData(excludeCurrentPlace());
-        updateBottomSheet();
+        travelFragment.updateView();
         mMap.clear();
         pinAllLocation();
 
-        updateDistance();
+        travelFragment.updateDistance(getDistances());
 
         progressBar.setVisibility(View.INVISIBLE);
 
-        //String findingPathStr = getString(R.string.added_to_list,placeTitle);
-        //Toast.makeText(this, findingPathStr, Toast.LENGTH_SHORT).show();
         findPath();
     }
 
@@ -873,5 +798,21 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             sortedPlace.add(mPlaceList.get(path[i]));
         }
         return  sortedPlace;
+    }
+
+    public int getSumDistance(){
+        return mFindPathUtils.getNearestSumDistance();
+    }
+
+    public int getSumDuration(){
+        return mFindPathUtils.getNearestSumDuration();
+    }
+
+    public int[] getDistances(){
+        return mFindPathUtils.getNearestDistance();
+    }
+
+    public int[] getDurations(){
+        return mFindPathUtils.getNearestDuration();
     }
 }
