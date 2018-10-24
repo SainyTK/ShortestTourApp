@@ -2,6 +2,7 @@ package com.shortesttour.utils.graph;
 
 import android.util.Pair;
 
+import com.shortesttour.utils.graph.Algorithms.DynamicProgramming;
 import com.shortesttour.utils.graph.Algorithms.NearestNeighbor;
 
 import java.util.ArrayList;
@@ -14,11 +15,13 @@ public class GraphUtils {
     private int[] path;
 
     private NearestNeighbor nearestNeighbor;
+    private DynamicProgramming dynamicProgramming;
 
     public GraphUtils(){
         graph = new GraphNode[0][0];
         path = new int[0];
         nearestNeighbor = new NearestNeighbor();
+        dynamicProgramming = new DynamicProgramming();
     }
 
     public void connectEdge(int row,int col,int distance,int duration,List<List<HashMap<String, String>>> route){
@@ -72,7 +75,7 @@ public class GraphUtils {
                 connectEdge(i,len,node.getDistance(),node.getDuration(),node.getRoutes());
             }
 
-            setPath(nearestNeighbor.createPath(getDistanceGraph()));
+            setPath(dynamicProgramming.createPath(getDistanceGraph()));
     }
 
     public synchronized void collapseGraph(int position){
@@ -91,7 +94,7 @@ public class GraphUtils {
         }
         graph = tempGraph;
 
-        setPath(nearestNeighbor.createPath(getDistanceGraph()));
+        setPath(dynamicProgramming.createPath(getDistanceGraph()));
     }
 
     private void setPath(int[] newPath){

@@ -21,7 +21,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -34,9 +33,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -53,6 +50,7 @@ import com.shortesttour.R;
 import com.shortesttour.models.Place;
 import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
+import com.shortesttour.ui.select_algoritm.SelectAlgorithmFragment;
 import com.shortesttour.ui.travel.TravelFragment;
 import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.FragmentUtils;
@@ -64,9 +62,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.Observable;
 
-public class MainActivity extends AppCompatActivity implements SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapClickListener, FindPathUtils.TaskListener {
+public class MainActivity extends AppCompatActivity implements MainContract.View,SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapClickListener, FindPathUtils.TaskListener {
 
     private static final String TAG = "MainActivity";
 
@@ -78,34 +75,16 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     BottomNavigationView bottomNavigationView;
     @BindView(R.id.search_container)
     View searchContainer;
-    @BindView(R.id.recycler_view)
-    RecyclerView recyclerView;
-    @BindView(R.id.btn_add)
-    TextView btnAdd;
-    @BindView(R.id.text_num_place)
-    TextView textNumPlace;
-    @BindView(R.id.text_going_to)
-    TextView textGoingTo;
-    @BindView(R.id.text_total_distance)
-    TextView textTotalDistance;
-    @BindView(R.id.text_total_time)
-    TextView textTotalTime;
     @BindView(R.id.btn_show_line)
     FloatingActionButton btnShowLine;
     @BindView(R.id.btn_show_location)
     FloatingActionButton btnShowLocation;
     @BindView(R.id.btn_showlocation_container)
     RelativeLayout btnShowLocationContainer;
-    @BindView(R.id.progress_bar)
-    ProgressBar progressBar;
-    @BindView(R.id.text_loading)
-    TextView textLoading;
     @BindView(R.id.search_back_btn)
     ImageView searchBackButton;
     @BindView(R.id.search_clear_btn)
     ImageView searchClearButton;
-
-    private BottomSheetPlaceAdapter adapter;
 
     private BottomSheetBehavior bottomSheetBehavior;
     private GoogleMap mMap;
@@ -114,19 +93,14 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     private FragmentUtils mFragmentUtils;
     private FragmentUtils bottomFragmentUtils;
     private FindPathUtils mFindPathUtils;
-    private PinUtils mPinUtils;
 
     private SearchFragment searchFragment;
     private TravelFragment travelFragment;
-
-    private List<Place> mSearchData;
-    private List<Place> mSuggestData;
+    private SelectAlgorithmFragment selectAlgorithmFragment;
 
     private List<Place> mPlaceList;
     private List<PolylineOptions> mLineList;
 
-    private Location currentLocation;
-    private Place currentPlace;
     private boolean mLocationPermissionGranted;
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
@@ -144,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     private int showLineState = STATE_SHOW_NO_LINE;
     private int showPlaceState = STATE_SHOW_CURRENT_LOCATION;
 
-    private Observable<List<String>> observable;
+    private MainPresenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,27 +132,36 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
 
-        mPinUtils = new PinUtils(this);
-
-        currentPlace = new Place(0,"You","Your Location",0,0);
-
-        mSuggestData = new ArrayList<>();
-        mSearchData = new ArrayList<>();
-        mPlaceList = new ArrayList<>();
-        mLineList = new ArrayList<>();
+        mPresenter = new MainPresenter(this);
 
         setupMap();
-        setupLocationManager();
         setupBottomSheet();
-        setupBottomNav();
-        setupFragment();
-        setupBottomFragment();
-        setupSearchBox();
-        updateShowLineButton();
 
-        mPlaceList.add(currentPlace);
-        mFindPathUtils = new FindPathUtils(this,mPlaceList);
-        mFindPathUtils.setOnTaskFinishListener(this);
+        setupSearchBox();
+        setupBottomNav();
+
+        setupLineManager();
+
+//
+//
+
+
+//
+
+
+//        setupBottomNav();
+
+
+//
+//        updateShowLineButton();
+//
+//        mPlaceList.add(currentPlace);
+//        mFindPathUtils = new FindPathUtils(this,mPlaceList);
+//        mFindPathUtils.setOnTaskFinishListener(this);
+    }
+
+    private void setupLineManager() {
+        mLineList = new ArrayList<>();
     }
 
     /*--------------A: setup section------------------*/
@@ -192,12 +175,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         mapFragment.getMapAsync(this);
 
         getLocationPermission();
-    }
-
-    private void setupLocationManager() {
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (mLocationPermissionGranted)
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20, 5, this);
     }
 
     private void getLocationPermission() {
@@ -224,6 +201,35 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
                 }
             }
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setOnMapClickListener(this);
+
+        try{
+            boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.style_json));
+            if(!success){
+                Log.d(TAG, "onMapReady: style parsing failed");
+            }
+        }catch(Resources.NotFoundException e){
+            Log.d(TAG, "onMapReady: Can't find style ",e);
+        }
+
+        if(mLocationPermissionGranted){
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            showCurrentLocation();
+        }
+
+        setupLocationManager();
+    }
+
+    private void setupLocationManager() {
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (mLocationPermissionGranted)
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20, 5, this);
     }
 
     private void setupBottomSheet(){
@@ -284,17 +290,23 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     private void setupBottomNav(){
+        setupBottomFragment();
+        bottomNavigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                collapseBottomSheet();
+            }
+        });
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 item.setChecked(true);
                 switch (item.getItemId()){
                     case R.id.menu_driving:
-                        if( bottomNavigationView.getSelectedItemId()==R.id.menu_driving)
-                            collapseBottomSheet();
-                        else{
-                            bottomFragmentUtils.replace(travelFragment,false);
-                        }
+                        bottomFragmentUtils.replace(travelFragment,false);
+                        return true;
+                    case R.id.menu_algorithm:
+                        bottomFragmentUtils.replace(selectAlgorithmFragment,false);
                         return true;
                 }
                 return false;
@@ -302,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         });
     }
 
-    private void setupFragment(){
+    private void setupSearchFragment(){
         mFragmentUtils = new FragmentUtils(this,R.id.fragment_container);
 
         searchFragment = new SearchFragment();
@@ -310,24 +322,24 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     private void setupBottomFragment(){
-        bottomFragmentUtils = new FragmentUtils(this,R.id.bottom_fragment_container);
-
         travelFragment = new TravelFragment();
-        travelFragment.setListener(this);
+        selectAlgorithmFragment = new SelectAlgorithmFragment();
 
+
+        bottomFragmentUtils = new FragmentUtils(this,R.id.bottom_fragment_container);
         bottomFragmentUtils.replace(travelFragment,false);
+
     }
 
     private void setupSearchBox(){
-        mSearchData = new ArrayList<>();
-        mSuggestData = new ArrayList<>();
-
+        setupSearchFragment();
         autoCompleteTextView.setInputType(InputType.TYPE_NULL);
 
         autoCompleteTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus){
+                    Log.d(TAG, "onFocusChange: ");
                     openSearchPage();
                 }
             }
@@ -341,14 +353,14 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mSearchData = searchFragment.getPlaceList();
-                mSuggestData.clear();
-                for(Place place : mSearchData){
+                mPresenter.setSearchData(searchFragment.getPlaceList());
+                mPresenter.clearSuggestData();
+                for(Place place : mPresenter.getSearchData()){
                     if(place.getPlaceTitle().contains(s)){
-                        mSuggestData.add(place);
+                        mPresenter.addSuggestData(place);
                     }
                 }
-                searchFragment.setSearchDataSet(mSuggestData);
+                searchFragment.setSearchDataSet(mPresenter.getSuggestData());
             }
 
             @Override
@@ -357,28 +369,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             }
         });
         hideSearchButtons();
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setOnMapClickListener(this);
-
-        try{
-            boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.style_json));
-            if(!success){
-                Log.d(TAG, "onMapReady: style parsing failed");
-            }
-        }catch(Resources.NotFoundException e){
-            Log.d(TAG, "onMapReady: Can't find style ",e);
-        }
-
-        if(mLocationPermissionGranted){
-            mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(false);
-            showCurrentLocation();
-        }
-
     }
 
     /*--------------B: bottom sheet control section------------------*/
@@ -482,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     public void onShowInMapClick(LatLng latLng, String placeTitle) {
         Log.d(TAG, "showInMap: ");
             showLocation(latLng,placeTitle);
-            onBackPressed();
+            mFragmentUtils.pop();
     }
 
     public void showAllLocation(){
@@ -500,12 +490,10 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     }
 
     public void showCurrentLocation(){
-        if(currentLocation!=null){
-            LatLng currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+            LatLng currentLatLng = new LatLng(mPresenter.getCurrentPlace().getLatitude(),mPresenter.getCurrentPlace().getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,17));
             showPlaceState = STATE_SHOW_CURRENT_LOCATION;
             updateShowLocationButton();
-        }
     }
 
     public void showLocation(LatLng latLng,String placeTitle){
@@ -514,15 +502,15 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
             zoom = 16;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
 
-        for(Place place : excludeCurrentPlace()){
-            if(placeTitle.contentEquals(place.getPlaceTitle()))
-                return;
-        }
+//        for(Place place : excludeCurrentPlace()){
+//            if(placeTitle.contentEquals(place.getPlaceTitle()))
+//                return;
+//        }
         mMap.addMarker(new MarkerOptions().title(placeTitle).position(latLng));
     }
 
     public void pinLocation(LatLng latLng,String placeTitle,int num){
-        mMap.addMarker(new MarkerOptions().position(latLng).title(placeTitle).icon(BitmapDescriptorFactory.fromBitmap(mPinUtils.createNumberPin(num))));
+        mMap.addMarker(new MarkerOptions().position(latLng).title(placeTitle).icon(BitmapDescriptorFactory.fromBitmap(PinUtils.createNumberPin(this,num))));
     }
 
     public void pinAllLocation(){
@@ -671,20 +659,6 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
         return false;
     }
 
-    @Override
-    public void onRemovePlace(int position) {
-        mPlaceList = mFindPathUtils.collapseGraph(position+1);
-        travelFragment.setPlaceList(excludeCurrentPlace());
-
-        travelFragment.updateView();
-        travelFragment.updateView();
-        updateShowLineButton();
-        mMap.clear();
-
-        pinAllLocation();
-        findPath();
-    }
-
     private List<Place> excludeCurrentPlace(){
         if(mPlaceList.size()>1)
             return mPlaceList.subList(1,mPlaceList.size());
@@ -695,43 +669,27 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     @Override
     public void OnStartTask(String placeTitle) {
-        progressBar.setProgress(0);
-        progressBar.setVisibility(View.VISIBLE);
-
-        textGoingTo.setVisibility(View.GONE);
-        textTotalTime.setVisibility(View.GONE);
-        textTotalDistance.setVisibility(View.GONE);
-        btnAdd.setVisibility(View.GONE);
-
-        textLoading.setVisibility(View.VISIBLE);
-
         String findingPathStr = getString(R.string.finding_path,placeTitle);
         Toast.makeText(this, findingPathStr, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onUpdateValue(int value) {
-//        Log.d(TAG, "onUpdateValue: " + value);
-        progressBar.setProgress(value);
+
     }
 
     @Override
     public void onFinishTask(int[] path) {
-        textTotalTime.setVisibility(View.VISIBLE);
-        textTotalDistance.setVisibility(View.VISIBLE);
-        textGoingTo.setVisibility(View.VISIBLE);
-        textLoading.setVisibility(View.GONE);
 
         mPlaceList = mFindPathUtils.getPlaceList();
+        updatePlaceList(path);
+        Log.d(TAG, "onFinishTask: size = " + mPlaceList.size());
 
-        adapter.setData(excludeCurrentPlace());
         travelFragment.updateView();
         mMap.clear();
         pinAllLocation();
 
         travelFragment.updateDistance(getDistances());
-
-        progressBar.setVisibility(View.INVISIBLE);
 
         findPath();
     }
@@ -751,8 +709,7 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
     public void onLocationChanged(Location location) {
         LatLng currentLatLng = new LatLng(location.getLatitude(),location.getLongitude());
 
-        currentPlace.setPlaceLatLng(currentLatLng);
-        currentLocation = location;
+      mPresenter.setCurrentLatLng(currentLatLng);
     }
 
     /*-----------------------SQLite Database Section----------------*/
@@ -814,5 +771,19 @@ public class MainActivity extends AppCompatActivity implements SearchOptionSelec
 
     public int[] getDurations(){
         return mFindPathUtils.getNearestDuration();
+    }
+
+    @Override
+    public void onRemovePlace(int position) {
+        mPlaceList = mFindPathUtils.collapseGraph(position+1);
+        travelFragment.setPlaceList(excludeCurrentPlace());
+
+        travelFragment.updateView();
+        travelFragment.updateView();
+        updateShowLineButton();
+        mMap.clear();
+
+        pinAllLocation();
+        findPath();
     }
 }

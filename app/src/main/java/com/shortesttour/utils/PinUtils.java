@@ -15,26 +15,20 @@ import android.support.annotation.RequiresApi;
 import com.shortesttour.R;
 
 public class PinUtils {
+    private static Paint paint = new Paint();
 
-    private  Paint paint;
-    private Activity activity;
+    public static Bitmap createNumberPin(Context context,int num){
 
-    public PinUtils(Activity activity){
-        paint = new Paint();
-        this.activity = activity;
-    }
-
-    public Bitmap createNumberPin(int num){
         String text = num+1+"";
         Bitmap bm = null;
         if(num==0){
-            bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.pin_blue)
+            bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin_blue)
                     .copy(Bitmap.Config.ARGB_8888, true);
-            paint.setColor(activity.getResources().getColor(R.color.activeTint));
+            paint.setColor(context.getResources().getColor(R.color.activeTint));
         }else{
-            bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.pin_red)
+            bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin_red)
                     .copy(Bitmap.Config.ARGB_8888, true);
-            paint.setColor(activity.getResources().getColor(R.color.red));
+            paint.setColor(context.getResources().getColor(R.color.red));
         }
 
         Typeface tf = Typeface.create("Helvetica", Typeface.BOLD);
@@ -42,7 +36,7 @@ public class PinUtils {
         paint.setStyle(Paint.Style.FILL);
         paint.setTypeface(tf);
         paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(convertToPixels(activity, 14));
+        paint.setTextSize(convertToPixels(context, 14));
 
         Rect textRect = new Rect();
         paint.getTextBounds(text, 0, text.length(), textRect);
@@ -51,7 +45,7 @@ public class PinUtils {
 
         //If the text is bigger than the canvas , reduce the font size
         if(textRect.width() >= (canvas.getWidth() - 4))     //the padding on either sides is considered as 4, so as to appropriately fit in the text
-            paint.setTextSize(convertToPixels(activity, 7));        //Scaling needs to be used for different dpi's
+            paint.setTextSize(convertToPixels(context, 7));        //Scaling needs to be used for different dpi's
 
         //Calculate the positions
         int xPos = (canvas.getWidth() / 2)+1;     //-2 is for regulating the x position offset

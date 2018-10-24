@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import com.shortesttour.models.Place;
 import com.shortesttour.ui.main.MainActivity;
 import com.shortesttour.ui.main.PlaceListItemClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -39,8 +41,6 @@ public class TravelFragment extends Fragment{
     RecyclerView recyclerView;
 
     private TravelListAdapter adapter;
-    
-    private List<Place> placeList;
     private MainActivity activity;
 
     @Nullable
@@ -50,9 +50,15 @@ public class TravelFragment extends Fragment{
         ButterKnife.bind(this,root);
         activity = (MainActivity)getActivity();
 
-        adapter = new TravelListAdapter(placeList);
+        adapter = new TravelListAdapter(new ArrayList<Place>());
         recyclerView.setLayoutManager(new TravelListLayoutManager(container.getContext()));
         recyclerView.setAdapter(adapter);
+        setListener(new PlaceListItemClickListener() {
+            @Override
+            public void onRemovePlace(int position) {
+                Log.d("Test", "onRemovePlace: ");
+            }
+        });
 
         setButtonNoPlace();
 
@@ -85,6 +91,7 @@ public class TravelFragment extends Fragment{
     }
 
     public void updateView(){
+        List<Place> placeList = adapter.getData();
         if(placeList.size()>0){
             setButtonHasPlace();
 
@@ -137,12 +144,11 @@ public class TravelFragment extends Fragment{
     }
 
     public void setPlaceList(List<Place> placeList){
-        this.placeList = placeList;
         adapter.setData(placeList);
     }
 
     public List<Place> getPlaceList(){
-        return placeList;
+        return adapter.getData();
     }
 
     public void addPlace(Place place){

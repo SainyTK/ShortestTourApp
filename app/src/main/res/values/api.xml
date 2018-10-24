@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBCGQy_slw6UDK7NGzcamjxHc7J_LLixW8</string>
+
+    <string name="node_file_name" translatable="false">nodeDB.json</string>
 </resources>

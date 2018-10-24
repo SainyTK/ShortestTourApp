@@ -115,7 +115,7 @@ public class FindPathUtils {
 
     private void updatePlaceList(int[] path) {
         List<Place> sortedPlace = new ArrayList<>();
-        int pathLength = path.length;
+        int pathLength = path.length-1;
 
         for (int i = 0; i < pathLength; i++) {
             sortedPlace.add(mPlaceList.get(path[i]));
@@ -435,7 +435,7 @@ public class FindPathUtils {
                             points.add(position);
                         }
                         // Adding all the points in the route to LineOptions
-                        lineOptions.width(5);
+                        lineOptions.width(3);
                         lineOptions.color(Color.RED);
                         lineOptions.addAll(points);
                         lineList.add(lineOptions);

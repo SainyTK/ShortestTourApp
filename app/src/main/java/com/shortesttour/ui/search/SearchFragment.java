@@ -89,7 +89,7 @@ public class SearchFragment extends Fragment {
     private List<Place> createPlaceList(){
         List<Place> places = null;
         try{
-            places = JSONFileParser.getPlaces(getActivity(),"nodeDB.json");
+            places = JSONFileParser.getPlaces(getActivity(),getContext().getResources().getString(R.string.node_file_name));
         }catch (NullPointerException e){
             Log.e(TAG, "createPlaceList: NULL", e);
         }
