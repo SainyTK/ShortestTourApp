@@ -5,7 +5,6 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -13,7 +12,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
@@ -29,6 +27,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -54,7 +53,6 @@ import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.ui.select_algoritm.SelectAlgorithmFragment;
 import com.shortesttour.ui.travel.TravelFragment;
-import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.FragmentUtils;
 import com.shortesttour.utils.PinUtils;
 
@@ -65,7 +63,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements MainContract.View, SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener, GoogleMap.OnMapClickListener {
+public class MainActivity extends AppCompatActivity implements MainContract.View, SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener, GoogleMap.OnMapClickListener, SelectAlgorithmFragment.ChangeAlgorithmListener {
 
     private static final String TAG = "MainActivity";
 
@@ -312,9 +310,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                 switch (item.getItemId()){
                     case R.id.menu_driving:
                         bottomFragmentUtils.replace(travelFragment,false);
+                        Log.d(TAG, "onNavigationItemSelected: count = " + bottomFragmentUtils.getBackStackCount());
                         return true;
                     case R.id.menu_algorithm:
                         bottomFragmentUtils.replace(selectAlgorithmFragment,false);
+                        Log.d(TAG, "onNavigationItemSelected: count = " + bottomFragmentUtils.getBackStackCount());
                         return true;
                 }
                 return false;
@@ -333,6 +333,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         travelFragment = new TravelFragment();
         selectAlgorithmFragment = new SelectAlgorithmFragment();
 
+        travelFragment.setListener(this);
+        selectAlgorithmFragment.setListener(this);
+
         bottomFragmentUtils = new FragmentUtils(this,R.id.bottom_fragment_container);
         bottomFragmentUtils.replace(travelFragment,false);
 
@@ -342,14 +345,16 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         setupSearchFragment();
         autoCompleteTextView.setInputType(InputType.TYPE_NULL);
 
-        autoCompleteTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        autoCompleteTextView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus){
-                    Log.d(TAG, "onFocusChange: ");
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                autoCompleteTextView.performClick();
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP)
                     openSearchPage();
-                }
+                Log.d(TAG, "onTouch: ");
+                return false;
             }
+
         });
 
         autoCompleteTextView.addTextChangedListener(new TextWatcher() {
@@ -476,10 +481,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     /*--------------E: map control section------------------*/
     @Override
-    public void onShowInMapClick(LatLng latLng, String placeTitle) {
+    public void onShowInMapClick(Place place) {
         Log.d(TAG, "showInMap: ");
-            showLocation(latLng);
-            pinLocation(latLng,placeTitle);
+            showLocation(place.getPlaceLatLng());
+            if(!mPresenter.checkHasPlace(mPresenter.getPlaceList(),place))
+                pinLocation(place.getPlaceLatLng(),place.getPlaceTitle());
             mFragmentUtils.pop();
     }
 
@@ -509,11 +515,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         if(zoom < 10)
             zoom = 16;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
-
-//        for(Place place : excludeCurrentPlace()){
-//            if(placeTitle.contentEquals(place.getPlaceTitle()))
-//                return;
-//        }
     }
 
     public void pinLocation(LatLng latLng,String placeTitle){
@@ -672,26 +673,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-//    private List<Place> updatePlaceList(int[] path) {
-//        List<Place> sortedPlace = new ArrayList<>();
-//        int pathLength = path.length;
-//
-//        for (int i = 0; i < pathLength; i++) {
-//            sortedPlace.add(mPlaceList.get(path[i]));
-//        }
-//        return  sortedPlace;
-//    }
-
     @Override
     public void onRemovePlace(int position) {
+        Log.d(TAG, "onRemovePlace: " + position);
         mPresenter.removePlace(position);
-        travelFragment.setPlaceList(mPresenter.excludeCurrentPlace(true));
-
-        travelFragment.updateView();
-        updateShowLineButton();
-        mMap.clear();
-
-        pinAllLocation();
     }
 
     @Override
@@ -701,20 +686,32 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             mLineList = polylineOptions;
             showAllLine();
         }
+        else{
+            mLineList.clear();
+            updateShowLineButton();
+        }
     }
 
     @Override
     public void onFinishCalculatePath(int[] path){
-        travelFragment.setPlaceList(mPresenter.excludeCurrentPlace(true));
-        travelFragment.updateView();
         mMap.clear();
+        updateShowLineButton();
+        updateShowLocationButton();
         pinAllLocation();
 
-        travelFragment.updateDistance(mPresenter.getDistances());
+        travelFragment.setPlaceList(mPresenter.excludeCurrentPlace(true));
+        travelFragment.updateDistance(mPresenter.getDistances(),mPresenter.getSumDistance());
+        travelFragment.updateDuration(mPresenter.getDurations(),mPresenter.getSumDuration());
+        travelFragment.updateView();
     }
 
     @Override
     public AppCompatActivity getActivity(){
         return this;
+    }
+
+    @Override
+    public void onChangeAlgorithm() {
+        mPresenter.calculatePath();
     }
 }

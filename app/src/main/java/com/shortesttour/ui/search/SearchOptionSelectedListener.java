@@ -4,6 +4,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.shortesttour.models.Place;
 
 public interface SearchOptionSelectedListener {
-    void onShowInMapClick(LatLng latLng,String placeTitle);
+    void onShowInMapClick(Place place);
     void onAddToListClick(Place place);
 }

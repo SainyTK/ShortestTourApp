@@ -43,6 +43,13 @@ public class TravelFragment extends Fragment{
     private TravelListAdapter adapter;
     private MainActivity activity;
 
+    private int sumDuration = 0;
+    private int sumDistance = 0;
+
+    public TravelFragment(){
+        adapter = new TravelListAdapter(new ArrayList<Place>());
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -50,26 +57,28 @@ public class TravelFragment extends Fragment{
         ButterKnife.bind(this,root);
         activity = (MainActivity)getActivity();
 
-        adapter = new TravelListAdapter(new ArrayList<Place>());
         recyclerView.setLayoutManager(new TravelListLayoutManager(container.getContext()));
         recyclerView.setAdapter(adapter);
-        setListener(new PlaceListItemClickListener() {
-            @Override
-            public void onRemovePlace(int position) {
-                Log.d("Test", "onRemovePlace: ");
-            }
-        });
 
-        setButtonNoPlace();
+        updateView();
 
         return root;
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("test", "onResume: ");
+        adapter.setData(adapter.getData());
+        updateView();
     }
 
     private void setButtonNoPlace(){
         //visible
         textNumPlace.setVisibility(View.VISIBLE);
         btnAdd.setVisibility(View.VISIBLE);
-        textNumPlace.setText(getResources().getString(R.string.no_place));
+        textNumPlace.setText(activity.getString(R.string.no_place));
 
         //gone
         textGoingTo.setVisibility(View.GONE);
@@ -95,17 +104,17 @@ public class TravelFragment extends Fragment{
         if(placeList.size()>0){
             setButtonHasPlace();
 
-            String strNumPlace = getString(R.string.places,placeList.size());
+            String strNumPlace = activity.getString(R.string.places,placeList.size());
             textNumPlace.setText(strNumPlace);
 
-            String strGoingTo = getString(R.string.going_to,placeList.get(0).getPlaceTitle());
+            String strGoingTo = activity.getString(R.string.going_to,placeList.get(0).getPlaceTitle());
             textGoingTo.setText(strGoingTo);
 
-//            String strTotalDistance = getString(R.string.total_distance,toDistanceText(activity.getSumDistance()));
-//            textTotalDistance.setText(strTotalDistance);
-//
-//            String strTotalDuration = getString(R.string.total_duration,toDurationText(activity.getSumDuration()));
-//            textTotalDuration.setText(strTotalDuration);
+            String strTotalDistance = activity.getString(R.string.total_distance,toDistanceText(sumDistance));
+            textTotalDistance.setText(strTotalDistance);
+
+            String strTotalDuration = activity.getString(R.string.total_duration,toDurationText(sumDuration));
+            textTotalDuration.setText(strTotalDuration);
         }else{
             setButtonNoPlace();
         }
@@ -113,9 +122,9 @@ public class TravelFragment extends Fragment{
 
     public String toDistanceText(int distance){
         if(distance<1000)
-            return distance + " " + getString(R.string.m);
+            return distance + " " + activity.getString(R.string.m);
         else
-            return Math.round(distance/1000f) + " " + getString(R.string.km);
+            return Math.round(distance/1000f) + " " + activity.getString(R.string.km);
     }
 
     public String toDurationText(int duration){
@@ -123,21 +132,34 @@ public class TravelFragment extends Fragment{
         int minutes = Math.round(duration%60);
         String durationText = "";
         if(hours>0){
-            durationText = hours + " " + getString(R.string.hr) + " ";
+            durationText = hours + " " + activity.getString(R.string.hr) + " ";
             minutes = Math.round(duration/3600%60);
         }
-        durationText = durationText + minutes + " " + getString(R.string.min);
+        durationText = durationText + minutes + " " + activity.getString(R.string.min);
         return durationText;
     }
 
-    public void updateDistance(int[] pathValues){
+    public void updateDistance(int[] pathValues,int sumDistance){
         int sum = 0;
 
         for(int i=0;i<adapter.getData().size();i++){
             sum+=pathValues[i];
             adapter.updateDistance(i,sum);
         }
+
+        this.sumDistance = sumDistance;
     }
+
+    public void updateDuration(int[] pathValues,int sumDuration){
+        int sum = 0;
+
+        for(int i=0;i<adapter.getData().size();i++){
+            sum+=pathValues[i];
+        }
+
+        this.sumDuration = sumDuration;
+    }
+
 
     public void setListener(PlaceListItemClickListener listener){
         adapter.setListener(listener);
@@ -145,18 +167,12 @@ public class TravelFragment extends Fragment{
 
     public void setPlaceList(List<Place> placeList){
         adapter.setData(placeList);
-    }
 
-    public List<Place> getPlaceList(){
-        return adapter.getData();
-    }
-
-    public void addPlace(Place place){
-        adapter.addPlace(place);
     }
 
     @OnClick(R.id.btn_add)
     void addPlace(){
         activity.openSearchPage();
     }
+
 }

@@ -24,6 +24,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/ic_show_line_inactive"
+            android:tint="@color/activeTint"
             app:backgroundTint="@color/filter_button"
             app:elevation="1dp"
             android:layout_marginRight="@dimen/margin_medium"

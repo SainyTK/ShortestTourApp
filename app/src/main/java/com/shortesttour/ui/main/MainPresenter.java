@@ -123,7 +123,12 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
     }
 
     public void removePlace(int position){
+        preventRepeatPlaceList.remove(position);
         mFindPathUtils.collapseGraph(position+1);
+    }
+
+    public void calculatePath(){
+        mFindPathUtils.calculatePath();
     }
 
 

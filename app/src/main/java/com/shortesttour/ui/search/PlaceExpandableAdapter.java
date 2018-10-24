@@ -55,7 +55,7 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<Place,Stri
             public void clickShowInMap(int parentPosition) {
                 if(mListener!=null){
                     Place place = places.get(parentPosition);
-                    mListener.onShowInMapClick(place.getPlaceLatLng(),place.getPlaceTitle());
+                    mListener.onShowInMapClick(place);
                 }
             }
 

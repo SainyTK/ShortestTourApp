@@ -63,10 +63,8 @@ public class FindPathUtils {
 
     public FindPathUtils(AppCompatActivity activity) {
         mPlaceList = new ArrayList<>();
-        graphUtils = new GraphUtils();
+        graphUtils = new GraphUtils(activity);
         placeQueue = new LinkedList<>();
-
-//        graphUtils.expandGraph(null);
 
         repository = new DirectionApiResultRepository(activity.getApplication());
         //repository.deleteAll();
@@ -107,16 +105,6 @@ public class FindPathUtils {
             }
     }
 
-//    private void updatePlaceList(int[] path) {
-//        List<Place> sortedPlace = new ArrayList<>();
-//        int pathLength = path.length-1;
-//
-//        for (int i = 0; i < pathLength; i++) {
-//            sortedPlace.add(mPlaceList.get(path[i]));
-//        }
-//        mPlaceList = sortedPlace;
-//    }
-
     public void addPlace(Place newPlace) {
         placeQueue.add(newPlace);
         Log.d("Test", "Enqueue Queue Size: " + placeQueue.size());
@@ -156,8 +144,6 @@ public class FindPathUtils {
                 publishProgress(80);
                 int[] path = graphUtils.getPath();
 
-//                updatePlaceList(path);
-//                graphUtils.updateGraph(path);
                 return path;
             }
         })
@@ -483,7 +469,18 @@ public class FindPathUtils {
         graphUtils.collapseGraph(position);
         mPlaceList.remove(position);
 
+        if(mListener!=null)
+            mListener.onGetPath(graphUtils.getPath());
+        findPath();
+
         return mPlaceList;
+    }
+
+    public void calculatePath(){
+        graphUtils.calculatePath();
+        if(mListener!=null)
+            mListener.onGetPath(graphUtils.getPath());
+        findPath();
     }
 
     public List<Place> getPlaceList() {
@@ -491,12 +488,12 @@ public class FindPathUtils {
     }
 
     public List<Place> getOrderedPlaceList(){
-        List<Place> orderedPlaceLisr = new ArrayList<>();
+        List<Place> orderedPlaceList = new ArrayList<>();
         int[] path = graphUtils.getPath();
         for(int i=0;i<mPlaceList.size();i++){
-            orderedPlaceLisr.add(mPlaceList.get(path[i]));
+            orderedPlaceList.add(mPlaceList.get(path[i]));
         }
-        return orderedPlaceLisr;
+        return orderedPlaceList;
     }
 
 }
