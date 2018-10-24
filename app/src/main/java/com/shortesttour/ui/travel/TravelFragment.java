@@ -101,11 +101,11 @@ public class TravelFragment extends Fragment{
             String strGoingTo = getString(R.string.going_to,placeList.get(0).getPlaceTitle());
             textGoingTo.setText(strGoingTo);
 
-            String strTotalDistance = getString(R.string.total_distance,toDistanceText(activity.getSumDistance()));
-            textTotalDistance.setText(strTotalDistance);
-
-            String strTotalDuration = getString(R.string.total_duration,toDurationText(activity.getSumDuration()));
-            textTotalDuration.setText(strTotalDuration);
+//            String strTotalDistance = getString(R.string.total_distance,toDistanceText(activity.getSumDistance()));
+//            textTotalDistance.setText(strTotalDistance);
+//
+//            String strTotalDuration = getString(R.string.total_duration,toDurationText(activity.getSumDuration()));
+//            textTotalDuration.setText(strTotalDuration);
         }else{
             setButtonNoPlace();
         }

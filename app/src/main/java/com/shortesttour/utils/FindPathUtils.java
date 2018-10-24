@@ -1,7 +1,6 @@
 package com.shortesttour.utils;
 
 import android.graphics.Color;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -24,17 +23,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class FindPathUtils {
@@ -57,22 +52,21 @@ public class FindPathUtils {
     private static final int MAX_PROGRESS_GET_VALUE = 70;
 
     public interface TaskListener {
-        void onFinishTask(int[] path);
-
         void OnStartTask(String placeName);
 
         void onUpdateValue(int value);
 
+        void onGetPath(int[] path);
+
         void onDrawPath(List<PolylineOptions> lineOptions);
     }
 
-    public FindPathUtils(AppCompatActivity activity,List<Place> placeList) {
-
-        mPlaceList = placeList;
+    public FindPathUtils(AppCompatActivity activity) {
+        mPlaceList = new ArrayList<>();
         graphUtils = new GraphUtils();
         placeQueue = new LinkedList<>();
 
-        graphUtils.expandGraph(null);
+//        graphUtils.expandGraph(null);
 
         repository = new DirectionApiResultRepository(activity.getApplication());
         //repository.deleteAll();
@@ -113,19 +107,15 @@ public class FindPathUtils {
             }
     }
 
-    private void updatePlaceList(int[] path) {
-        List<Place> sortedPlace = new ArrayList<>();
-        int pathLength = path.length-1;
-
-        for (int i = 0; i < pathLength; i++) {
-            sortedPlace.add(mPlaceList.get(path[i]));
-        }
-        mPlaceList = sortedPlace;
-    }
-
-    public List<Place> getPlaceList() {
-        return mPlaceList;
-    }
+//    private void updatePlaceList(int[] path) {
+//        List<Place> sortedPlace = new ArrayList<>();
+//        int pathLength = path.length-1;
+//
+//        for (int i = 0; i < pathLength; i++) {
+//            sortedPlace.add(mPlaceList.get(path[i]));
+//        }
+//        mPlaceList = sortedPlace;
+//    }
 
     public void addPlace(Place newPlace) {
         placeQueue.add(newPlace);
@@ -142,6 +132,8 @@ public class FindPathUtils {
         startRuntime = System.currentTimeMillis();
 
         isTaskRunning = true;
+
+
         final Place newPlace = placeQueue.remove();
         Log.d("Test", "Dequeue Queue Size: " + placeQueue.size());
         if (mListener != null)
@@ -164,8 +156,8 @@ public class FindPathUtils {
                 publishProgress(80);
                 int[] path = graphUtils.getPath();
 
-                updatePlaceList(path);
-                graphUtils.updateGraph(path);
+//                updatePlaceList(path);
+//                graphUtils.updateGraph(path);
                 return path;
             }
         })
@@ -190,7 +182,9 @@ public class FindPathUtils {
                             if (placeQueue.size() > 0)
                                 connectNodes();
                             if (mListener != null)
-                                mListener.onFinishTask(path);
+                                mListener.onGetPath(path);
+
+                            findPath();
                         } catch (Exception e) {
                             Log.e("error", "onPostExecute: ", e);
                         }
@@ -489,12 +483,20 @@ public class FindPathUtils {
         graphUtils.collapseGraph(position);
         mPlaceList.remove(position);
 
-        int[] path = graphUtils.getPath();
-        updatePlaceList(path);
-        graphUtils.updateGraph(path);
-        Log.d("text", "collapseGraph: " + graphUtils);
-
         return mPlaceList;
+    }
+
+    public List<Place> getPlaceList() {
+        return mPlaceList;
+    }
+
+    public List<Place> getOrderedPlaceList(){
+        List<Place> orderedPlaceLisr = new ArrayList<>();
+        int[] path = graphUtils.getPath();
+        for(int i=0;i<mPlaceList.size();i++){
+            orderedPlaceLisr.add(mPlaceList.get(path[i]));
+        }
+        return orderedPlaceLisr;
     }
 
 }

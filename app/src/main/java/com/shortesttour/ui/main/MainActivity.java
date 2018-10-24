@@ -1,9 +1,11 @@
 package com.shortesttour.ui.main;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -11,6 +13,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
@@ -34,7 +37,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -63,7 +65,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements MainContract.View,SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener,LocationListener, GoogleMap.OnMapClickListener, FindPathUtils.TaskListener {
+public class MainActivity extends AppCompatActivity implements MainContract.View, SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener, GoogleMap.OnMapClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -92,13 +94,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     private FragmentUtils mFragmentUtils;
     private FragmentUtils bottomFragmentUtils;
-    private FindPathUtils mFindPathUtils;
 
     private SearchFragment searchFragment;
     private TravelFragment travelFragment;
     private SelectAlgorithmFragment selectAlgorithmFragment;
 
-    private List<Place> mPlaceList;
     private List<PolylineOptions> mLineList;
 
     private boolean mLocationPermissionGranted;
@@ -141,27 +141,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         setupBottomNav();
 
         setupLineManager();
-
-//
-//
-
-
-//
-
-
-//        setupBottomNav();
-
-
-//
-//        updateShowLineButton();
-//
-//        mPlaceList.add(currentPlace);
-//        mFindPathUtils = new FindPathUtils(this,mPlaceList);
-//        mFindPathUtils.setOnTaskFinishListener(this);
     }
 
     private void setupLineManager() {
         mLineList = new ArrayList<>();
+        updateShowLineButton();
     }
 
     /*--------------A: setup section------------------*/
@@ -208,19 +192,18 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
 
-        try{
-            boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.style_json));
-            if(!success){
+        try {
+            boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+            if (!success) {
                 Log.d(TAG, "onMapReady: style parsing failed");
             }
-        }catch(Resources.NotFoundException e){
-            Log.d(TAG, "onMapReady: Can't find style ",e);
+        } catch (Resources.NotFoundException e) {
+            Log.d(TAG, "onMapReady: Can't find style ", e);
         }
 
-        if(mLocationPermissionGranted){
+        if (mLocationPermissionGranted) {
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
-            showCurrentLocation();
         }
 
         setupLocationManager();
@@ -229,7 +212,32 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private void setupLocationManager() {
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (mLocationPermissionGranted)
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20, 5, this);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mLocationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mPresenter.setupCurrentPlace(currentLatLng);
+                    showLocation(currentLatLng);
+                }
+
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
+
+                }
+
+                @Override
+                public void onProviderEnabled(String s) {
+
+                }
+
+                @Override
+                public void onProviderDisabled(String s) {
+
+                }
+            }, null);
     }
 
     private void setupBottomSheet(){
@@ -324,7 +332,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private void setupBottomFragment(){
         travelFragment = new TravelFragment();
         selectAlgorithmFragment = new SelectAlgorithmFragment();
-
 
         bottomFragmentUtils = new FragmentUtils(this,R.id.bottom_fragment_container);
         bottomFragmentUtils.replace(travelFragment,false);
@@ -471,14 +478,15 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     @Override
     public void onShowInMapClick(LatLng latLng, String placeTitle) {
         Log.d(TAG, "showInMap: ");
-            showLocation(latLng,placeTitle);
+            showLocation(latLng);
+            pinLocation(latLng,placeTitle);
             mFragmentUtils.pop();
     }
 
     public void showAllLocation(){
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        if(mPlaceList!=null&&mPlaceList.size()>0){
-            for(Place place : mPlaceList){
+        if(mPresenter.getPlaceList()!=null&&mPresenter.getNumPlace()>0){
+            for(Place place : mPresenter.getPlaceList()){
                 builder.include(place.getPlaceLatLng());
             }
             LatLngBounds bounds;
@@ -496,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             updateShowLocationButton();
     }
 
-    public void showLocation(LatLng latLng,String placeTitle){
+    public void showLocation(LatLng latLng){
         float zoom = mMap.getCameraPosition().zoom;
         if(zoom < 10)
             zoom = 16;
@@ -506,6 +514,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 //            if(placeTitle.contentEquals(place.getPlaceTitle()))
 //                return;
 //        }
+    }
+
+    public void pinLocation(LatLng latLng,String placeTitle){
         mMap.addMarker(new MarkerOptions().title(placeTitle).position(latLng));
     }
 
@@ -514,24 +525,20 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     public void pinAllLocation(){
-        List<Place> placeList = excludeCurrentPlace();
+        List<Place> placeList = mPresenter.excludeCurrentPlace(true);
         for(int i=placeList.size()-1;i>=0;i--){
             Place place = placeList.get(i);
             pinLocation(place.getPlaceLatLng(),place.getPlaceTitle(),i);
         }
     }
 
-    void findPath() {
-        mLineList.clear();
-        mFindPathUtils.findPath();
-    }
-
     @Override
     public void onMapClick(LatLng latLng) {
         switch (screenState) {
             case STATE_SHOWTOOL:
-                if(mFragmentUtils.getBackStackCount()==0)
+                if(mFragmentUtils.getBackStackCount()==0){
                     hideMapTools();
+                }
                 break;
             case STATE_HIDETOOL:
                 collapseBottomSheet();
@@ -620,11 +627,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             showLineState = STATE_SHOW_NO_LINE;
         switch (showLineState){
             case STATE_SHOW_NO_LINE :
-                btnShowLine.setImageDrawable(getResources().getDrawable(R.drawable.ic_show_line));
+                btnShowLine.setImageDrawable(getResources().getDrawable(R.drawable.ic_show_line_inactive));
                 btnShowLine.setEnabled(false);
                 break;
             case STATE_SHOW_LINE :
-                btnShowLine.setImageDrawable(getResources().getDrawable(R.drawable.ic_show_line));
+                btnShowLine.setImageDrawable(getResources().getDrawable(R.drawable.ic_show_line_active));
                 btnShowLine.setEnabled(true);
                 break;
             case STATE_SHOW_ALL_LINE :
@@ -638,79 +645,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     /*--------------G: place list manage section---------------*/
     @Override
     public void onAddToListClick(Place place) {
-
-//        List<Place> searchPlaceList = searchFragment.getPlaceList();
-//        for(int i=0;i<30;i++){
-//            Place p = searchPlaceList.get(i);
-//            bottomSheetPlaceList.add(p);
-//            mFindPathUtils.addPlace(p);
-//        }
-        if(!checkHasPlace(travelFragment.getPlaceList(),place)){
-            travelFragment.addPlace(place);
-            mFindPathUtils.addPlace(place);
-        }
-    }
-
-    synchronized public boolean checkHasPlace(List<Place> placeList,Place newPlace){
-        for(Place place:placeList){
-            if(place.getPlaceTitle().contentEquals(newPlace.getPlaceTitle()))
-                return true;
-        }
-        return false;
-    }
-
-    private List<Place> excludeCurrentPlace(){
-        if(mPlaceList.size()>1)
-            return mPlaceList.subList(1,mPlaceList.size());
-        return new ArrayList<>();
-    }
-
-    /*---------------------Result Handle Section---------------*/
-
-    @Override
-    public void OnStartTask(String placeTitle) {
-        String findingPathStr = getString(R.string.finding_path,placeTitle);
-        Toast.makeText(this, findingPathStr, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onUpdateValue(int value) {
-
-    }
-
-    @Override
-    public void onFinishTask(int[] path) {
-
-        mPlaceList = mFindPathUtils.getPlaceList();
-        updatePlaceList(path);
-        Log.d(TAG, "onFinishTask: size = " + mPlaceList.size());
-
-        travelFragment.updateView();
-        mMap.clear();
-        pinAllLocation();
-
-        travelFragment.updateDistance(getDistances());
-
-        findPath();
-    }
-
-    @Override
-    public void onDrawPath(List<PolylineOptions> polylineOptions) {
-        if(polylineOptions.size()>0) {
-            polylineOptions.get(0).color(getResources().getColor(R.color.activeTint));
-            mLineList = polylineOptions;
-            showAllLine();
-        }
+        mPresenter.addPlace(place);
     }
 
 
     /*---------------------Location Manage Section-------------*/
-    @Override
-    public void onLocationChanged(Location location) {
-        LatLng currentLatLng = new LatLng(location.getLatitude(),location.getLongitude());
-
-      mPresenter.setCurrentLatLng(currentLatLng);
-    }
 
     /*-----------------------SQLite Database Section----------------*/
 
@@ -721,20 +660,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     /*---------------------Other Section-----------------------*/
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
 
     public void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -747,43 +672,49 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    private List<Place> updatePlaceList(int[] path) {
-        List<Place> sortedPlace = new ArrayList<>();
-        int pathLength = path.length;
-
-        for (int i = 0; i < pathLength; i++) {
-            sortedPlace.add(mPlaceList.get(path[i]));
-        }
-        return  sortedPlace;
-    }
-
-    public int getSumDistance(){
-        return mFindPathUtils.getNearestSumDistance();
-    }
-
-    public int getSumDuration(){
-        return mFindPathUtils.getNearestSumDuration();
-    }
-
-    public int[] getDistances(){
-        return mFindPathUtils.getNearestDistance();
-    }
-
-    public int[] getDurations(){
-        return mFindPathUtils.getNearestDuration();
-    }
+//    private List<Place> updatePlaceList(int[] path) {
+//        List<Place> sortedPlace = new ArrayList<>();
+//        int pathLength = path.length;
+//
+//        for (int i = 0; i < pathLength; i++) {
+//            sortedPlace.add(mPlaceList.get(path[i]));
+//        }
+//        return  sortedPlace;
+//    }
 
     @Override
     public void onRemovePlace(int position) {
-        mPlaceList = mFindPathUtils.collapseGraph(position+1);
-        travelFragment.setPlaceList(excludeCurrentPlace());
+        mPresenter.removePlace(position);
+        travelFragment.setPlaceList(mPresenter.excludeCurrentPlace(true));
 
-        travelFragment.updateView();
         travelFragment.updateView();
         updateShowLineButton();
         mMap.clear();
 
         pinAllLocation();
-        findPath();
+    }
+
+    @Override
+    public void onFinishDrawPath(List<PolylineOptions> polylineOptions) {
+        if(polylineOptions.size()>0) {
+            polylineOptions.get(0).color(getResources().getColor(R.color.activeTint));
+            mLineList = polylineOptions;
+            showAllLine();
+        }
+    }
+
+    @Override
+    public void onFinishCalculatePath(int[] path){
+        travelFragment.setPlaceList(mPresenter.excludeCurrentPlace(true));
+        travelFragment.updateView();
+        mMap.clear();
+        pinAllLocation();
+
+        travelFragment.updateDistance(mPresenter.getDistances());
+    }
+
+    @Override
+    public AppCompatActivity getActivity(){
+        return this;
     }
 }
