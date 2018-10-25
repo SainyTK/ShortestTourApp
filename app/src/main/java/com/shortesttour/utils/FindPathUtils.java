@@ -28,8 +28,10 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class FindPathUtils {
@@ -465,22 +467,75 @@ public class FindPathUtils {
 
     }
 
-    public List<Place> collapseGraph(int position) {
-        graphUtils.collapseGraph(position);
-        mPlaceList.remove(position);
+    public void collapseGraph(final int position) {
+        Observable.fromCallable(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                graphUtils.collapseGraph(position);
+                mPlaceList.remove(position);
+                return null;
+            }
+        }).subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-        if(mListener!=null)
-            mListener.onGetPath(graphUtils.getPath());
-        findPath();
+                    }
 
-        return mPlaceList;
+                    @Override
+                    public void onNext(Object o) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if(mListener!=null)
+                            mListener.onGetPath(graphUtils.getPath());
+
+                        findPath();
+                    }
+                });
     }
 
     public void calculatePath(){
-        graphUtils.calculatePath();
-        if(mListener!=null)
-            mListener.onGetPath(graphUtils.getPath());
-        findPath();
+        Observable.fromCallable(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                graphUtils.calculatePath();
+                return null;
+            }
+        }).subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if(mListener!=null)
+                            mListener.onGetPath(graphUtils.getPath());
+
+                        findPath();
+                    }
+                });
     }
 
     public List<Place> getPlaceList() {
