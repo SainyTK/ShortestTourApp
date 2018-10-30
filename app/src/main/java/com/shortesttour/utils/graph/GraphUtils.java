@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class GraphUtils {
+public abstract class GraphUtils{
 
     private GraphNode[][] graph;
     private int[] path;
@@ -24,9 +24,23 @@ public class GraphUtils {
         this.context = context;
         graph = new GraphNode[0][0];
         path = new int[0];
-        nearestNeighbor = new NearestNeighbor();
-        dynamicProgramming = new DynamicProgramming();
+
+        nearestNeighbor = new NearestNeighbor() {
+            @Override
+            public void onProgress(int value) {
+                setProgress(value);
+            }
+        };
+
+        dynamicProgramming = new DynamicProgramming(){
+            @Override
+            public void onProgress(int value) {
+                setProgress(value);
+            }
+        };
     }
+
+    public abstract void setProgress(int val);
 
     public void connectEdge(int row, int col, int distance, int duration, List<List<HashMap<String, String>>> route) {
         graph[row][col].setDistance(distance);

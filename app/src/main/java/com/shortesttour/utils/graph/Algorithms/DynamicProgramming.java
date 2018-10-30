@@ -1,5 +1,7 @@
 package com.shortesttour.utils.graph.Algorithms;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DynamicProgramming {
+public abstract class DynamicProgramming {
 
     private static int INFINITY = Integer.MAX_VALUE;
 
@@ -60,7 +62,13 @@ public class DynamicProgramming {
 
         List<Set<Integer>> allSets = generateCombination(distance.length - 1);
 
+        int progress=0;
+        onProgress(progress);
+
         for(Set<Integer> set : allSets) {
+            int p = (progress*30)/(allSets.size());
+            onProgress(p);
+            Log.d("getProgress", "createPath: progress = " + p);
             for(int currentVertex = 1; currentVertex < distance.length; currentVertex++) {
                 if(set.contains(currentVertex)) {
                     continue;
@@ -84,6 +92,7 @@ public class DynamicProgramming {
                 minCostDP.put(index, minCost);
                 parent.put(index, minPrevVertex);
             }
+            progress++;
         }
 
         Set<Integer> set = new HashSet<>();
@@ -130,6 +139,7 @@ public class DynamicProgramming {
             result[i] = p;
         }
 
+        onProgress(50);
         return result;
     }
 
@@ -175,4 +185,6 @@ public class DynamicProgramming {
         }
         return set;
     }
+
+    public abstract void onProgress(int value);
 }

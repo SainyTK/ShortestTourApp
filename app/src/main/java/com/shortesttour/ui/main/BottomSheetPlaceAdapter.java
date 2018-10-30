@@ -30,6 +30,8 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
         TextView textPlaceTitle;
         @BindView(R.id.place_distance)
         TextView textPlaceDistance;
+        @BindView(R.id.place_icon)
+        TextView textPlaceIcon;
 
         public Holder(View itemView) {
             super(itemView);
@@ -39,6 +41,7 @@ public class BottomSheetPlaceAdapter extends RecyclerView.Adapter<BottomSheetPla
         public void bindData(int position){
             textPlaceTitle.setText(mPlaceList.get(position).getPlaceTitle());
             textPlaceDistance.setText(mPlaceList.get(position).getDistanceText());
+            textPlaceIcon.setText(String.valueOf(position+1));
         }
 
         @OnClick(R.id.btn_delete_place)

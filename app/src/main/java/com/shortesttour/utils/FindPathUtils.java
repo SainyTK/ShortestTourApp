@@ -40,7 +40,6 @@ public class FindPathUtils {
     private long startRuntime = 0;
     private ArrayList<Long> runtimes = new ArrayList<>();
 
-
     private GraphUtils graphUtils;
 
     private List<Place> mPlaceList;
@@ -51,10 +50,14 @@ public class FindPathUtils {
 
     private boolean isTaskRunning = false;
 
-    private static final int MAX_PROGRESS_GET_VALUE = 70;
+    private int progress = 0;
+    private static final int MODE_REQUEST = 0;
+    private static final int MODE_UNREQUEST = 1;
+    private int progressMode = MODE_REQUEST;
+    private static final int MAX_PROGRESS_GET_VALUE = 50;
 
     public interface TaskListener {
-        void OnStartTask(String placeName);
+        void OnStartTask();
 
         void onUpdateValue(int value);
 
@@ -65,11 +68,23 @@ public class FindPathUtils {
 
     public FindPathUtils(AppCompatActivity activity) {
         mPlaceList = new ArrayList<>();
-        graphUtils = new GraphUtils(activity);
+        graphUtils = new GraphUtils(activity) {
+            @Override
+            public void setProgress(int val) {
+                int totalProgress = val + getProgress();
+                publishProgress(totalProgress);
+            }
+        };
+
+
         placeQueue = new LinkedList<>();
 
         repository = new DirectionApiResultRepository(activity.getApplication());
         //repository.deleteAll();
+    }
+
+    private int getProgress(){
+        return progressMode == MODE_REQUEST ? progress : progress*2;
     }
 
     public void setOnTaskFinishListener(TaskListener listener) {
@@ -118,6 +133,7 @@ public class FindPathUtils {
     }
 
     synchronized private void connectNodes() {
+        progressMode = MODE_REQUEST;
 
         startRuntime = System.currentTimeMillis();
 
@@ -127,7 +143,7 @@ public class FindPathUtils {
         final Place newPlace = placeQueue.remove();
         Log.d("Test", "Dequeue Queue Size: " + placeQueue.size());
         if (mListener != null)
-            mListener.OnStartTask(newPlace.getPlaceTitle());
+            mListener.OnStartTask();
 
         Observable.fromCallable(new Callable<int[]>() {
             @Override
@@ -140,10 +156,8 @@ public class FindPathUtils {
 
                 GraphNode[] nodes = parseJSONData(apiResponse).blockingSingle();
 
-                publishProgress(75);
                 graphUtils.expandGraph(nodes);
 
-                publishProgress(80);
                 int[] path = graphUtils.getPath();
 
                 return path;
@@ -161,11 +175,7 @@ public class FindPathUtils {
                     public void onNext(int[] path) {
                         try {
 
-                            publishProgress(90);
-
                             Log.d("test", "Show Graph : " + graphUtils);
-
-                            publishProgress(100);
 
                             if (placeQueue.size() > 0)
                                 connectNodes();
@@ -336,7 +346,7 @@ public class FindPathUtils {
             public String[] call() throws Exception {
                 String[] result = new String[requestUrls.length];
 
-                int progressValue = 0;
+                progress = 0;
                 boolean checkError = false;
                 int numError = 0;
 
@@ -356,8 +366,8 @@ public class FindPathUtils {
                         }
                         Log.d("check", "data =  " + result[i]);
                     } while (checkError);
-                    progressValue = (i + 1) * MAX_PROGRESS_GET_VALUE / requestUrls.length;
-                    publishProgress(progressValue);
+                    progress = (i + 1) * MAX_PROGRESS_GET_VALUE / requestUrls.length;
+                    publishProgress(progress);
                 }
                 return result;
             }
@@ -381,7 +391,8 @@ public class FindPathUtils {
                     } catch (JSONException e) {
                         Log.e("error", "doInBackground: ", e);
                     }
-                    publishProgress((i + 1) * 10 / response.length + MAX_PROGRESS_GET_VALUE);
+                    progress = (i + 1) * 10 / response.length + MAX_PROGRESS_GET_VALUE;
+                    publishProgress(progress);
                 }
                 return parserData;
             }
@@ -468,58 +479,65 @@ public class FindPathUtils {
     }
 
     public void collapseGraph(final int position) {
-        Observable.fromCallable(new Callable<Object>() {
+        if(mListener!=null)
+            mListener.OnStartTask();
+        progressMode = MODE_UNREQUEST;
+        Observable.fromCallable(new Callable<Boolean>(){
             @Override
-            public Object call() throws Exception {
+            public Boolean call() throws Exception {
                 graphUtils.collapseGraph(position);
                 mPlaceList.remove(position);
-                return null;
+                return true;
             }
-        }).subscribeOn(Schedulers.computation())
+        })
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Object>() {
+                .subscribe(new Observer<Boolean>() {
                     @Override
                     public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(Object o) {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
+                    public void onNext(Boolean success) {
                         if(mListener!=null)
                             mListener.onGetPath(graphUtils.getPath());
 
                         findPath();
                     }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("error", "onError: ", e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
     }
 
     public void calculatePath(){
-        Observable.fromCallable(new Callable<Object>() {
+        if(mListener!=null)
+            mListener.OnStartTask();
+        progressMode = MODE_UNREQUEST;
+        Observable.fromCallable(new Callable<Boolean>() {
             @Override
-            public Object call() throws Exception {
+            public Boolean call() throws Exception {
                 graphUtils.calculatePath();
-                return null;
+                return true;
             }
         }).subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Object>() {
+                .subscribe(new Observer<Boolean>() {
                     @Override
                     public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(Object o) {
+                    public void onNext(Boolean o) {
 
                     }
 

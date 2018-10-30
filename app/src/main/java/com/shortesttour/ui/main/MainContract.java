@@ -14,6 +14,8 @@ public class MainContract {
         AppCompatActivity getActivity();
         void onFinishCalculatePath(int[] path);
         void onFinishDrawPath(List<PolylineOptions> polylineOptions);
+        void onStartTask();
+        void onUpdateValue(int val);
     }
 
     public interface Presenter{

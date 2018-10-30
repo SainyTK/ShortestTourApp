@@ -35,6 +35,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -85,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     ImageView searchBackButton;
     @BindView(R.id.search_clear_btn)
     ImageView searchClearButton;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     private BottomSheetBehavior bottomSheetBehavior;
     private GoogleMap mMap;
@@ -680,16 +683,14 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void onFinishDrawPath(List<PolylineOptions> polylineOptions) {
-        if(polylineOptions.size()>0) {
-            polylineOptions.get(0).color(getResources().getColor(R.color.activeTint));
-            mLineList = polylineOptions;
-            showAllLine();
-        }
-        else{
-            mLineList.clear();
-            updateShowLineButton();
-        }
+    public void onStartTask() {
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setProgress(0);
+    }
+
+    @Override
+    public void onUpdateValue(int val) {
+        progressBar.setProgress(val);
     }
 
     @Override
@@ -703,6 +704,19 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         travelFragment.updateDistance(mPresenter.getDistances(),mPresenter.getSumDistance());
         travelFragment.updateDuration(mPresenter.getDurations(),mPresenter.getSumDuration());
         travelFragment.updateView();
+    }
+
+    @Override
+    public void onFinishDrawPath(List<PolylineOptions> polylineOptions) {
+        if(polylineOptions.size()>0) {
+            polylineOptions.get(0).color(getResources().getColor(R.color.activeTint));
+            mLineList = polylineOptions;
+            showAllLine();
+        }
+        else{
+            mLineList.clear();
+            updateShowLineButton();
+        }
     }
 
     @Override

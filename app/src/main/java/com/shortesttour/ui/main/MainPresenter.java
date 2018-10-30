@@ -1,11 +1,7 @@
 package com.shortesttour.ui.main;
 
-import android.util.Log;
-import android.widget.Toast;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.shortesttour.R;
 import com.shortesttour.models.Place;
 import com.shortesttour.utils.FindPathUtils;
 
@@ -103,13 +99,13 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
     }
 
     @Override
-    public void OnStartTask(String placeTitle) {
-
+    public void OnStartTask() {
+        mView.onStartTask();
     }
 
     @Override
     public void onUpdateValue(int value) {
-
+        mView.onUpdateValue(value);
     }
 
     @Override

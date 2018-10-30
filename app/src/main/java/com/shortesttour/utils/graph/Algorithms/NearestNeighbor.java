@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.shortesttour.utils.graph.GraphNode;
 
-public class NearestNeighbor {
+public abstract class NearestNeighbor {
 
     public int[] createPath(int[][] distance){
         int[] path = new int[distance.length+1];
@@ -13,15 +13,20 @@ public class NearestNeighbor {
         visited[0] = true;
         path[0] = 0;
 
+        onProgress(0);
+
         int next = 0;
         for(int i=1;i<distance.length;i++){
             next = findMinDestination(distance[next],visited);
             path[i] = next;
             visited[next] = true;
+
+            onProgress((i*50/distance.length));
             Log.d("test", "createPath: next = " + next);
         }
 
         path[distance.length] = 0;
+        onProgress(50);
 
         return path;
     }
@@ -52,4 +57,6 @@ public class NearestNeighbor {
             visited[i] = false;
         return visited;
     }
+
+    public abstract void onProgress(int value);
 }
