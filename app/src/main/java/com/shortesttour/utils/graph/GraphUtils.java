@@ -1,6 +1,7 @@
 package com.shortesttour.utils.graph;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.shortesttour.utils.PrefsUtil;
 import com.shortesttour.utils.graph.Algorithms.DynamicProgramming;
@@ -119,6 +120,8 @@ public abstract class GraphUtils{
             this.path = path;
         else
             this.path = new int[0];
+
+        Log.d("SHOW GRAPH", "calculatePath: " + this);
     }
 
     public int[] getNearestPathDuration() {
@@ -235,7 +238,7 @@ public abstract class GraphUtils{
     public String sumDurationText() {
         StringBuilder sb = new StringBuilder();
         sb.append("SUM DURATION = ");
-        sb.append(getNearestSumDuration());
+        sb.append(getNearestSumDuration()/60);
         sb.append("\n");
         return sb.toString();
     }

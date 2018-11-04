@@ -68,7 +68,6 @@ public abstract class DynamicProgramming {
         for(Set<Integer> set : allSets) {
             int p = (progress*30)/(allSets.size());
             onProgress(p);
-            Log.d("getProgress", "createPath: progress = " + p);
             for(int currentVertex = 1; currentVertex < distance.length; currentVertex++) {
                 if(set.contains(currentVertex)) {
                     continue;

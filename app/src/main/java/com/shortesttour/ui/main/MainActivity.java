@@ -26,6 +26,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TimeUtils;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -63,6 +64,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.internal.Utils;
 
 public class MainActivity extends AppCompatActivity implements MainContract.View, SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener, GoogleMap.OnMapClickListener, SelectAlgorithmFragment.ChangeAlgorithmListener {
 
@@ -219,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             mLocationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
                     LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                     mPresenter.setupCurrentPlace(currentLatLng);
                     showLocation(currentLatLng);
@@ -239,6 +242,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
                 }
             }, null);
+
+
     }
 
     private void setupBottomSheet(){
@@ -682,19 +687,32 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         mPresenter.removePlace(position);
     }
 
+    private long startTime;
+
     @Override
     public void onStartTask() {
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setProgress(0);
+
+        startTime = System.currentTimeMillis();
     }
+
+    String checkStr = "";
 
     @Override
     public void onUpdateValue(int val) {
         progressBar.setProgress(val);
+        String str = "onUpdateValue:  " + val;
+        if(!str.contentEquals(checkStr)){
+            checkStr = str;
+            Log.d(TAG, "onUpdateValue:  " + val);
+        }
     }
 
     @Override
     public void onFinishCalculatePath(int[] path){
+        progressBar.setProgress(0);
+
         mMap.clear();
         updateShowLineButton();
         updateShowLocationButton();
@@ -704,6 +722,31 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         travelFragment.updateDistance(mPresenter.getDistances(),mPresenter.getSumDistance());
         travelFragment.updateDuration(mPresenter.getDurations(),mPresenter.getSumDuration());
         travelFragment.updateView();
+
+        Log.d("Time", "Number of nodes : " + (mPresenter.getNumPlace()-1));
+        Log.d("Time", "Total time : " + (System.currentTimeMillis()-startTime));
+        Log.d("Time", "Total Distance :  " + toDistanceText(mPresenter.getSumDuration()));
+        Log.d("Time", "Total Duration :  " + toDurationText(mPresenter.getSumDuration()));
+    }
+
+    public String toDistanceText(int distance){
+        if(distance<1000)
+            return distance + " " + getString(R.string.m);
+        else
+            return Math.round(distance/1000f) + " " + getString(R.string.km);
+    }
+
+    public String toDurationText(int duration){
+        Log.d("SHOW", "toDurationText: " + duration);
+        int hours = Math.round(duration/3600);
+        int minutes = Math.round(duration/60);
+        String durationText = "";
+        if(hours>0){
+            durationText = hours + " " + getString(R.string.hr) + " ";
+            minutes = Math.round(duration%3600/60);
+        }
+        durationText = durationText + minutes + " " + getString(R.string.min);
+        return durationText;
     }
 
     @Override

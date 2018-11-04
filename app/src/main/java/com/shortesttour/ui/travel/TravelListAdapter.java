@@ -29,6 +29,8 @@ public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Ho
         TextView textPlaceTitle;
         @BindView(R.id.place_distance)
         TextView textPlaceDistance;
+        @BindView(R.id.place_icon)
+        TextView textPlaceIcon;
 
         public Holder(View itemView) {
             super(itemView);
@@ -38,6 +40,7 @@ public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Ho
         public void bindData(int position){
             textPlaceTitle.setText(mPlaceList.get(position).getPlaceTitle());
             textPlaceDistance.setText(mPlaceList.get(position).getDistanceText());
+            textPlaceIcon.setText(String.valueOf(position+1));
         }
 
         @OnClick(R.id.btn_delete_place)

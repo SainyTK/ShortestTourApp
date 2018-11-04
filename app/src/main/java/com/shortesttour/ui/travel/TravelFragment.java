@@ -128,12 +128,13 @@ public class TravelFragment extends Fragment{
     }
 
     public String toDurationText(int duration){
+        Log.d("SHOW", "toDurationText: " + duration);
         int hours = Math.round(duration/3600);
-        int minutes = Math.round(duration%60);
+        int minutes = Math.round(duration/60);
         String durationText = "";
         if(hours>0){
             durationText = hours + " " + activity.getString(R.string.hr) + " ";
-            minutes = Math.round(duration/3600%60);
+            minutes = Math.round(duration%3600/60);
         }
         durationText = durationText + minutes + " " + activity.getString(R.string.min);
         return durationText;

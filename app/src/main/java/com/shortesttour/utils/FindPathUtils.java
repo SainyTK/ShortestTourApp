@@ -71,7 +71,7 @@ public class FindPathUtils {
         graphUtils = new GraphUtils(activity) {
             @Override
             public void setProgress(int val) {
-                int totalProgress = val + getProgress();
+                int totalProgress = progressMode == MODE_REQUEST ? val + progress : val*2;
                 publishProgress(totalProgress);
             }
         };
@@ -81,10 +81,6 @@ public class FindPathUtils {
 
         repository = new DirectionApiResultRepository(activity.getApplication());
         //repository.deleteAll();
-    }
-
-    private int getProgress(){
-        return progressMode == MODE_REQUEST ? progress : progress*2;
     }
 
     public void setOnTaskFinishListener(TaskListener listener) {
@@ -174,8 +170,6 @@ public class FindPathUtils {
                     @Override
                     public void onNext(int[] path) {
                         try {
-
-                            Log.d("test", "Show Graph : " + graphUtils);
 
                             if (placeQueue.size() > 0)
                                 connectNodes();
@@ -391,7 +385,6 @@ public class FindPathUtils {
                     } catch (JSONException e) {
                         Log.e("error", "doInBackground: ", e);
                     }
-                    progress = (i + 1) * 10 / response.length + MAX_PROGRESS_GET_VALUE;
                     publishProgress(progress);
                 }
                 return parserData;
@@ -479,8 +472,10 @@ public class FindPathUtils {
     }
 
     public void collapseGraph(final int position) {
-        if(mListener!=null)
+        if(mListener!=null){
+            progress = 0;
             mListener.OnStartTask();
+        }
         progressMode = MODE_UNREQUEST;
         Observable.fromCallable(new Callable<Boolean>(){
             @Override
@@ -519,8 +514,10 @@ public class FindPathUtils {
     }
 
     public void calculatePath(){
-        if(mListener!=null)
+        if(mListener!=null){
+            progress = 0;
             mListener.OnStartTask();
+        }
         progressMode = MODE_UNREQUEST;
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
