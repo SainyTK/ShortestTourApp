@@ -17,4 +17,5 @@
     <string name="add_to_list">เพิ่มในลิสต์</string>
     <string name="places">%d สถานที่</string>
     <string name="finding_path">กำลังหาเส้นทางของ %s</string>
+    <string name="text_added">เพิ่ม %s ลงในลิสต์แล้ว</string>
 </resources>

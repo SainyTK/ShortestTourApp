@@ -38,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -55,6 +56,7 @@ import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.ui.select_algoritm.SelectAlgorithmFragment;
 import com.shortesttour.ui.travel.TravelFragment;
+import com.shortesttour.utils.BundleStore;
 import com.shortesttour.utils.FragmentUtils;
 import com.shortesttour.utils.JSONFileParser;
 import com.shortesttour.utils.PinUtils;
@@ -546,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             builder.include(mPresenter.getPlaceList().get(0).getPlaceLatLng());
             builder.include(mPresenter.excludeCurrentPlace(true).get(0).getPlaceLatLng());
             LatLngBounds bounds = builder.build();
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 180));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 300));
 
             showPlaceState = STATE_SHOW_CURRENT_LOCATION;
             updateShowLocationButton();
@@ -697,6 +699,15 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         mPresenter.addPlace(place);
     }
 
+    @Override
+    public void showToast(String str) {
+        Toast.makeText(this,str,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void displayAddLocation(String placeTitle) {
+        showToast(getString(R.string.text_added,placeTitle));
+    }
 
     /*---------------------Location Manage Section-------------*/
 
@@ -762,6 +773,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         travelFragment.updateDistance(mPresenter.getDistances(), mPresenter.getSumDistance());
         travelFragment.updateDuration(mPresenter.getDurations(), mPresenter.getSumDuration());
         travelFragment.updateView();
+
+        selectAlgorithmFragment.update(mPresenter.excludeCurrentPlace(true).size());
 
         float runtime = System.currentTimeMillis() - startTime;
 

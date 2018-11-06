@@ -16,6 +16,8 @@ public class MainContract {
         void onFinishDrawPath(List<PolylineOptions> polylineOptions);
         void onStartTask();
         void onUpdateValue(int val);
+        void showToast(String str);
+        void displayAddLocation(String placeTitle);
     }
 
     public interface Presenter{

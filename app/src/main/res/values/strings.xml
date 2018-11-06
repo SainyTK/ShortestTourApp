@@ -17,7 +17,8 @@
     <string name="add_to_list">Add to List</string>
     <string name="places">%d places</string>
     <string name="finding_path">Finding paths for %s</string>
-    <string name="algorithm">Algorithm</string>
-    <string name="nearest_neighbor">Nearest Neighbor</string>
-    <string name="dynamic_programming">Dynamic Programming</string>
+    <string name="algorithm" translatable="false">Algorithm</string>
+    <string name="nearest_neighbor" translatable="false">Nearest Neighbor</string>
+    <string name="dynamic_programming" translatable="false">Dynamic Programming</string>
+    <string name="text_added">Added %s to list</string>
 </resources>

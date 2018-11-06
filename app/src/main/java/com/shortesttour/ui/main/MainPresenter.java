@@ -45,6 +45,7 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
 //            mFindPathUtils.addPlace(p);
 //        }
         if(!checkHasPlace(preventRepeatPlaceList,place)){
+            mView.displayAddLocation(place.getPlaceTitle());
             preventRepeatPlaceList.add(place);
             mFindPathUtils.addPlace(place);
         }

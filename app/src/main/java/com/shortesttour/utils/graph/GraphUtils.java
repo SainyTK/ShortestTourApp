@@ -3,6 +3,7 @@ package com.shortesttour.utils.graph;
 import android.content.Context;
 import android.util.Log;
 
+import com.shortesttour.R;
 import com.shortesttour.utils.PrefsUtil;
 import com.shortesttour.utils.graph.Algorithms.DynamicProgramming;
 import com.shortesttour.utils.graph.Algorithms.NearestNeighbor;
@@ -108,6 +109,8 @@ public abstract class GraphUtils{
     public void calculatePath() {
         int algorithm = PrefsUtil.getAlgorithm(context);
         int[] path = new int[0];
+        if(getDimen()>Integer.parseInt(context.getString(R.string.dp_limit)))
+            PrefsUtil.setAlgorithm(context,PrefsUtil.NEAREST_NEIGHBOR);
         switch (algorithm) {
             case PrefsUtil.NEAREST_NEIGHBOR:
                 path = nearestNeighbor.createPath(getDistanceGraph());

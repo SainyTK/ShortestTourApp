@@ -24,7 +24,7 @@ public class FragmentUtils {
         String backStateName = fragment.getClass().getName();
 
         FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
-        ft.replace(fragmentContainerId, fragment);
+        ft.replace(fragmentContainerId,fragment);
         if(addBackStack)
             ft.addToBackStack(backStateName);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
