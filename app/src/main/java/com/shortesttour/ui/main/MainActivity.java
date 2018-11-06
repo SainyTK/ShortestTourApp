@@ -56,7 +56,9 @@ import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.ui.select_algoritm.SelectAlgorithmFragment;
 import com.shortesttour.ui.travel.TravelFragment;
 import com.shortesttour.utils.FragmentUtils;
+import com.shortesttour.utils.JSONFileParser;
 import com.shortesttour.utils.PinUtils;
+import com.shortesttour.utils.PrefsUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,6 +125,12 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     private MainPresenter mPresenter;
 
+    //test
+//    private List<Place> testList;
+//    private int testIdx = 0;
+//    int c = 0;
+//    StringBuilder sb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,7 +152,26 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         setupBottomNav();
 
         setupLineManager();
+
+        //test
+//        sb = new StringBuilder();
+//        sb.append("numOfNode\t\trunTime\t\ttotalDistance\t\ttotalDuration\n");
+//
+//        testList = createPlaceList();
+//        onAddToListClick(testList.get(testIdx));
+
     }
+
+    //test
+//    public List<Place> createPlaceList(){
+//        List<Place> places = null;
+//        try{
+//            places = JSONFileParser.getPlaces(getActivity(),this.getResources().getString(R.string.node_file_name));
+//        }catch (NullPointerException e){
+//            Log.e(TAG, "createPlaceList: NULL", e);
+//        }
+//        return places;
+//    }
 
     private void setupLineManager() {
         mLineList = new ArrayList<>();
@@ -218,40 +245,40 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            mLocationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
-                    LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    mPresenter.setupCurrentPlace(currentLatLng);
-                    showLocation(currentLatLng);
-                }
+        mLocationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
+                LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                mPresenter.setupCurrentPlace(currentLatLng);
+                showLocation(currentLatLng);
+            }
 
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
 
-                }
+            }
 
-                @Override
-                public void onProviderEnabled(String s) {
+            @Override
+            public void onProviderEnabled(String s) {
 
-                }
+            }
 
-                @Override
-                public void onProviderDisabled(String s) {
+            @Override
+            public void onProviderDisabled(String s) {
 
-                }
-            }, null);
+            }
+        }, null);
 
 
     }
 
-    private void setupBottomSheet(){
+    private void setupBottomSheet() {
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetContainer);
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                switch (newState){
+                switch (newState) {
                     case BottomSheetBehavior.STATE_COLLAPSED:
                         bottomSheetContainer.setActivated(false);
                         break;
@@ -273,27 +300,26 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                float alpha = 1 - slideOffset*1.5f;
+                float alpha = 1 - slideOffset * 1.5f;
                 searchContainer.setAlpha(alpha);
                 btnShowLocation.setAlpha(alpha);
                 btnShowLine.setAlpha(alpha);
 
-                if(slideOffset<=-0.75f){
+                if (slideOffset <= -0.75f) {
                     CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) btnShowLocationContainer.getLayoutParams();
                     layoutParams.setAnchorId(R.id.space);
                     btnShowLocationContainer.setLayoutParams(layoutParams);
-                }else{
+                } else {
                     CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) btnShowLocationContainer.getLayoutParams();
                     layoutParams.setAnchorId(R.id.bottom_sheet_container);
                     btnShowLocationContainer.setLayoutParams(layoutParams);
                 }
 
-                if(alpha==0){
+                if (alpha == 0) {
                     searchContainer.setVisibility(View.GONE);
                     btnShowLocation.setVisibility(View.GONE);
                     btnShowLine.setVisibility(View.GONE);
-                }
-                else{
+                } else {
                     searchContainer.setVisibility(View.VISIBLE);
                     btnShowLocation.setVisibility(View.VISIBLE);
                     btnShowLine.setVisibility(View.VISIBLE);
@@ -303,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     }
 
-    private void setupBottomNav(){
+    private void setupBottomNav() {
         setupBottomFragment();
         bottomNavigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
             @Override
@@ -315,13 +341,13 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 item.setChecked(true);
-                switch (item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.menu_driving:
-                        bottomFragmentUtils.replace(travelFragment,false);
+                        bottomFragmentUtils.replace(travelFragment, false);
                         Log.d(TAG, "onNavigationItemSelected: count = " + bottomFragmentUtils.getBackStackCount());
                         return true;
                     case R.id.menu_algorithm:
-                        bottomFragmentUtils.replace(selectAlgorithmFragment,false);
+                        bottomFragmentUtils.replace(selectAlgorithmFragment, false);
                         Log.d(TAG, "onNavigationItemSelected: count = " + bottomFragmentUtils.getBackStackCount());
                         return true;
                 }
@@ -330,26 +356,26 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         });
     }
 
-    private void setupSearchFragment(){
-        mFragmentUtils = new FragmentUtils(this,R.id.fragment_container);
+    private void setupSearchFragment() {
+        mFragmentUtils = new FragmentUtils(this, R.id.fragment_container);
 
         searchFragment = new SearchFragment();
         searchFragment.setOptionSelectedListener(this);
     }
 
-    private void setupBottomFragment(){
+    private void setupBottomFragment() {
         travelFragment = new TravelFragment();
         selectAlgorithmFragment = new SelectAlgorithmFragment();
 
         travelFragment.setListener(this);
         selectAlgorithmFragment.setListener(this);
 
-        bottomFragmentUtils = new FragmentUtils(this,R.id.bottom_fragment_container);
-        bottomFragmentUtils.replace(travelFragment,false);
+        bottomFragmentUtils = new FragmentUtils(this, R.id.bottom_fragment_container);
+        bottomFragmentUtils.replace(travelFragment, false);
 
     }
 
-    private void setupSearchBox(){
+    private void setupSearchBox() {
         setupSearchFragment();
         autoCompleteTextView.setInputType(InputType.TYPE_NULL);
 
@@ -357,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 autoCompleteTextView.performClick();
-                if(motionEvent.getAction() == MotionEvent.ACTION_UP)
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP)
                     openSearchPage();
                 Log.d(TAG, "onTouch: ");
                 return false;
@@ -375,8 +401,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mPresenter.setSearchData(searchFragment.getPlaceList());
                 mPresenter.clearSuggestData();
-                for(Place place : mPresenter.getSearchData()){
-                    if(place.getPlaceTitle().contains(s)){
+                for (Place place : mPresenter.getSearchData()) {
+                    if (place.getPlaceTitle().contains(s)) {
                         mPresenter.addSuggestData(place);
                     }
                 }
@@ -393,8 +419,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     /*--------------B: bottom sheet control section------------------*/
 
-    public void hideBottomNav(){
-        AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this,R.animator.fade_animator);
+    public void hideBottomNav() {
+        AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.fade_animator);
         animatorSet.setTarget(bottomNavigationView);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -406,39 +432,39 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         animatorSet.start();
     }
 
-    public void showBottomNav(){
+    public void showBottomNav() {
         bottomNavigationView.setAlpha(1);
         bottomNavigationView.setVisibility(View.VISIBLE);
     }
 
-    public void collapseBottomSheet(){
+    public void collapseBottomSheet() {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         screenState = STATE_SHOWTOOL;
     }
 
-    public void expandBottomSheet(){
+    public void expandBottomSheet() {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         screenState = STATE_SHOWTOOL;
     }
 
-    public void hideBottomSheet(){
+    public void hideBottomSheet() {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
     /*--------------C: search control section------------------*/
 
-    private void showSearchButtons(){
+    private void showSearchButtons() {
         searchBackButton.setVisibility(View.VISIBLE);
         searchClearButton.setVisibility(View.VISIBLE);
     }
 
-    private void hideSearchButtons(){
+    private void hideSearchButtons() {
         searchBackButton.setVisibility(View.GONE);
         searchClearButton.setVisibility(View.GONE);
     }
 
-    public void hideSearchBar(){
-        AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this,R.animator.fade_animator);
+    public void hideSearchBar() {
+        AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.fade_animator);
         animatorSet.setTarget(searchContainer);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -451,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @OnClick(R.id.search_clear_btn)
-    void clearSearchBox(){
+    void clearSearchBox() {
         autoCompleteTextView.setText("");
     }
 
@@ -459,31 +485,30 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     @OnClick(R.id.search_back_btn)
     @Override
     public void onBackPressed() {
-        if(mFragmentUtils.getBackStackCount()>0){
+        if (mFragmentUtils.getBackStackCount() > 0) {
             super.onBackPressed();
             clearSearchBox();
             hideSearchButtons();
             hideKeyboard();
             autoCompleteTextView.setInputType(InputType.TYPE_NULL);
-        }
-        else if(bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_COLLAPSED||bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED)
+        } else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED)
             hideBottomSheet();
-        else{
+        else {
             super.onBackPressed();
         }
     }
 
     @OnClick({R.id.autocomplete_search})
-    public void openSearchPage(){
+    public void openSearchPage() {
         pushFragment();
         showSearchButtons();
         autoCompleteTextView.setInputType(InputType.TYPE_CLASS_TEXT);
     }
 
-    void pushFragment(){
-        if(mFragmentUtils.getBackStackCount()<1){
+    void pushFragment() {
+        if (mFragmentUtils.getBackStackCount() < 1) {
             collapseBottomSheet();
-            mFragmentUtils.replace(searchFragment,true);
+            mFragmentUtils.replace(searchFragment, true);
         }
     }
 
@@ -491,53 +516,68 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     @Override
     public void onShowInMapClick(Place place) {
         Log.d(TAG, "showInMap: ");
-            showLocation(place.getPlaceLatLng());
-            if(!mPresenter.checkHasPlace(mPresenter.getPlaceList(),place))
-                pinLocation(place.getPlaceLatLng(),place.getPlaceTitle());
-            mFragmentUtils.pop();
+        hideKeyboard();
+        showLocation(place.getPlaceLatLng());
+        if (!mPresenter.checkHasPlace(mPresenter.getPlaceList(), place))
+            pinLocation(place.getPlaceLatLng(), place.getPlaceTitle());
+        mFragmentUtils.pop();
     }
 
-    public void showAllLocation(){
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        if(mPresenter.getPlaceList()!=null&&mPresenter.getNumPlace()>0){
-            for(Place place : mPresenter.getPlaceList()){
+    public void showAllLocation() {
+        if (mPresenter.getPlaceList() != null && mPresenter.getNumPlace() > 1) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Place place : mPresenter.getPlaceList()) {
                 builder.include(place.getPlaceLatLng());
             }
             LatLngBounds bounds;
             bounds = builder.build();
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,180));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 180));
+
+            showPlaceState = STATE_SHOW_ALL_LOCATION;
+            updateShowLocationButton();
+        }else{
+            showCurrentLocation();
         }
-        showPlaceState = STATE_SHOW_ALL_LOCATION;
-        updateShowLocationButton();
     }
 
-    public void showCurrentLocation(){
-            LatLng currentLatLng = new LatLng(mPresenter.getCurrentPlace().getLatitude(),mPresenter.getCurrentPlace().getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,17));
+    public void showCurrentLocation() {
+        if (mPresenter.getPlaceList() != null && mPresenter.getPlaceList().size() > 1) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(mPresenter.getPlaceList().get(0).getPlaceLatLng());
+            builder.include(mPresenter.excludeCurrentPlace(true).get(0).getPlaceLatLng());
+            LatLngBounds bounds = builder.build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 180));
+
             showPlaceState = STATE_SHOW_CURRENT_LOCATION;
             updateShowLocationButton();
+        }else{
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mPresenter.getPlaceList().get(0).getPlaceLatLng(),17));
+
+            showPlaceState = STATE_SHOW_CURRENT_LOCATION;
+            updateShowLocationButton();
+        }
     }
 
-    public void showLocation(LatLng latLng){
+    public void showLocation(LatLng latLng) {
         float zoom = mMap.getCameraPosition().zoom;
-        if(zoom < 10)
+        if (zoom < 10)
             zoom = 16;
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
-    public void pinLocation(LatLng latLng,String placeTitle){
+    public void pinLocation(LatLng latLng, String placeTitle) {
         mMap.addMarker(new MarkerOptions().title(placeTitle).position(latLng));
     }
 
-    public void pinLocation(LatLng latLng,String placeTitle,int num){
-        mMap.addMarker(new MarkerOptions().position(latLng).title(placeTitle).icon(BitmapDescriptorFactory.fromBitmap(PinUtils.createNumberPin(this,num))));
+    public void pinLocation(LatLng latLng, String placeTitle, int num) {
+        mMap.addMarker(new MarkerOptions().position(latLng).title(placeTitle).icon(BitmapDescriptorFactory.fromBitmap(PinUtils.createNumberPin(this, num))));
     }
 
-    public void pinAllLocation(){
+    public void pinAllLocation() {
         List<Place> placeList = mPresenter.excludeCurrentPlace(true);
-        for(int i=placeList.size()-1;i>=0;i--){
+        for (int i = placeList.size() - 1; i >= 0; i--) {
             Place place = placeList.get(i);
-            pinLocation(place.getPlaceLatLng(),place.getPlaceTitle(),i);
+            pinLocation(place.getPlaceLatLng(), place.getPlaceTitle(), i);
         }
     }
 
@@ -545,7 +585,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void onMapClick(LatLng latLng) {
         switch (screenState) {
             case STATE_SHOWTOOL:
-                if(mFragmentUtils.getBackStackCount()==0){
+                if (mFragmentUtils.getBackStackCount() == 0) {
                     hideMapTools();
                 }
                 break;
@@ -555,34 +595,34 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         }
     }
 
-    public void clearLine(){
+    public void clearLine() {
         mMap.clear();
         pinAllLocation();
     }
 
-    private void drawPath(int i){
-        if(i<mLineList.size()){
+    private void drawPath(int i) {
+        if (i < mLineList.size()) {
             mMap.addPolyline(mLineList.get(i));
         }
     }
 
-    private void drawAllPath(){
-        for(int i=1;i<mLineList.size();i++){
+    private void drawAllPath() {
+        for (int i = 1; i < mLineList.size(); i++) {
             PolylineOptions line = mLineList.get(i);
             mMap.addPolyline(line);
         }
-        if(mLineList.size()>0)
+        if (mLineList.size() > 0)
             mMap.addPolyline(mLineList.get(0));
     }
 
-    public void showCurrentLine(){
+    public void showCurrentLine() {
         clearLine();
         drawPath(0);
         showLineState = STATE_SHOW_LINE;
         updateShowLineButton();
     }
 
-    public void showAllLine(){
+    public void showAllLine() {
         clearLine();
         drawAllPath();
         showLineState = STATE_SHOW_ALL_LINE;
@@ -590,60 +630,60 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     /*------------------F: Map Tools Section------------------*/
-    public void hideMapTools(){
+    public void hideMapTools() {
         hideBottomSheet();
         hideSearchBar();
         screenState = STATE_HIDETOOL;
     }
 
     @OnClick(R.id.btn_show_location)
-    void handleShowLocation(){
-        switch (showPlaceState){
-            case STATE_SHOW_CURRENT_LOCATION :
+    void handleShowLocation() {
+        switch (showPlaceState) {
+            case STATE_SHOW_CURRENT_LOCATION:
                 showAllLocation();
                 break;
-            case STATE_SHOW_ALL_LOCATION :
+            case STATE_SHOW_ALL_LOCATION:
                 showCurrentLocation();
                 break;
         }
     }
 
-    private void updateShowLocationButton(){
-        switch (showPlaceState){
-            case STATE_SHOW_CURRENT_LOCATION :
+    private void updateShowLocationButton() {
+        switch (showPlaceState) {
+            case STATE_SHOW_CURRENT_LOCATION:
                 btnShowLocation.setImageDrawable(getResources().getDrawable(R.drawable.ic_my_location));
                 break;
-            case STATE_SHOW_ALL_LOCATION :
+            case STATE_SHOW_ALL_LOCATION:
                 btnShowLocation.setImageDrawable(getResources().getDrawable(R.drawable.ic_pin));
                 break;
         }
     }
 
     @OnClick(R.id.btn_show_line)
-    void handleShowLine(){
-        switch (showLineState){
-            case STATE_SHOW_LINE :
+    void handleShowLine() {
+        switch (showLineState) {
+            case STATE_SHOW_LINE:
                 showAllLine();
                 break;
-            case STATE_SHOW_ALL_LINE :
+            case STATE_SHOW_ALL_LINE:
                 showCurrentLine();
                 break;
         }
     }
 
-    private void updateShowLineButton(){
-        if(mLineList.size()==0)
+    private void updateShowLineButton() {
+        if (mLineList.size() == 0)
             showLineState = STATE_SHOW_NO_LINE;
-        switch (showLineState){
-            case STATE_SHOW_NO_LINE :
+        switch (showLineState) {
+            case STATE_SHOW_NO_LINE:
                 btnShowLine.setImageDrawable(getResources().getDrawable(R.drawable.ic_show_line_inactive));
                 btnShowLine.setEnabled(false);
                 break;
-            case STATE_SHOW_LINE :
+            case STATE_SHOW_LINE:
                 btnShowLine.setImageDrawable(getResources().getDrawable(R.drawable.ic_show_line_active));
                 btnShowLine.setEnabled(true);
                 break;
-            case STATE_SHOW_ALL_LINE :
+            case STATE_SHOW_ALL_LINE:
                 btnShowLine.setImageDrawable(getResources().getDrawable(R.drawable.ic_show_lines));
                 btnShowLine.setEnabled(true);
                 break;
@@ -703,14 +743,14 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void onUpdateValue(int val) {
         progressBar.setProgress(val);
         String str = "onUpdateValue:  " + val;
-        if(!str.contentEquals(checkStr)){
+        if (!str.contentEquals(checkStr)) {
             checkStr = str;
             Log.d(TAG, "onUpdateValue:  " + val);
         }
     }
 
     @Override
-    public void onFinishCalculatePath(int[] path){
+    public void onFinishCalculatePath(int[] path) {
         progressBar.setProgress(0);
 
         mMap.clear();
@@ -719,31 +759,58 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         pinAllLocation();
 
         travelFragment.setPlaceList(mPresenter.excludeCurrentPlace(true));
-        travelFragment.updateDistance(mPresenter.getDistances(),mPresenter.getSumDistance());
-        travelFragment.updateDuration(mPresenter.getDurations(),mPresenter.getSumDuration());
+        travelFragment.updateDistance(mPresenter.getDistances(), mPresenter.getSumDistance());
+        travelFragment.updateDuration(mPresenter.getDurations(), mPresenter.getSumDuration());
         travelFragment.updateView();
 
-        Log.d("Time", "Number of nodes : " + (mPresenter.getNumPlace()-1));
-        Log.d("Time", "Total time : " + (System.currentTimeMillis()-startTime));
-        Log.d("Time", "Total Distance :  " + toDistanceText(mPresenter.getSumDuration()));
-        Log.d("Time", "Total Duration :  " + toDurationText(mPresenter.getSumDuration()));
+        float runtime = System.currentTimeMillis() - startTime;
+
+        //test
+//        switch(c){
+//            case 0:
+//                PrefsUtil.setAlgorithm(this,PrefsUtil.DYNAMIC_PROGRAMMING);
+//                mPresenter.calculatePath();
+//                c=1;
+//                break;
+//            case 1:
+//                sb.append("DP-----------------------------------\n");
+//                sb.append((mPresenter.getNumPlace()-1) + "\t\t" + runtime +"\t\t"+ toDistanceText(mPresenter.getSumDistance()) +"\t\t"+ toDurationText(mPresenter.getSumDuration())+"\n");
+//                PrefsUtil.setAlgorithm(this,PrefsUtil.NEAREST_NEIGHBOR);
+//                mPresenter.calculatePath();
+//                c=2;
+//                break;
+//            case 2:
+//                sb.append("NN-----------------------------------\n");
+//                sb.append((mPresenter.getNumPlace()-1) + "\t\t" + runtime +"\t\t"+ toDistanceText(mPresenter.getSumDistance()) +"\t\t"+ toDurationText(mPresenter.getSumDuration())+"\n");
+//                if(testIdx<70){
+//                    testIdx++;
+//                    onAddToListClick(testList.get(testIdx));
+//                }
+//                c=0;
+//                Log.d("TEST ALGOR", sb.toString());
+//                break;
+//        }
+//        Log.d("Time", "Number of nodes : " + (mPresenter.getNumPlace()-1));
+//        Log.d("Time", "Total time : " + (System.currentTimeMillis()-startTime));
+//        Log.d("Time", "Total Distance :  " + toDistanceText(mPresenter.getSumDistance()));
+//        Log.d("Time", "Total Duration :  " + toDurationText(mPresenter.getSumDuration()));
     }
 
-    public String toDistanceText(int distance){
-        if(distance<1000)
+    public String toDistanceText(int distance) {
+        if (distance < 1000)
             return distance + " " + getString(R.string.m);
         else
-            return Math.round(distance/1000f) + " " + getString(R.string.km);
+            return Math.round(distance / 1000f) + " " + getString(R.string.km);
     }
 
-    public String toDurationText(int duration){
+    public String toDurationText(int duration) {
         Log.d("SHOW", "toDurationText: " + duration);
-        int hours = Math.round(duration/3600);
-        int minutes = Math.round(duration/60);
+        int hours = Math.round(duration / 3600);
+        int minutes = Math.round(duration / 60);
         String durationText = "";
-        if(hours>0){
+        if (hours > 0) {
             durationText = hours + " " + getString(R.string.hr) + " ";
-            minutes = Math.round(duration%3600/60);
+            minutes = Math.round(duration % 3600 / 60);
         }
         durationText = durationText + minutes + " " + getString(R.string.min);
         return durationText;
@@ -751,19 +818,18 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     public void onFinishDrawPath(List<PolylineOptions> polylineOptions) {
-        if(polylineOptions.size()>0) {
+        if (polylineOptions.size() > 0) {
             polylineOptions.get(0).color(getResources().getColor(R.color.activeTint));
             mLineList = polylineOptions;
             showAllLine();
-        }
-        else{
+        } else {
             mLineList.clear();
             updateShowLineButton();
         }
     }
 
     @Override
-    public AppCompatActivity getActivity(){
+    public AppCompatActivity getActivity() {
         return this;
     }
 

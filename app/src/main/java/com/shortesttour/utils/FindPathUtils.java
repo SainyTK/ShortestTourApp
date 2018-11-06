@@ -27,10 +27,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -56,6 +66,8 @@ public class FindPathUtils {
     private int progressMode = MODE_REQUEST;
     private static final int MAX_PROGRESS_GET_VALUE = 50;
 
+    private CompositeDisposable compositeDisposable;
+
     public interface TaskListener {
         void OnStartTask();
 
@@ -68,6 +80,7 @@ public class FindPathUtils {
 
     public FindPathUtils(AppCompatActivity activity) {
         mPlaceList = new ArrayList<>();
+        compositeDisposable = new CompositeDisposable();
         graphUtils = new GraphUtils(activity) {
             @Override
             public void setProgress(int val) {
@@ -96,7 +109,7 @@ public class FindPathUtils {
                         .subscribe(new io.reactivex.Observer<List<PolylineOptions>>() {
                             @Override
                             public void onSubscribe(Disposable d) {
-
+                                compositeDisposable.add(d);
                             }
 
                             @Override
@@ -141,6 +154,7 @@ public class FindPathUtils {
         if (mListener != null)
             mListener.OnStartTask();
 
+        compositeDisposable.clear();
         Observable.fromCallable(new Callable<int[]>() {
             @Override
             public int[] call(){
@@ -164,7 +178,7 @@ public class FindPathUtils {
                 .subscribe(new io.reactivex.Observer<int[]>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        compositeDisposable.add(d);
                     }
 
                     @Override
@@ -317,9 +331,9 @@ public class FindPathUtils {
     }
 
     private Observable<DirectionApiResult> fetchFromDb(final double srcLat, final double srcLng,final double desLat,final double desLng){
-        return Observable.fromCallable(new Callable<DirectionApiResult>() {
+        return Observable.create(new ObservableOnSubscribe<DirectionApiResult>() {
             @Override
-            public DirectionApiResult call() throws Exception {
+            public void subscribe(ObservableEmitter<DirectionApiResult> emitter) throws Exception {
                 DirectionApiResult apiResult = repository.getApiResult(srcLat,srcLng,desLat,desLng);
                 if(apiResult == null){
                     apiResult = new DirectionApiResult();
@@ -329,9 +343,16 @@ public class FindPathUtils {
                     apiResult.setDesLng(desLng);
                     apiResult.setApiResult("");
                 }
-                return apiResult;
-            }
-        });
+                emitter.setCancellable(new Cancellable() {
+                    @Override
+                    public void cancel() throws Exception {
+
+                    }
+                });
+                emitter.onNext(apiResult);
+                emitter.onComplete();
+            }});
+
     }
 
     private Observable<String[]> requestAPI(final String... requestUrls) {
@@ -476,29 +497,21 @@ public class FindPathUtils {
             progress = 0;
             mListener.OnStartTask();
         }
+        compositeDisposable.clear();
         progressMode = MODE_UNREQUEST;
-        Observable.fromCallable(new Callable<Boolean>(){
+        Completable.fromAction(new Action() {
             @Override
-            public Boolean call() throws Exception {
+            public void run() throws Exception {
                 graphUtils.collapseGraph(position);
                 mPlaceList.remove(position);
-                return true;
             }
         })
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Boolean>() {
+                .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(Boolean success) {
-                        if(mListener!=null)
-                            mListener.onGetPath(graphUtils.getPath());
-
-                        findPath();
+                        compositeDisposable.add(d);
                     }
 
                     @Override
@@ -508,7 +521,10 @@ public class FindPathUtils {
 
                     @Override
                     public void onComplete() {
+                        if(mListener!=null)
+                            mListener.onGetPath(graphUtils.getPath());
 
+                        findPath();
                     }
                 });
     }
@@ -518,36 +534,28 @@ public class FindPathUtils {
             progress = 0;
             mListener.OnStartTask();
         }
+        compositeDisposable.clear();
         progressMode = MODE_UNREQUEST;
-        Observable.fromCallable(new Callable<Boolean>() {
+        Completable.fromAction(new Action() {
             @Override
-            public Boolean call() throws Exception {
+            public void run() throws Exception {
                 graphUtils.calculatePath();
-                return true;
             }
         }).subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Boolean>() {
+                .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        compositeDisposable.add(d);
                     }
-
-                    @Override
-                    public void onNext(Boolean o) {
-
-                    }
-
                     @Override
                     public void onError(Throwable e) {
 
                     }
-
                     @Override
                     public void onComplete() {
                         if(mListener!=null)
                             mListener.onGetPath(graphUtils.getPath());
-
                         findPath();
                     }
                 });

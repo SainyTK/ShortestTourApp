@@ -86,7 +86,7 @@ public class SearchFragment extends Fragment {
         return  placeList;
     }
 
-    private List<Place> createPlaceList(){
+    public List<Place> createPlaceList(){
         List<Place> places = null;
         try{
             places = JSONFileParser.getPlaces(getActivity(),getContext().getResources().getString(R.string.node_file_name));
