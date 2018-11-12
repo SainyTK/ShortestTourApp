@@ -1,6 +1,7 @@
 package com.shortesttour.utils;
 
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -9,6 +10,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.shortesttour.db.DirectionApiResult;
 import com.shortesttour.db.DirectionApiResultRepository;
 import com.shortesttour.models.Place;
+import com.shortesttour.models.UserCommand;
 import com.shortesttour.utils.graph.GraphNode;
 import com.shortesttour.utils.graph.GraphUtils;
 
@@ -66,6 +68,8 @@ public class FindPathUtils {
     private int progressMode = MODE_REQUEST;
     private static final int MAX_PROGRESS_GET_VALUE = 50;
 
+    private AsyncTask task;
+
     private CompositeDisposable compositeDisposable;
 
     public interface TaskListener {
@@ -98,6 +102,131 @@ public class FindPathUtils {
 
     public void setOnTaskFinishListener(TaskListener listener) {
         mListener = listener;
+    }
+
+    public void handleAdd(UserCommand cmd){
+        task = new addTask().execute(cmd.getPlace());
+    }
+
+    private class addTask extends AsyncTask<Place,Integer,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            if (mListener != null)
+                mListener.OnStartTask();
+
+        }
+
+        @Override
+        protected Void doInBackground(Place... places) {
+            Place place = places[0];
+
+            String[] apiResponse = getApiResponse(place,this);
+
+            Log.d("test","handleAdd: finish 2");
+
+            mPlaceList.add(place);
+
+            GraphNode[] nodes = parseJSONData(apiResponse,this).blockingSingle();
+
+            graphUtils.expandGraph(nodes);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (mListener != null)
+                mListener.onGetPath(graphUtils.getPath());
+
+            findPath();
+
+            this.cancel(true);
+            EventQueue.taskFinished(FindPathUtils.this);
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Log.d("test", "onCancelled: ");
+        }
+    }
+
+    public void handleDelete(UserCommand cmd,boolean cancel){
+        if(task!=null && cancel)
+            task.cancel(true);
+        task = new deleteTask().execute(cmd.getPosition());
+    }
+
+    private class deleteTask extends AsyncTask<Integer,Integer,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if(mListener!=null){
+                progress = 0;
+                mListener.OnStartTask();
+            }
+            progressMode = MODE_UNREQUEST;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int position = integers[0];
+            graphUtils.collapseGraph(position);
+            mPlaceList.remove(position);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if(mListener!=null)
+                mListener.onGetPath(graphUtils.getPath());
+
+            findPath();
+
+            this.cancel(true);
+            EventQueue.taskFinished(FindPathUtils.this);
+        }
+
+    }
+
+    public void collapseGraph(final int position) {
+        if(mListener!=null){
+            progress = 0;
+            mListener.OnStartTask();
+        }
+        compositeDisposable.clear();
+        progressMode = MODE_UNREQUEST;
+        Completable.fromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+                graphUtils.collapseGraph(position);
+                mPlaceList.remove(position);
+            }
+        })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        compositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("error", "onError: ", e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if(mListener!=null)
+                            mListener.onGetPath(graphUtils.getPath());
+
+                        findPath();
+                    }
+                });
     }
 
     public void findPath() {
@@ -229,6 +358,35 @@ public class FindPathUtils {
         String[] apiResponse = new String[mPlaceList.size()];
 
         for (int i = 0; i < apiResponse.length; i++) {
+            DirectionApiResult apiResult = fetchFromDb(newPlace.getLatitude(),newPlace.getLongitude(),
+                    mPlaceList.get(i).getLatitude(),mPlaceList.get(i).getLongitude()).blockingSingle();
+            if(apiResult.getApiResult().contentEquals("")){
+                String url = getDirectionsUrl(newPlace.getPlaceLatLng(), mPlaceList.get(i).getPlaceLatLng());
+                apiResponse[i] = requestAPI(url).blockingSingle()[0];
+                DirectionApiResult directionApiResult = new DirectionApiResult();
+
+                directionApiResult.setSrcLat(newPlace.getLatitude());
+                directionApiResult.setSrcLng(newPlace.getLongitude());
+                directionApiResult.setDesLat(mPlaceList.get(i).getLatitude());
+                directionApiResult.setDesLng(mPlaceList.get(i).getLongitude());
+
+                directionApiResult.setApiResult(apiResponse[i]);
+                repository.insert(directionApiResult);
+            }else{
+                apiResponse[i] = apiResult.getApiResult();
+            }
+        }
+
+        return apiResponse;
+    }
+
+    private String[] getApiResponse(Place newPlace,AsyncTask task){
+
+        String[] apiResponse = new String[mPlaceList.size()];
+
+        for (int i = 0; i < apiResponse.length; i++) {
+            if(task.isCancelled()) return null;
+
             DirectionApiResult apiResult = fetchFromDb(newPlace.getLatitude(),newPlace.getLongitude(),
                     mPlaceList.get(i).getLatitude(),mPlaceList.get(i).getLongitude()).blockingSingle();
             if(apiResult.getApiResult().contentEquals("")){
@@ -413,6 +571,30 @@ public class FindPathUtils {
         });
     }
 
+    private Observable<GraphNode[]> parseJSONData(final String[] response,AsyncTask task) {
+        return Observable.fromCallable(new Callable<GraphNode[]>() {
+            @Override
+            public GraphNode[] call() throws Exception {
+                GraphNode[] parserData = new GraphNode[response.length];
+                JSONObject jsonObject;
+
+                for (int i = 0; i < response.length; i++) {
+                    try {
+                        JSONParserUtils jsonParserUtils = new JSONParserUtils();
+                        jsonObject = new JSONObject(response[i]);
+
+                        parserData[i] = jsonParserUtils.parse(jsonObject);
+
+                    } catch (JSONException e) {
+                        Log.e("error", "doInBackground: ", e);
+                    }
+                    publishProgress(progress);
+                }
+                return parserData;
+            }
+        });
+    }
+
     private Observable<List<PolylineOptions>> extractPolyline(final List<List<List<HashMap<String,String>>>> pathList){
         return Observable.fromCallable(new Callable<List<PolylineOptions>>() {
             @Override
@@ -492,42 +674,7 @@ public class FindPathUtils {
 
     }
 
-    public void collapseGraph(final int position) {
-        if(mListener!=null){
-            progress = 0;
-            mListener.OnStartTask();
-        }
-        compositeDisposable.clear();
-        progressMode = MODE_UNREQUEST;
-        Completable.fromAction(new Action() {
-            @Override
-            public void run() throws Exception {
-                graphUtils.collapseGraph(position);
-                mPlaceList.remove(position);
-            }
-        })
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        compositeDisposable.add(d);
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e("error", "onError: ", e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        if(mListener!=null)
-                            mListener.onGetPath(graphUtils.getPath());
-
-                        findPath();
-                    }
-                });
-    }
 
     public void calculatePath(){
         if(mListener!=null){

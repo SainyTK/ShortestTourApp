@@ -715,7 +715,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     protected void onDestroy() {
-
         super.onDestroy();
     }
 
@@ -773,8 +772,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         travelFragment.updateDistance(mPresenter.getDistances(), mPresenter.getSumDistance());
         travelFragment.updateDuration(mPresenter.getDurations(), mPresenter.getSumDuration());
         travelFragment.updateView();
-
-        selectAlgorithmFragment.update(mPresenter.excludeCurrentPlace(true).size());
 
         float runtime = System.currentTimeMillis() - startTime;
 

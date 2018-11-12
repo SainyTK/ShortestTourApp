@@ -44,21 +44,6 @@ public class SelectAlgorithmFragment extends Fragment {
         mListener = listener;
     }
 
-    public void update(int numPlace) {
-        try{
-            if (numPlace < Integer.parseInt(getContext().getString(R.string.dp_limit))) {
-                radioDp.setEnabled(true);
-            } else {
-                radioDp.setEnabled(false);
-                radioNnb.setChecked(true);
-            }
-        }
-        catch(NullPointerException ne){
-            Log.e("error", "update: ",ne );
-        }
-
-    }
-
     public void update() {
         int selected = PrefsUtil.getAlgorithm(getContext());
         switch (selected) {

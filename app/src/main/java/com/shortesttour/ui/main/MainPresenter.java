@@ -3,6 +3,8 @@ package com.shortesttour.ui.main;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.shortesttour.models.Place;
+import com.shortesttour.models.UserCommand;
+import com.shortesttour.utils.EventQueue;
 import com.shortesttour.utils.FindPathUtils;
 
 import java.util.ArrayList;
@@ -47,7 +49,8 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
         if(!checkHasPlace(preventRepeatPlaceList,place)){
             mView.displayAddLocation(place.getPlaceTitle());
             preventRepeatPlaceList.add(place);
-            mFindPathUtils.addPlace(place);
+//            mFindPathUtils.addPlace(place);
+            EventQueue.addEvent(new UserCommand(EventQueue.ADD,place),mFindPathUtils);
         }
     }
 
@@ -121,7 +124,8 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
 
     public void removePlace(int position){
         preventRepeatPlaceList.remove(position);
-        mFindPathUtils.collapseGraph(position+1);
+//        mFindPathUtils.collapseGraph(position+1);
+        EventQueue.addEvent(new UserCommand(EventQueue.DELETE,position+1),mFindPathUtils);
     }
 
     public void calculatePath(){
