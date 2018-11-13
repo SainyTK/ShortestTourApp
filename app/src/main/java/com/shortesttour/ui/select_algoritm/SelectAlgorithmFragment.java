@@ -34,10 +34,15 @@ public class SelectAlgorithmFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = LayoutInflater.from(container.getContext()).inflate(R.layout.fragment_select_algorithm, container, false);
-        ButterKnife.bind(this, root);
-        update();
-        return root;
+        try{
+            View root = LayoutInflater.from(container.getContext()).inflate(R.layout.fragment_select_algorithm, container, false);
+            ButterKnife.bind(this, root);
+            update();
+            return root;
+        }catch(Exception e){
+            Log.e("error", "onCreateView: ",e );
+        }
+        return null;
     }
 
     public void setListener(ChangeAlgorithmListener listener) {

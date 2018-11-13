@@ -127,6 +127,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     private MainPresenter mPresenter;
 
+    private boolean isTaskRunning = false;
+    private boolean changeAlgorithm = false;
+
     //test
 //    private List<Place> testList;
 //    private int testIdx = 0;
@@ -548,7 +551,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             builder.include(mPresenter.getPlaceList().get(0).getPlaceLatLng());
             builder.include(mPresenter.excludeCurrentPlace(true).get(0).getPlaceLatLng());
             LatLngBounds bounds = builder.build();
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 300));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 250));
 
             showPlaceState = STATE_SHOW_CURRENT_LOCATION;
             updateShowLocationButton();
@@ -741,8 +744,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     public void onStartTask() {
+        isTaskRunning = true;
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setProgress(0);
+
+        travelFragment.showLoadingView();
 
         startTime = System.currentTimeMillis();
     }
@@ -760,13 +766,30 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void onFinishCalculatePath(int[] path) {
+    public void onCancel() {
+        showToast(getString(R.string.task_cancel));
+
+        progressBar.setProgress(0);
+
+        isTaskRunning = false;
+        travelFragment.updateView();
+
+        if(changeAlgorithm){
+            mPresenter.calculatePath();
+            changeAlgorithm = false;
+        }
+    }
+
+    @Override
+    public void onFinishCalculatePath() {
         progressBar.setProgress(0);
 
         mMap.clear();
         updateShowLineButton();
         updateShowLocationButton();
         pinAllLocation();
+
+        isTaskRunning = false;
 
         travelFragment.setPlaceList(mPresenter.excludeCurrentPlace(true));
         travelFragment.updateDistance(mPresenter.getDistances(), mPresenter.getSumDistance());
@@ -828,6 +851,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     public void onFinishDrawPath(List<PolylineOptions> polylineOptions) {
+        travelFragment.updateView();
         if (polylineOptions.size() > 0) {
             polylineOptions.get(0).color(getResources().getColor(R.color.activeTint));
             mLineList = polylineOptions;
@@ -845,6 +869,20 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     public void onChangeAlgorithm() {
-        mPresenter.calculatePath();
+        if(!isTaskRunning){
+            Log.d(TAG, "onChangeAlgorithm: ");
+            mPresenter.calculatePath();
+        }else{
+            changeAlgorithm = true;
+            mPresenter.cancelTask();
+        }
+    }
+
+    public boolean isTaskRunning(){
+        return isTaskRunning;
+    }
+
+    public void cancelTask(){
+        mPresenter.cancelTask();
     }
 }

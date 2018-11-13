@@ -21,4 +21,8 @@
     <string name="nearest_neighbor" translatable="false">Nearest Neighbor</string>
     <string name="dynamic_programming" translatable="false">Dynamic Programming</string>
     <string name="text_added">Added %s to list</string>
+    <string name="text_cannot_remove">Can\'t remove place while calculating path</string>
+    <string name="cancel">Cancel</string>
+    <string name="cannot_add_exist">Can\'t add an existing place</string>
+    <string name="task_cancel">Task Cancelled</string>
 </resources>

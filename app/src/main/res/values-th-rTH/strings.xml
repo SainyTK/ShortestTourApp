@@ -18,4 +18,8 @@
     <string name="places">%d สถานที่</string>
     <string name="finding_path">กำลังหาเส้นทางของ %s</string>
     <string name="text_added">เพิ่ม %s ลงในลิสต์แล้ว</string>
+    <string name="text_cannot_remove">ไม่สามารถลบปลายทางขณะคำนวณเส้นทางได้</string>
+    <string name="cancel">ยกเลิก</string>
+    <string name="cannot_add_exist">ไม่สามารถเพิ่มสถานที่ที่มีอยู่แล้วได้</string>
+    <string name="task_cancel">ยกเลิกการคำนวณเส้นทาง</string>
 </resources>

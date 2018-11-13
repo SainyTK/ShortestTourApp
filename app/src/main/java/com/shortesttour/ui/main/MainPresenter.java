@@ -1,11 +1,13 @@
 package com.shortesttour.ui.main;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.shortesttour.R;
 import com.shortesttour.models.Place;
-import com.shortesttour.models.UserCommand;
-import com.shortesttour.utils.EventQueue;
 import com.shortesttour.utils.FindPathUtils;
+import com.shortesttour.utils.graph.GraphNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +51,9 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
         if(!checkHasPlace(preventRepeatPlaceList,place)){
             mView.displayAddLocation(place.getPlaceTitle());
             preventRepeatPlaceList.add(place);
-//            mFindPathUtils.addPlace(place);
-            EventQueue.addEvent(new UserCommand(EventQueue.ADD,place),mFindPathUtils);
+            mFindPathUtils.addPlace(place);
+        }else{
+            mView.showToast(mView.getActivity().getString(R.string.cannot_add_exist));
         }
     }
 
@@ -113,8 +116,8 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
     }
 
     @Override
-    public void onGetPath(int[] path) {
-        mView.onFinishCalculatePath(path);
+    public void onComplete() {
+        mView.onFinishCalculatePath();
     }
 
     @Override
@@ -123,15 +126,18 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
     }
 
     public void removePlace(int position){
-        preventRepeatPlaceList.remove(position);
-//        mFindPathUtils.collapseGraph(position+1);
-        EventQueue.addEvent(new UserCommand(EventQueue.DELETE,position+1),mFindPathUtils);
+        if(mFindPathUtils.isTaskRunning()){
+            mView.showToast(mView.getActivity().getString(R.string.text_cannot_remove));
+        }else{
+            preventRepeatPlaceList.remove(position);
+            mFindPathUtils.collapseGraph(position+1);
+        }
+//        Log.d("test", "removePlace: " + mFindPathUtils.isTaskRunning());
     }
 
     public void calculatePath(){
         mFindPathUtils.calculatePath();
     }
-
 
     public int getSumDistance(){
         return mFindPathUtils.getNearestSumDistance();
@@ -162,5 +168,25 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
             }
         }
         return new ArrayList<>();
+    }
+
+    public void cancelTask(){
+        mFindPathUtils.cancelTask();
+    }
+
+    @Override
+    public void onCancel() {
+        preventRepeatPlaceList.clear();
+        preventRepeatPlaceList.addAll(mFindPathUtils.getPlaceList());
+
+        mView.onCancel();
+    }
+
+    public int[] getPath(){
+        return mFindPathUtils.getPath();
+    }
+
+    public GraphNode[][] getGraph(){
+        return mFindPathUtils.getGraph();
     }
 }

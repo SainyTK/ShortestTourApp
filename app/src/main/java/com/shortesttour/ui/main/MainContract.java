@@ -12,11 +12,12 @@ import java.util.List;
 public class MainContract {
     public interface View extends Presenter{
         AppCompatActivity getActivity();
-        void onFinishCalculatePath(int[] path);
+        void onFinishCalculatePath();
         void onFinishDrawPath(List<PolylineOptions> polylineOptions);
         void onStartTask();
         void onUpdateValue(int val);
         void showToast(String str);
+        void onCancel();
         void displayAddLocation(String placeTitle);
     }
 

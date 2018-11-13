@@ -2,6 +2,8 @@ package com.shortesttour.utils.graph.Algorithms;
 
 import android.util.Log;
 
+import com.shortesttour.utils.FindPathUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,6 +18,11 @@ import java.util.Set;
 public abstract class DynamicProgramming {
 
     private static int INFINITY = Integer.MAX_VALUE;
+    private FindPathUtils utils;
+
+    public DynamicProgramming(FindPathUtils utils){
+        this.utils = utils;
+    }
 
     private static class SetSizeComparator implements Comparator<Set<Integer>>{
         @Override
@@ -66,6 +73,8 @@ public abstract class DynamicProgramming {
         onProgress(progress);
 
         for(Set<Integer> set : allSets) {
+            if(utils.checkCancel()) return null;
+
             int p = (progress*30)/(allSets.size());
             onProgress(p);
             for(int currentVertex = 1; currentVertex < distance.length; currentVertex++) {
@@ -103,6 +112,7 @@ public abstract class DynamicProgramming {
         //to avoid ConcurrentModificationException copy set into another set while iterating
         Set<Integer> copySet = new HashSet<>(set);
         for(int k : set) {
+            if (utils.checkCancel()) return null;
             int cost = distance[k][0] + getCost(copySet, k, minCostDP);
             if(cost < min) {
                 min = cost;

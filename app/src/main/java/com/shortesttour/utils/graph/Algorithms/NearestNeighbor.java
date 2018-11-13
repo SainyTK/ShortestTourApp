@@ -2,9 +2,16 @@ package com.shortesttour.utils.graph.Algorithms;
 
 import android.util.Log;
 
+import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.graph.GraphNode;
 
 public abstract class NearestNeighbor {
+
+    private FindPathUtils utils;
+
+    public NearestNeighbor(FindPathUtils utils){
+        this.utils = utils;
+    }
 
     public int[] createPath(int[][] distance){
         int[] path = new int[distance.length+1];
@@ -17,6 +24,8 @@ public abstract class NearestNeighbor {
 
         int next = 0;
         for(int i=1;i<distance.length;i++){
+            if(utils.checkCancel()) return null;
+
             next = findMinDestination(distance[next],visited);
             path[i] = next;
             visited[next] = true;

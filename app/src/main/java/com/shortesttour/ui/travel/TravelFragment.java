@@ -35,8 +35,8 @@ public class TravelFragment extends Fragment{
     TextView textTotalDuration;
     @BindView(R.id.text_total_distance)
     TextView textTotalDistance;
-    @BindView(R.id.text_loading)
-    TextView textLoading;
+    @BindView(R.id.btn_cancel)
+    TextView btnCancel;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
@@ -53,16 +53,20 @@ public class TravelFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = LayoutInflater.from(container.getContext()).inflate(R.layout.layout_travel,container,false);
-        ButterKnife.bind(this,root);
-        activity = (MainActivity)getActivity();
+        try{
+            View root = LayoutInflater.from(container.getContext()).inflate(R.layout.layout_travel,container,false);
+            ButterKnife.bind(this,root);
+            activity = (MainActivity)getActivity();
 
-        recyclerView.setLayoutManager(new TravelListLayoutManager(container.getContext()));
-        recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new TravelListLayoutManager(container.getContext()));
+            recyclerView.setAdapter(adapter);
 
-        updateView();
-
-        return root;
+            updateView();
+            return root;
+        }catch (Exception e){
+            Log.e("error", "onCreateView: ", e);
+        }
+        return null;
     }
 
 
@@ -84,7 +88,7 @@ public class TravelFragment extends Fragment{
         textGoingTo.setVisibility(View.GONE);
         textTotalDistance.setVisibility(View.GONE);
         textTotalDuration.setVisibility(View.GONE);
-        textLoading.setVisibility(View.GONE);
+        btnCancel.setVisibility(View.GONE);
     }
 
     private void setButtonHasPlace(){
@@ -96,25 +100,43 @@ public class TravelFragment extends Fragment{
 
         //gone
         btnAdd.setVisibility(View.GONE);
-        textLoading.setVisibility(View.GONE);
+        btnCancel.setVisibility(View.GONE);
+    }
+
+    public void showLoadingView(){
+        //visible
+        textNumPlace.setText(activity.getString(R.string.loading));
+        textNumPlace.setVisibility(View.VISIBLE);
+        btnCancel.setVisibility(View.VISIBLE);
+
+        //gone
+        btnAdd.setVisibility(View.GONE);
+        textGoingTo.setVisibility(View.GONE);
+        textTotalDistance.setVisibility(View.GONE);
+        textTotalDuration.setVisibility(View.GONE);
+
     }
 
     public void updateView(){
         List<Place> placeList = adapter.getData();
         if(placeList.size()>0){
-            setButtonHasPlace();
+            if(activity.isTaskRunning())
+                showLoadingView();
+            else{
+                setButtonHasPlace();
 
-            String strNumPlace = activity.getString(R.string.places,placeList.size());
-            textNumPlace.setText(strNumPlace);
+                String strNumPlace = activity.getString(R.string.places,placeList.size());
+                textNumPlace.setText(strNumPlace);
 
-            String strGoingTo = activity.getString(R.string.going_to,placeList.get(0).getPlaceTitle());
-            textGoingTo.setText(strGoingTo);
+                String strGoingTo = activity.getString(R.string.going_to,placeList.get(0).getPlaceTitle());
+                textGoingTo.setText(strGoingTo);
 
-            String strTotalDistance = activity.getString(R.string.total_distance,toDistanceText(sumDistance));
-            textTotalDistance.setText(strTotalDistance);
+                String strTotalDistance = activity.getString(R.string.total_distance,toDistanceText(sumDistance));
+                textTotalDistance.setText(strTotalDistance);
 
-            String strTotalDuration = activity.getString(R.string.total_duration,toDurationText(sumDuration));
-            textTotalDuration.setText(strTotalDuration);
+                String strTotalDuration = activity.getString(R.string.total_duration,toDurationText(sumDuration));
+                textTotalDuration.setText(strTotalDuration);
+            }
         }else{
             setButtonNoPlace();
         }
@@ -161,7 +183,6 @@ public class TravelFragment extends Fragment{
         this.sumDuration = sumDuration;
     }
 
-
     public void setListener(PlaceListItemClickListener listener){
         adapter.setListener(listener);
     }
@@ -176,4 +197,8 @@ public class TravelFragment extends Fragment{
         activity.openSearchPage();
     }
 
+    @OnClick(R.id.btn_cancel)
+    void cancelTask(){
+        activity.cancelTask();
+    }
 }

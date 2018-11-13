@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.shortesttour.R;
+import com.shortesttour.utils.FindPathUtils;
 import com.shortesttour.utils.PrefsUtil;
 import com.shortesttour.utils.graph.Algorithms.DynamicProgramming;
 import com.shortesttour.utils.graph.Algorithms.NearestNeighbor;
@@ -15,26 +16,31 @@ import java.util.List;
 public abstract class GraphUtils{
 
     private GraphNode[][] graph;
+    private GraphNode[][] prevGraph;
     private int[] path;
 
     private NearestNeighbor nearestNeighbor;
     private DynamicProgramming dynamicProgramming;
 
     private Context context;
+    private FindPathUtils utils;
 
-    public GraphUtils(Context context) {
+    public GraphUtils(Context context,FindPathUtils utils) {
         this.context = context;
         graph = new GraphNode[0][0];
+        prevGraph = new GraphNode[0][0];
         path = new int[0];
 
-        nearestNeighbor = new NearestNeighbor() {
+        this.utils = utils;
+
+        nearestNeighbor = new NearestNeighbor(utils) {
             @Override
             public void onProgress(int value) {
                 setProgress(value);
             }
         };
 
-        dynamicProgramming = new DynamicProgramming(){
+        dynamicProgramming = new DynamicProgramming(utils){
             @Override
             public void onProgress(int value) {
                 setProgress(value);
@@ -72,6 +78,11 @@ public abstract class GraphUtils{
     }
 
     public synchronized void expandGraph(GraphNode[] nodes) {
+        prevGraph = graph;
+
+        Log.d("test", "expandGraph: prevSize 1 = " + prevGraph.length);
+        Log.d("test", "expandGraph: graphSize 1 = " + graph.length);
+
         int len = getDimen();
         GraphNode[][] tempGraph = new GraphNode[len][len];
         cloneGraph(tempGraph, graph);
@@ -84,10 +95,14 @@ public abstract class GraphUtils{
             connectEdge(i, len, node.getDistance(), node.getDuration(), node.getRoutes());
         }
 
+        Log.d("test", "expandGraph: prevSize 2 = " + prevGraph.length);
+        Log.d("test", "expandGraph: graphSize 2 = " + graph.length);
         calculatePath();
     }
 
     public synchronized void collapseGraph(int position) {
+        prevGraph = graph;
+
         int len = getDimen();
         GraphNode[][] tempGraph = new GraphNode[len - 1][len - 1];
 
@@ -108,7 +123,7 @@ public abstract class GraphUtils{
 
     public void calculatePath() {
         int algorithm = PrefsUtil.getAlgorithm(context);
-        int[] path = new int[0];
+        int[] path = null;
         switch (algorithm) {
             case PrefsUtil.NEAREST_NEIGHBOR:
                 path = nearestNeighbor.createPath(getDistanceGraph());
@@ -117,10 +132,17 @@ public abstract class GraphUtils{
                 path = dynamicProgramming.createPath(getDistanceGraph());
                 break;
         }
-        if(path.length>2)
-            this.path = path;
-        else
-            this.path = new int[0];
+
+        if(path != null){
+            if(path.length>2){
+                this.path = path;
+            }
+            else{
+                this.path = new int[0];
+            }
+        }else{
+            graph = prevGraph;
+        }
 
         Log.d("SHOW GRAPH", "calculatePath: " + this);
     }
@@ -139,6 +161,10 @@ public abstract class GraphUtils{
         for (int i = 0; i < nearestPathDuration.length; i++)
             sum += nearestPathDuration[i];
         return sum;
+    }
+
+    public GraphNode[][] getGraph() {
+        return graph;
     }
 
     public int[] getNearestPathDistance() {
