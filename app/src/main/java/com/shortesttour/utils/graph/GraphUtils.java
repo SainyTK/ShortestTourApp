@@ -136,6 +136,7 @@ public abstract class GraphUtils{
         if(path != null){
             if(path.length>2){
                 this.path = path;
+                prevGraph = graph;
             }
             else{
                 this.path = new int[0];

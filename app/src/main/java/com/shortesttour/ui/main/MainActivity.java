@@ -26,7 +26,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.TimeUtils;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -56,9 +55,7 @@ import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.ui.select_algoritm.SelectAlgorithmFragment;
 import com.shortesttour.ui.travel.TravelFragment;
-import com.shortesttour.utils.BundleStore;
 import com.shortesttour.utils.FragmentUtils;
-import com.shortesttour.utils.JSONFileParser;
 import com.shortesttour.utils.PinUtils;
 import com.shortesttour.utils.PrefsUtil;
 
@@ -68,7 +65,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.internal.Utils;
 
 public class MainActivity extends AppCompatActivity implements MainContract.View, SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener, GoogleMap.OnMapClickListener, SelectAlgorithmFragment.ChangeAlgorithmListener {
 
@@ -129,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     private boolean isTaskRunning = false;
     private boolean changeAlgorithm = false;
+    private int prevAlgorithm;
 
     //test
 //    private List<Place> testList;
@@ -158,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
         setupLineManager();
 
+        prevAlgorithm = PrefsUtil.getAlgorithm(this);
         //test
 //        sb = new StringBuilder();
 //        sb.append("numOfNode\t\trunTime\t\ttotalDistance\t\ttotalDuration\n");
@@ -740,6 +738,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         mPresenter.removePlace(position);
     }
 
+    //test
     private long startTime;
 
     @Override
@@ -750,9 +749,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
         travelFragment.showLoadingView();
 
+        //test
         startTime = System.currentTimeMillis();
     }
 
+    //test
     String checkStr = "";
 
     @Override
@@ -777,6 +778,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         if(changeAlgorithm){
             mPresenter.calculatePath();
             changeAlgorithm = false;
+        }else{
+            PrefsUtil.setAlgorithm(this,prevAlgorithm);
+//            selectAlgorithmFragment.selectAlgorithm(prevAlgorithm);
         }
     }
 
@@ -795,6 +799,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         travelFragment.updateDistance(mPresenter.getDistances(), mPresenter.getSumDistance());
         travelFragment.updateDuration(mPresenter.getDurations(), mPresenter.getSumDuration());
         travelFragment.updateView();
+
+        prevAlgorithm = PrefsUtil.getAlgorithm(this);
 
         float runtime = System.currentTimeMillis() - startTime;
 
@@ -883,6 +889,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     public void cancelTask(){
+        changeAlgorithm = false;
         mPresenter.cancelTask();
     }
 }

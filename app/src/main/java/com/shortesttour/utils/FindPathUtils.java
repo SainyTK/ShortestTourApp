@@ -389,7 +389,7 @@ public class FindPathUtils {
             urlConnection.disconnect();
 
         } catch (Exception e) {
-            Log.d("Exception ", e.toString());
+            Log.e("Exception ", e.toString());
         }
         return data;
     }
@@ -437,10 +437,10 @@ public class FindPathUtils {
                             Log.d("url", "response : " + result[i]);
                             checkError = result[i].contains("error") || result[i].contentEquals("");
                             if(checkError){
-//                                Thread.sleep(1000);
-//                                numError++;
-                                cancel = true;
-                                return null;
+                                Thread.sleep(1000);
+                                numError++;
+//                                cancel = true;
+//                                return null;
                             }
                         } catch (Exception e) {
                             Log.e("error", "call: ", e);
