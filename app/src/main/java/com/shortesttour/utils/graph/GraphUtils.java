@@ -79,10 +79,6 @@ public abstract class GraphUtils{
 
     public synchronized void expandGraph(GraphNode[] nodes) {
         prevGraph = graph;
-
-        Log.d("test", "expandGraph: prevSize 1 = " + prevGraph.length);
-        Log.d("test", "expandGraph: graphSize 1 = " + graph.length);
-
         int len = getDimen();
         GraphNode[][] tempGraph = new GraphNode[len][len];
         cloneGraph(tempGraph, graph);
@@ -94,9 +90,6 @@ public abstract class GraphUtils{
             GraphNode node = nodes[i];
             connectEdge(i, len, node.getDistance(), node.getDuration(), node.getRoutes());
         }
-
-        Log.d("test", "expandGraph: prevSize 2 = " + prevGraph.length);
-        Log.d("test", "expandGraph: graphSize 2 = " + graph.length);
         calculatePath();
     }
 

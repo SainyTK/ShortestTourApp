@@ -37,7 +37,7 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
     }
 
     public void setupCurrentPlace(LatLng latLng){
-        currentPlace = new Place(0,"You","Your Location",latLng.latitude,latLng.longitude);
+        currentPlace = new Place("Your Location",latLng.latitude,latLng.longitude);
         mFindPathUtils.addPlace(currentPlace);
     }
 

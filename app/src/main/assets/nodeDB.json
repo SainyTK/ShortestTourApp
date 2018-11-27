@@ -1,1178 +1,842 @@
 [
-    {
-      "placeId": "1",
-      "userId": "8",
-      "userName": "4/29 ซ สุขสัน 2 คุณเกต",
-      "latitude": "7.8112529",
-      "longitude": "98.3285277"
-    },
-    {
-      "placeId": "2",
-      "userId": "9",
-      "userName": "เรือนรัก",
-      "latitude": "7.8549375",
-      "longitude": "98.3569083"
-    },
-    {
-      "placeId": "3",
-      "userId": "10",
-      "userName": "74/64 สตูดิโอไลน์",
-      "latitude": "7.8608146",
-      "longitude": "98.3767702"
-    },
-    {
-      "placeId": "4",
-      "userId": "11",
-      "userName": "ไอยราวิลล่า 5",
-      "latitude": "7.8565386",
-      "longitude": "98.3742431"
-    },
-    {
-      "placeId": "5",
-      "userId": "12",
-      "userName": "3/27 พนง.การยาง",
-      "latitude": "7.8565386",
-      "longitude": "98.3742431"
-    },
-    {
-      "placeId": "6",
-      "userId": "13",
-      "userName": "บริษัท เจตตะ เอ็นเตอร์ไพรส์ จำกัด",
-      "latitude": "7.89327",
-      "longitude": "98.4056199"
-    },
-    {
-      "placeId": "7",
-      "userId": "14",
-      "userName": "ไทนี่ ฮอนด้า",
-      "latitude": "7.814147",
-      "longitude": "98.3289316"
-    },
-    {
-      "placeId": "8",
-      "userId": "15",
-      "userName": "พนักงาน ฮอนด้า",
-      "latitude": "7.8169123",
-      "longitude": "98.3370298"
-    },
-    {
-      "placeId": "9",
-      "userId": "17",
-      "userName": "47/54  กอไผ่",
-      "latitude": "7.8167707",
-      "longitude": "98.3370309"
-    },
-    {
-      "placeId": "10",
-      "userId": "18",
-      "userName": "68/61  แม้นเมือง",
-      "latitude": "7.8162904",
-      "longitude": "98.3368825"
-    },
-    {
-      "placeId": "11",
-      "userId": "20",
-      "userName": "Bake Fee",
-      "latitude": "7.8124541",
-      "longitude": "98.3389208"
-    },
-    {
-      "placeId": "12",
-      "userId": "21",
-      "userName": "14/6 โกศักดิ์ beach front",
-      "latitude": "7.8021557",
-      "longitude": "98.3366068"
-    },
-    {
-      "placeId": "13",
-      "userId": "22",
-      "userName": "ปณิสรงานปัก",
-      "latitude": "7.7697626",
-      "longitude": "98.3148977"
-    },
-    {
-      "placeId": "14",
-      "userId": "24",
-      "userName": "82/65 นันทวัน",
-      "latitude": "7.7769865",
-      "longitude": "98.3234838"
-    },
-    {
-      "placeId": "15",
-      "userId": "25",
-      "userName": "ร้านบ้านอร่อย",
-      "latitude": "7.7755975",
-      "longitude": "98.3257976"
-    },
-    {
-      "placeId": "16",
-      "userId": "26",
-      "userName": "86/27 สีวลี2",
-      "latitude": "7.7869851",
-      "longitude": "98.3264833"
-    },
-    {
-      "placeId": "17",
-      "userId": "33",
-      "userName": "43/151 ซอยน้ำใจ",
-      "latitude": "7.7876938",
-      "longitude": "98.3295092"
-    },
-    {
-      "placeId": "18",
-      "userId": "34",
-      "userName": "ระหงส์ฮาร์แวร์",
-      "latitude": "7.7949384",
-      "longitude": "98.3288922"
-    },
-    {
-      "placeId": "19",
-      "userId": "56",
-      "userName": "นากะคอนเซป",
-      "latitude": "7.779924",
-      "longitude": "98.3168507"
-    },
-    {
-      "placeId": "20",
-      "userId": "59",
-      "userName": "26/99 ซอยมยุรี",
-      "latitude": "7.8934331",
-      "longitude": "98.3520383"
-    },
-    {
-      "placeId": "21",
-      "userId": "77",
-      "userName": "8/28 โรงบาลสัตว์อันดามัน",
-      "latitude": "7.8976158",
-      "longitude": "98.3541808"
-    },
-    {
-      "placeId": "22",
-      "userId": "78",
-      "userName": "19/151 ปรางทอง",
-      "latitude": "7.8844974",
-      "longitude": "98.4020355"
-    },
-    {
-      "placeId": "23",
-      "userId": "79",
-      "userName": "1/10 ป้านุ้ย สิเหร่",
-      "latitude": "7.8858421",
-      "longitude": "98.405175"
-    },
-    {
-      "placeId": "24",
-      "userId": "80",
-      "userName": "66/36 กลุ่มยาง",
-      "latitude": "7.88534",
-      "longitude": "98.4215213"
-    },
-    {
-      "placeId": "25",
-      "userId": "89",
-      "userName": "33 ฉลอง",
-      "latitude": "7.8893024",
-      "longitude": "98.4279117"
-    },
-    {
-      "placeId": "26",
-      "userId": "90",
-      "userName": "54/8 นาบอน",
-      "latitude": "7.9802122",
-      "longitude": "98.3633575"
-    },
-    {
-      "placeId": "27",
-      "userId": "91",
-      "userName": "11/56 นาใหญ่",
-      "latitude": "7.8838357",
-      "longitude": "98.3879152"
-    },
-    {
-      "placeId": "28",
-      "userId": "92",
-      "userName": "98/136 ศุภาลัยฮิล",
-      "latitude": "7.9790515",
-      "longitude": "98.3548886"
-    },
-    {
-      "placeId": "29",
-      "userId": "93",
-      "userName": "98/2 supalai hills",
-      "latitude": "7.978385",
-      "longitude": "98.35314"
-    },
-    {
-      "placeId": "30",
-      "userId": "94",
-      "userName": "40/92 ฉลอง",
-      "latitude": "7.978385",
-      "longitude": "98.35314"
-    },
-    {
-      "placeId": "31",
-      "userId": "95",
-      "userName": "40/184 นาบอน",
-      "latitude": "7.97887",
-      "longitude": "98.3534272"
-    },
-    {
-      "placeId": "32",
-      "userId": "96",
-      "userName": "67/32   พี่อ๋า",
-      "latitude": "7.8833842",
-      "longitude": "98.3880133"
-    },
-    {
-      "placeId": "33",
-      "userId": "97",
-      "userName": "ร้านอาหารหมา ป่าตอง",
-      "latitude": "7.8902908",
-      "longitude": "98.386068"
-    },
-    {
-      "placeId": "34",
-      "userId": "98",
-      "userName": "เบชอร์ โอเชียนวิว",
-      "latitude": "7.8861372",
-      "longitude": "98.384646"
-    },
-    {
-      "placeId": "35",
-      "userId": "100",
-      "userName": "14/14 ไสยวน",
-      "latitude": "8.0811383",
-      "longitude": "98.2878435"
-    },
-    {
-      "placeId": "36",
-      "userId": "103",
-      "userName": "ควอตโตรดีไซด์",
-      "latitude": "7.8864268",
-      "longitude": "98.384001"
-    },
-    {
-      "placeId": "37",
-      "userId": "110",
-      "userName": "ธนาคารกสิกร เซ็นทรัล",
-      "latitude": "7.8846269",
-      "longitude": "98.3795317"
-    },
-    {
-      "placeId": "38",
-      "userId": "111",
-      "userName": "พี้อ้อ กมลา",
-      "latitude": "7.8559413",
-      "longitude": "98.3435419"
-    },
-    {
-      "placeId": "39",
-      "userId": "112",
-      "userName": "3,5 c kool ป่าหล่าย",
-      "latitude": "7.8802884",
-      "longitude": "98.3802686"
-    },
-    {
-      "placeId": "40",
-      "userId": "118",
-      "userName": "ร้านดอกไม้ วัดฉลอง",
-      "latitude": "7.8797277",
-      "longitude": "98.3845498"
-    },
-    {
-      "placeId": "41",
-      "userId": "120",
-      "userName": "229/11 เมือง",
-      "latitude": "7.8811942",
-      "longitude": "98.386376"
-    },
-    {
-      "placeId": "42",
-      "userId": "121",
-      "userName": "136/40 ราไวย์",
-      "latitude": "7.8824576",
-      "longitude": "98.3852747"
-    },
-    {
-      "placeId": "43",
-      "userId": "122",
-      "userName": "A 308 โทเทิลคอนโด",
-      "latitude": "8.0426252",
-      "longitude": "98.3358164"
-    },
-    {
-      "placeId": "44",
-      "userId": "123",
-      "userName": "PR ป่าตอง",
-      "latitude": "7.8803762",
-      "longitude": "98.3871648"
-    },
-    {
-      "placeId": "45",
-      "userId": "124",
-      "userName": "125/464 การบัญชี",
-      "latitude": "7.8295414",
-      "longitude": "98.297153"
-    },
-    {
-      "placeId": "46",
-      "userId": "125",
-      "userName": "SCB โลตัสสามกอง",
-      "latitude": "7.8757439",
-      "longitude": "98.3877583"
-    },
-    {
-      "placeId": "47",
-      "userId": "126",
-      "userName": "59/58",
-      "latitude": "7.8758539",
-      "longitude": "98.3878084"
-    },
-    {
-      "placeId": "48",
-      "userId": "127",
-      "userName": "18/57-58 คุณพงษ์",
-      "latitude": "8.0185995",
-      "longitude": "98.3100451"
-    },
-    {
-      "placeId": "49",
-      "userId": "128",
-      "userName": "55/319 วิลล่าดาวรุ่ง",
-      "latitude": "7.8770705",
-      "longitude": "98.3875203"
-    },
-    {
-      "placeId": "50",
-      "userId": "129",
-      "userName": "24/38 เขารัง",
-      "latitude": "7.8117586",
-      "longitude": "98.2976701"
-    },
-    {
-      "placeId": "51",
-      "userId": "130",
-      "userName": "32/176 ธนาคารSME",
-      "latitude": "7.8780158",
-      "longitude": "98.3862015"
-    },
-    {
-      "placeId": "52",
-      "userId": "131",
-      "userName": "112/5  laguna",
-      "latitude": "8.0182635",
-      "longitude": "98.305818"
-    },
-    {
-      "placeId": "53",
-      "userId": "132",
-      "userName": "1 Kata Garden",
-      "latitude": "7.8110033",
-      "longitude": "98.2975809"
-    },
-    {
-      "placeId": "54",
-      "userId": "133",
-      "userName": "111/18 laguna",
-      "latitude": "8.0191849",
-      "longitude": "98.3036683"
-    },
-    {
-      "placeId": "55",
-      "userId": "134",
-      "userName": "32/207 zeekdesign",
-      "latitude": "7.8773141",
-      "longitude": "98.3853175"
-    },
-    {
-      "placeId": "56",
-      "userId": "135",
-      "userName": "32/156 หมู่บ้านจัดสรรแอคทาว",
-      "latitude": "7.8782655",
-      "longitude": "98.385228"
-    },
-    {
-      "placeId": "57",
-      "userId": "142",
-      "userName": "32/13 zeekdesign แอคทาว2",
-      "latitude": "7.8782655",
-      "longitude": "98.385228"
-    },
-    {
-      "placeId": "58",
-      "userId": "143",
-      "userName": "boot Robinson",
-      "latitude": "7.877311",
-      "longitude": "98.3944764"
-    },
-    {
-      "placeId": "59",
-      "userId": "144",
-      "userName": "2/19-20 Marisa Spa",
-      "latitude": "7.8802399",
-      "longitude": "98.2933548"
-    },
-    {
-      "placeId": "60",
-      "userId": "145",
-      "userName": "quattro design",
-      "latitude": "7.9936849",
-      "longitude": "98.3051036"
-    },
-    {
-      "placeId": "61",
-      "userId": "146",
-      "userName": "34/125 So Thai Spa",
-      "latitude": "7.8808801",
-      "longitude": "98.2930302"
-    },
-    {
-      "placeId": "62",
-      "userId": "147",
-      "userName": "laguna ไซต์ก่อสร้าง",
-      "latitude": "7.9949141",
-      "longitude": "98.3012926"
-    },
-    {
-      "placeId": "63",
-      "userId": "148",
-      "userName": "63/1 Blue Horizen",
-      "latitude": "7.872929",
-      "longitude": "98.2877028"
-    },
-    {
-      "placeId": "64",
-      "userId": "149",
-      "userName": "ชบา สปา",
-      "latitude": "8.0001961",
-      "longitude": "98.2968817"
-    },
-    {
-      "placeId": "65",
-      "userId": "150",
-      "userName": "39 ร้านขายธูป",
-      "latitude": "7.8789287",
-      "longitude": "98.3973985"
-    },
-    {
-      "placeId": "66",
-      "userId": "151",
-      "userName": "56 นิมิตรซอย2",
-      "latitude": "7.8796306",
-      "longitude": "98.3969073"
-    },
-    {
-      "placeId": "67",
-      "userId": "152",
-      "userName": "5937 laguna link",
-      "latitude": "8.0052579",
-      "longitude": "98.3007387"
-    },
-    {
-      "placeId": "68",
-      "userId": "153",
-      "userName": "ธนาคารกสิกรไทย โลตัส ฉลอง",
-      "latitude": "7.8799281",
-      "longitude": "98.3952993"
-    },
-    {
-      "placeId": "69",
-      "userId": "154",
-      "userName": "65/47 laguna water",
-      "latitude": "7.9996502",
-      "longitude": "98.3017996"
-    },
-    {
-      "placeId": "70",
-      "userId": "156",
-      "userName": "47/61 laguna water",
-      "latitude": "7.9996416",
-      "longitude": "98.3018923"
-    },
-    {
-      "placeId": "71",
-      "userId": "157",
-      "userName": "47/61 laguna water",
-      "latitude": "7.9996416",
-      "longitude": "98.3018923"
-    },
-    {
-      "placeId": "72",
-      "userId": "158",
-      "userName": "ซีลอนเทล",
-      "latitude": "7.8773543",
-      "longitude": "98.3918158"
-    },
-    {
-      "placeId": "73",
-      "userId": "159",
-      "userName": "411 บ้านร้านการ์ตูน",
-      "latitude": "7.8730383",
-      "longitude": "98.3938672"
-    },
-    {
-      "placeId": "74",
-      "userId": "160",
-      "userName": "188/31-32 Sole",
-      "latitude": "7.8940171",
-      "longitude": "98.3021752"
-    },
-    {
-      "placeId": "75",
-      "userId": "161",
-      "userName": "dipa ชั้น3",
-      "latitude": "7.8699903",
-      "longitude": "98.3958356"
-    },
-    {
-      "placeId": "76",
-      "userId": "162",
-      "userName": "sunwing",
-      "latitude": "7.9899813",
-      "longitude": "98.2917515"
-    },
-    {
-      "placeId": "77",
-      "userId": "164",
-      "userName": "sunwing",
-      "latitude": "7.9899813",
-      "longitude": "98.2917515"
-    },
-    {
-      "placeId": "78",
-      "userId": "165",
-      "userName": "depa ชั้น2",
-      "latitude": "7.8699275",
-      "longitude": "98.395963"
-    },
-    {
-      "placeId": "79",
-      "userId": "166",
-      "userName": "184/18-20 The Crib",
-      "latitude": "7.8918377",
-      "longitude": "98.3016832"
-    },
-    {
-      "placeId": "80",
-      "userId": "167",
-      "userName": "ไอยรา วิลล่า8",
-      "latitude": "7.9731747",
-      "longitude": "98.2826569"
-    },
-    {
-      "placeId": "81",
-      "userId": "168",
-      "userName": "184/16-17 Lucky13",
-      "latitude": "7.8920006",
-      "longitude": "98.3014195"
-    },
-    {
-      "placeId": "82",
-      "userId": "169",
-      "userName": "ร่มไม้กาแฟ",
-      "latitude": "7.8786363",
-      "longitude": "98.3985304"
-    },
-    {
-      "placeId": "83",
-      "userId": "170",
-      "userName": "ไอยรา วิลล่า 25",
-      "latitude": "7.9744964",
-      "longitude": "98.2827063"
-    },
-    {
-      "placeId": "84",
-      "userId": "174",
-      "userName": "172/2 99นวดแผนไทย",
-      "latitude": "7.8951903",
-      "longitude": "98.2987947"
-    },
-    {
-      "placeId": "85",
-      "userId": "175",
-      "userName": "ไอยรา วิลล่า21",
-      "latitude": "7.9744064",
-      "longitude": "98.2824984"
-    },
-    {
-      "placeId": "86",
-      "userId": "176",
-      "userName": "165 The Yorkshire",
-      "latitude": "7.893403",
-      "longitude": "98.2991001"
-    },
-    {
-      "placeId": "87",
-      "userId": "177",
-      "userName": "ไอยราวิลล่าออฟฟิศ",
-      "latitude": "7.9742768",
-      "longitude": "98.2819674"
-    },
-    {
-      "placeId": "88",
-      "userId": "178",
-      "userName": "48/2 Hooters",
-      "latitude": "7.8873538",
-      "longitude": "98.2948267"
-    },
-    {
-      "placeId": "89",
-      "userId": "179",
-      "userName": "98/2 สำนักงานทนายความธนวิน",
-      "latitude": "7.8836045",
-      "longitude": "98.399566"
-    },
-    {
-      "placeId": "90",
-      "userId": "180",
-      "userName": "Long Bar",
-      "latitude": "7.8879687",
-      "longitude": "98.2919334"
-    },
-    {
-      "placeId": "91",
-      "userId": "181",
-      "userName": "158 ศูนย์มาสด้า tiny ร้านกาแฟ",
-      "latitude": "7.8825537",
-      "longitude": "98.3997585"
-    },
-    {
-      "placeId": "92",
-      "userId": "182",
-      "userName": "ธคารกสิกรไทย สาขาเชิงทะเล",
-      "latitude": "7.9890333",
-      "longitude": "98.3085717"
-    },
-    {
-      "placeId": "93",
-      "userId": "183",
-      "userName": "162/4 The Bloc Hotel",
-      "latitude": "7.895792",
-      "longitude": "98.2966644"
-    },
-    {
-      "placeId": "94",
-      "userId": "184",
-      "userName": "32/199",
-      "latitude": "7.8846278",
-      "longitude": "98.3925981"
-    },
-    {
-      "placeId": "95",
-      "userId": "185",
-      "userName": "177/16 บ้านวนา",
-      "latitude": "7.9805013",
-      "longitude": "98.3296778"
-    },
-    {
-      "placeId": "96",
-      "userId": "186",
-      "userName": "177/42 บ้านวนา",
-      "latitude": "7.9805317",
-      "longitude": "98.3298818"
-    },
-    {
-      "placeId": "97",
-      "userId": "187",
-      "userName": "12/3  believe",
-      "latitude": "7.8857614",
-      "longitude": "98.3930186"
-    },
-    {
-      "placeId": "98",
-      "userId": "188",
-      "userName": "322/3, 324/2 Di Pantai",
-      "latitude": "7.9169805",
-      "longitude": "98.2915311"
-    },
-    {
-      "placeId": "99",
-      "userId": "189",
-      "userName": "ร้านสวย เชิงทะเล",
-      "latitude": "7.9800538",
-      "longitude": "98.3292801"
-    },
-    {
-      "placeId": "100",
-      "userId": "190",
-      "userName": "1 อครา สถาปนิก",
-      "latitude": "7.8864583",
-      "longitude": "98.3934874"
-    },
-    {
-      "placeId": "101",
-      "userId": "191",
-      "userName": "ร้าน back kettle เชิงทะเล",
-      "latitude": "7.9797635",
-      "longitude": "98.3294351"
-    },
-    {
-      "placeId": "102",
-      "userId": "195",
-      "userName": "วัดซิกข์",
-      "latitude": "7.8898906",
-      "longitude": "98.3935329"
-    },
-    {
-      "placeId": "103",
-      "userId": "196",
-      "userName": "8 วัดซิกข์",
-      "latitude": "7.889894",
-      "longitude": "98.3935426"
-    },
-    {
-      "placeId": "104",
-      "userId": "197",
-      "userName": "ลีโอนาโด กะตะการ์เด้น",
-      "latitude": "7.9130397",
-      "longitude": "98.2958968"
-    },
-    {
-      "placeId": "105",
-      "userId": "198",
-      "userName": "โกแดง นาสาด",
-      "latitude": "7.982884",
-      "longitude": "98.3636931"
-    },
-    {
-      "placeId": "106",
-      "userId": "199",
-      "userName": "3/19",
-      "latitude": "7.8842061",
-      "longitude": "98.3929281"
-    },
-    {
-      "placeId": "107",
-      "userId": "200",
-      "userName": "บจก.ห้างทองเบญจพร",
-      "latitude": "7.8827224",
-      "longitude": "98.3926228"
-    },
-    {
-      "placeId": "108",
-      "userId": "201",
-      "userName": "รักษ์คุณฟาร์มาร์ซี",
-      "latitude": "7.939937",
-      "longitude": "98.3949149"
-    },
-    {
-      "placeId": "109",
-      "userId": "202",
-      "userName": "คุณดาว",
-      "latitude": "7.8986971",
-      "longitude": "98.3048772"
-    },
-    {
-      "placeId": "110",
-      "userId": "203",
-      "userName": "บจก.เพาเวอร์บาย  จังซีลอน",
-      "latitude": "7.8940436",
-      "longitude": "98.3693737"
-    },
-    {
-      "placeId": "111",
-      "userId": "204",
-      "userName": "บจก.เพาเวอร์บาย  เซ็นทรัล ภูเก็ต",
-      "latitude": "7.8941389",
-      "longitude": "98.3694505"
-    },
-    {
-      "placeId": "112",
-      "userId": "205",
-      "userName": "บจก.เพาเวอร์บาย  โฮมเวิร์ค",
-      "latitude": "7.8925881",
-      "longitude": "98.3694293"
-    },
-    {
-      "placeId": "113",
-      "userId": "206",
-      "userName": "CU Bank  สหกรณ์เครดิตยูเนี่ยน",
-      "latitude": "7.8830905",
-      "longitude": "98.4105035"
-    },
-    {
-      "placeId": "114",
-      "userId": "207",
-      "userName": "บจก.ลาซาด้า เอ็กซ์เพรส",
-      "latitude": "7.9001275",
-      "longitude": "98.3076222"
-    },
-    {
-      "placeId": "115",
-      "userId": "208",
-      "userName": "นาคา มาสซาจ",
-      "latitude": "7.8899478",
-      "longitude": "98.3037891"
-    },
-    {
-      "placeId": "116",
-      "userId": "209",
-      "userName": "บจก.มีมามี อินเตอร์เนชั่นแนล ลอว์ ออฟฟิศ",
-      "latitude": "7.8963053",
-      "longitude": "98.3659809"
-    },
-    {
-      "placeId": "117",
-      "userId": "213",
-      "userName": "ซีลอนเทล อพาร์เม้นท์",
-      "latitude": "7.8773401",
-      "longitude": "98.3918199"
-    },
-    {
-      "placeId": "118",
-      "userId": "214",
-      "userName": "56/71",
-      "latitude": "7.8925154",
-      "longitude": "98.3028602"
-    },
-    {
-      "placeId": "119",
-      "userId": "216",
-      "userName": "11/4 ข้างวัดป่าตอง",
-      "latitude": "7.8928803",
-      "longitude": "98.3029346"
-    },
-    {
-      "placeId": "120",
-      "userId": "217",
-      "userName": "คุณหลิว",
-      "latitude": "7.8792194",
-      "longitude": "98.3876069"
-    },
-    {
-      "placeId": "121",
-      "userId": "218",
-      "userName": "56/51",
-      "latitude": "7.892856",
-      "longitude": "98.3029143"
-    },
-    {
-      "placeId": "122",
-      "userId": "219",
-      "userName": "พี่อุไร",
-      "latitude": "7.8928771",
-      "longitude": "98.3028775"
-    },
-    {
-      "placeId": "123",
-      "userId": "220",
-      "userName": "สอนภาษาครูเจ",
-      "latitude": "7.8789725",
-      "longitude": "98.3671471"
-    },
-    {
-      "placeId": "124",
-      "userId": "221",
-      "userName": "บจก.GSD กราฟฟิก โซลูชั่น ดิจิตอล",
-      "latitude": "7.876852",
-      "longitude": "98.3636939"
-    },
-    {
-      "placeId": "125",
-      "userId": "222",
-      "userName": "พี่แอ๋ว ผลไม้",
-      "latitude": "7.8919229",
-      "longitude": "98.2941162"
-    },
-    {
-      "placeId": "126",
-      "userId": "223",
-      "userName": "บจก.ภูเก็ตพัฒนาทรัพยากร  Sun wing",
-      "latitude": "7.8934496",
-      "longitude": "98.3522484"
-    },
-    {
-      "placeId": "127",
-      "userId": "224",
-      "userName": "ห้อง H1 มอ .",
-      "latitude": "7.891475",
-      "longitude": "98.3509667"
-    },
-    {
-      "placeId": "128",
-      "userId": "225",
-      "userName": "บจก.สมายล์ บีช",
-      "latitude": "7.8931001",
-      "longitude": "98.2982064"
-    },
-    {
-      "placeId": "129",
-      "userId": "226",
-      "userName": "ห้อง I2  มอ.ภูเก็ต",
-      "latitude": "7.8915093",
-      "longitude": "98.350433"
-    },
-    {
-      "placeId": "130",
-      "userId": "227",
-      "userName": "51  พี่สันติ",
-      "latitude": "7.8687148",
-      "longitude": "98.3580716"
-    },
-    {
-      "placeId": "131",
-      "userId": "228",
-      "userName": "คณะวิเทศศึกษา มอ. มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตภูเก็ต",
-      "latitude": "7.89382",
-      "longitude": "98.3525583"
-    },
-    {
-      "placeId": "132",
-      "userId": "229",
-      "userName": "11/51  นาใหญ่",
-      "latitude": "7.8560815",
-      "longitude": "98.3403417"
-    },
-    {
-      "placeId": "133",
-      "userId": "230",
-      "userName": "บีลีฟ คอฟฟี แอนด์ เรสเตอรอง",
-      "latitude": "7.897635",
-      "longitude": "98.3546683"
-    },
-    {
-      "placeId": "134",
-      "userId": "231",
-      "userName": "ชั้น 6 คณะวิศวะ คอม มอ.",
-      "latitude": "7.8965236",
-      "longitude": "98.3550534"
-    },
-    {
-      "placeId": "135",
-      "userId": "232",
-      "userName": "2/22",
-      "latitude": "7.8392237",
-      "longitude": "98.351931"
-    },
-    {
-      "placeId": "136",
-      "userId": "233",
-      "userName": "บ.ลัคกี้ 13 กะทู้ จำกัด",
-      "latitude": "7.8999858",
-      "longitude": "98.3510273"
-    },
-    {
-      "placeId": "137",
-      "userId": "234",
-      "userName": "7/11-12 วิลล่ามะละกา",
-      "latitude": "7.8401909",
-      "longitude": "98.3520548"
-    },
-    {
-      "placeId": "138",
-      "userId": "235",
-      "userName": "97/11",
-      "latitude": "7.9029014",
-      "longitude": "98.3452444"
-    },
-    {
-      "placeId": "139",
-      "userId": "236",
-      "userName": "บจก.ซีคูลเอฟโวลูชั่น",
-      "latitude": "7.8439638",
-      "longitude": "98.360552"
-    },
-    {
-      "placeId": "140",
-      "userId": "237",
-      "userName": "บจก.ภูเก็ต อควา โปรเจคท์",
-      "latitude": "7.8422124",
-      "longitude": "98.3566093"
-    },
-    {
-      "placeId": "141",
-      "userId": "238",
-      "userName": "ร้านดอกไม้ครูหยก",
-      "latitude": "7.8990767",
-      "longitude": "98.3436717"
-    },
-    {
-      "placeId": "142",
-      "userId": "239",
-      "userName": "140/111",
-      "latitude": "7.9004621",
-      "longitude": "98.3312715"
-    },
-    {
-      "placeId": "143",
-      "userId": "240",
-      "userName": "114/20",
-      "latitude": "7.8999514",
-      "longitude": "98.3320108"
-    },
-    {
-      "placeId": "144",
-      "userId": "241",
-      "userName": "140/12",
-      "latitude": "7.8993366",
-      "longitude": "98.3322809"
-    },
-    {
-      "placeId": "145",
-      "userId": "242",
-      "userName": "140/7",
-      "latitude": "7.8992993",
-      "longitude": "98.3321708"
-    },
-    {
-      "placeId": "146",
-      "userId": "243",
-      "userName": "คุณธนพล",
-      "latitude": "7.9176046",
-      "longitude": "98.3328494"
-    },
-    {
-      "placeId": "147",
-      "userId": "244",
-      "userName": "16/143",
-      "latitude": "7.9194715",
-      "longitude": "98.3378433"
-    },
-    {
-      "placeId": "148",
-      "userId": "245",
-      "userName": "30/64",
-      "latitude": "7.9164803",
-      "longitude": "98.3449647"
-    },
-    {
-      "placeId": "149",
-      "userId": "246",
-      "userName": "บจก.ลัคกี้ 13 กะทู้",
-      "latitude": "7.9144088",
-      "longitude": "98.3426255"
-    },
-    {
-      "placeId": "150",
-      "userId": "247",
-      "userName": "บจก.พรูเด้นท์ บิวเดอร์",
-      "latitude": "7.9026388",
-      "longitude": "98.3014153"
-    },
-    {
-      "placeId": "151",
-      "userId": "248",
-      "userName": "Oasis",
-      "latitude": "7.8862056",
-      "longitude": "98.2941735"
-    },
-    {
-      "placeId": "152",
-      "userId": "249",
-      "userName": "Carewell Service Co.,Ltd.",
-      "latitude": "7.908623",
-      "longitude": "98.3556597"
-    },
-    {
-      "placeId": "153",
-      "userId": "250",
-      "userName": "บูกิจเฮ้าส์",
-      "latitude": "7.8881489",
-      "longitude": "98.3041756"
-    },
-    {
-      "placeId": "154",
-      "userId": "251",
-      "userName": "Horizon Karon Beach Resort And Spa CO;LTD",
-      "latitude": "7.8889433",
-      "longitude": "98.2943326"
-    },
-    {
-      "placeId": "155",
-      "userId": "252",
-      "userName": "บจก.ป่าตองพี่น้องทรัพย์",
-      "latitude": "7.8784547",
-      "longitude": "98.3968152"
-    },
-    {
-      "placeId": "156",
-      "userId": "253",
-      "userName": "บจก.บี.วาย.ดี. อพาร์ทเม้นท์",
-      "latitude": "7.8785419",
-      "longitude": "98.3967147"
-    },
-    {
-      "placeId": "157",
-      "userId": "254",
-      "userName": "ร้านขายอุปกรณ์ไฟฟ้า สาย2",
-      "latitude": "7.9494414",
-      "longitude": "98.2763004"
-    },
-    {
-      "placeId": "158",
-      "userId": "255",
-      "userName": "Lucky13 แซนวิช",
-      "latitude": "7.9502807",
-      "longitude": "98.2795737"
-    },
-    {
-      "placeId": "159",
-      "userId": "256",
-      "userName": "63/69 พี่บี",
-      "latitude": "7.9485496",
-      "longitude": "98.2997825"
-    },
-    {
-      "placeId": "160",
-      "userId": "257",
-      "userName": "64/119 พี่ส้ม",
-      "latitude": "7.9484439",
-      "longitude": "98.300004"
-    },
-    {
-      "placeId": "161",
-      "userId": "258",
-      "userName": "169/116 พี่เล็ก",
-      "latitude": "7.8944136",
-      "longitude": "98.3012213"
-    },
-    {
-      "placeId": "162",
-      "userId": "259",
-      "userName": "179/79-80 อีส แอนด์ เวส",
-      "latitude": "7.8925773",
-      "longitude": "98.3005955"
-    },
-    {
-      "placeId": "163",
-      "userId": "260",
-      "userName": "บจก.ทีซีซี ลักซ์ชูรีโฮเทลส์ และ รีสอร์ท",
-      "latitude": "7.8785257",
-      "longitude": "98.3967259"
-    },
-    {
-      "placeId": "164",
-      "userId": "261",
-      "userName": "บจก.อาณาวรรธน์",
-      "latitude": "7.8785257",
-      "longitude": "98.3967259"
-    },
-    {
-      "placeId": "165",
-      "userId": "359",
-      "userName": "56/58 ป่าตอง",
-      "latitude": "7.8915",
-      "longitude": "98.348403"
-    },
-    {
-      "placeId": "166",
-      "userId": "851",
-      "userName": "ร้านยางกู๊ดเยียร์",
-      "latitude": "7.8784871",
-      "longitude": "98.3966401"
-    },
-    {
-      "placeId": "167",
-      "userId": "981",
-      "userName": "วีลล่า มาลาก้า 7/1",
-      "latitude": "7.8799295",
-      "longitude": "98.3808599"
-    },
-    {
-      "placeId": "168",
-      "userId": "982",
-      "userName": "คุณ ต้า ภูงาม",
-      "latitude": "7.8888759",
-      "longitude": "98.4279445"
-    }
+  {
+    "placeTitle": "4/29 ซ สุขสัน 2 คุณเกต",
+    "latitude": 7.8112529,
+    "longitude": 98.3285277
+  },
+  {
+    "placeTitle": "เรือนรัก",
+    "latitude": 7.8549375,
+    "longitude": 98.3569083
+  },
+  {
+    "placeTitle": "74/64 สตูดิโอไลน์",
+    "latitude": 7.8608146,
+    "longitude": 98.3767702
+  },
+  {
+    "placeTitle": "ไอยราวิลล่า 5",
+    "latitude": 7.8565386,
+    "longitude": 98.3742431
+  },
+  {
+    "placeTitle": "3/27 พนง.การยาง",
+    "latitude": 7.8565386,
+    "longitude": 98.3742431
+  },
+  {
+    "placeTitle": "บริษัท เจตตะ เอ็นเตอร์ไพรส์ จำกัด",
+    "latitude": 7.89327,
+    "longitude": 98.4056199
+  },
+  {
+    "placeTitle": "ไทนี่ ฮอนด้า",
+    "latitude": 7.814147,
+    "longitude": 98.3289316
+  },
+  {
+    "placeTitle": "พนักงาน ฮอนด้า",
+    "latitude": 7.8169123,
+    "longitude": 98.3370298
+  },
+  {
+    "placeTitle": "47/54  กอไผ่",
+    "latitude": 7.8167707,
+    "longitude": 98.3370309
+  },
+  {
+    "placeTitle": "68/61  แม้นเมือง",
+    "latitude": 7.8162904,
+    "longitude": 98.3368825
+  },
+  {
+    "placeTitle": "Bake Fee",
+    "latitude": 7.8124541,
+    "longitude": 98.3389208
+  },
+  {
+    "placeTitle": "14/6 โกศักดิ์ beach front",
+    "latitude": 7.8021557,
+    "longitude": 98.3366068
+  },
+  {
+    "placeTitle": "ปณิสรงานปัก",
+    "latitude": 7.7697626,
+    "longitude": 98.3148977
+  },
+  {
+    "placeTitle": "82/65 นันทวัน",
+    "latitude": 7.7769865,
+    "longitude": 98.3234838
+  },
+  {
+    "placeTitle": "ร้านบ้านอร่อย",
+    "latitude": 7.7755975,
+    "longitude": 98.3257976
+  },
+  {
+    "placeTitle": "86/27 สีวลี2",
+    "latitude": 7.7869851,
+    "longitude": 98.3264833
+  },
+  {
+    "placeTitle": "43/151 ซอยน้ำใจ",
+    "latitude": 7.7876938,
+    "longitude": 98.3295092
+  },
+  {
+    "placeTitle": "ระหงส์ฮาร์แวร์",
+    "latitude": 7.7949384,
+    "longitude": 98.3288922
+  },
+  {
+    "placeTitle": "นากะคอนเซป",
+    "latitude": 7.779924,
+    "longitude": 98.3168507
+  },
+  {
+    "placeTitle": "26/99 ซอยมยุรี",
+    "latitude": 7.8934331,
+    "longitude": 98.3520383
+  },
+  {
+    "placeTitle": "8/28 โรงบาลสัตว์อันดามัน",
+    "latitude": 7.8976158,
+    "longitude": 98.3541808
+  },
+  {
+    "placeTitle": "19/151 ปรางทอง",
+    "latitude": 7.8844974,
+    "longitude": 98.4020355
+  },
+  {
+    "placeTitle": "1/10 ป้านุ้ย สิเหร่",
+    "latitude": 7.8858421,
+    "longitude": 98.405175
+  },
+  {
+    "placeTitle": "66/36 กลุ่มยาง",
+    "latitude": 7.88534,
+    "longitude": 98.4215213
+  },
+  {
+    "placeTitle": "33 ฉลอง",
+    "latitude": 7.8893024,
+    "longitude": 98.4279117
+  },
+  {
+    "placeTitle": "54/8 นาบอน",
+    "latitude": 7.9802122,
+    "longitude": 98.3633575
+  },
+  {
+    "placeTitle": "11/56 นาใหญ่",
+    "latitude": 7.8838357,
+    "longitude": 98.3879152
+  },
+  {
+    "placeTitle": "98/136 ศุภาลัยฮิล",
+    "latitude": 7.9790515,
+    "longitude": 98.3548886
+  },
+  {
+    "placeTitle": "98/2 supalai hills",
+    "latitude": 7.978385,
+    "longitude": 98.35314
+  },
+  {
+    "placeTitle": "40/92 ฉลอง",
+    "latitude": 7.978385,
+    "longitude": 98.35314
+  },
+  {
+    "placeTitle": "40/184 นาบอน",
+    "latitude": 7.97887,
+    "longitude": 98.3534272
+  },
+  {
+    "placeTitle": "67/32   พี่อ๋า",
+    "latitude": 7.8833842,
+    "longitude": 98.3880133
+  },
+  {
+    "placeTitle": "ร้านอาหารหมา ป่าตอง",
+    "latitude": 7.8902908,
+    "longitude": 98.386068
+  },
+  {
+    "placeTitle": "เบชอร์ โอเชียนวิว",
+    "latitude": 7.8861372,
+    "longitude": 98.384646
+  },
+  {
+    "placeTitle": "14/14 ไสยวน",
+    "latitude": 8.0811383,
+    "longitude": 98.2878435
+  },
+  {
+    "placeTitle": "ควอตโตรดีไซด์",
+    "latitude": 7.8864268,
+    "longitude": 98.384001
+  },
+  {
+    "placeTitle": "ธนาคารกสิกร เซ็นทรัล",
+    "latitude": 7.8846269,
+    "longitude": 98.3795317
+  },
+  {
+    "placeTitle": "พี้อ้อ กมลา",
+    "latitude": 7.8559413,
+    "longitude": 98.3435419
+  },
+  {
+    "placeTitle": "3,5 c kool ป่าหล่าย",
+    "latitude": 7.8802884,
+    "longitude": 98.3802686
+  },
+  {
+    "placeTitle": "ร้านดอกไม้ วัดฉลอง",
+    "latitude": 7.8797277,
+    "longitude": 98.3845498
+  },
+  {
+    "placeTitle": "229/11 เมือง",
+    "latitude": 7.8811942,
+    "longitude": 98.386376
+  },
+  {
+    "placeTitle": "136/40 ราไวย์",
+    "latitude": 7.8824576,
+    "longitude": 98.3852747
+  },
+  {
+    "placeTitle": "A 308 โทเทิลคอนโด",
+    "latitude": 8.0426252,
+    "longitude": 98.3358164
+  },
+  {
+    "placeTitle": "PR ป่าตอง",
+    "latitude": 7.8803762,
+    "longitude": 98.3871648
+  },
+  {
+    "placeTitle": "125/464 การบัญชี",
+    "latitude": 7.8295414,
+    "longitude": 98.297153
+  },
+  {
+    "placeTitle": "SCB โลตัสสามกอง",
+    "latitude": 7.8757439,
+    "longitude": 98.3877583
+  },
+  {
+    "placeTitle": "59/58",
+    "latitude": 7.8758539,
+    "longitude": 98.3878084
+  },
+  {
+    "placeTitle": "18/57-58 คุณพงษ์",
+    "latitude": 8.0185995,
+    "longitude": 98.3100451
+  },
+  {
+    "placeTitle": "55/319 วิลล่าดาวรุ่ง",
+    "latitude": 7.8770705,
+    "longitude": 98.3875203
+  },
+  {
+    "placeTitle": "24/38 เขารัง",
+    "latitude": 7.8117586,
+    "longitude": 98.2976701
+  },
+  {
+    "placeTitle": "32/176 ธนาคารSME",
+    "latitude": 7.8780158,
+    "longitude": 98.3862015
+  },
+  {
+    "placeTitle": "112/5  laguna",
+    "latitude": 8.0182635,
+    "longitude": 98.305818
+  },
+  {
+    "placeTitle": "1 Kata Garden",
+    "latitude": 7.8110033,
+    "longitude": 98.2975809
+  },
+  {
+    "placeTitle": "111/18 laguna",
+    "latitude": 8.0191849,
+    "longitude": 98.3036683
+  },
+  {
+    "placeTitle": "32/207 zeekdesign",
+    "latitude": 7.8773141,
+    "longitude": 98.3853175
+  },
+  {
+    "placeTitle": "32/156 หมู่บ้านจัดสรรแอคทาว",
+    "latitude": 7.8782655,
+    "longitude": 98.385228
+  },
+  {
+    "placeTitle": "32/13 zeekdesign แอคทาว2",
+    "latitude": 7.8782655,
+    "longitude": 98.385228
+  },
+  {
+    "placeTitle": "boot Robinson",
+    "latitude": 7.877311,
+    "longitude": 98.3944764
+  },
+  {
+    "placeTitle": "2/19-20 Marisa Spa",
+    "latitude": 7.8802399,
+    "longitude": 98.2933548
+  },
+  {
+    "placeTitle": "quattro design",
+    "latitude": 7.9936849,
+    "longitude": 98.3051036
+  },
+  {
+    "placeTitle": "34/125 So Thai Spa",
+    "latitude": 7.8808801,
+    "longitude": 98.2930302
+  },
+  {
+    "placeTitle": "laguna ไซต์ก่อสร้าง",
+    "latitude": 7.9949141,
+    "longitude": 98.3012926
+  },
+  {
+    "placeTitle": "63/1 Blue Horizen",
+    "latitude": 7.872929,
+    "longitude": 98.2877028
+  },
+  {
+    "placeTitle": "ชบา สปา",
+    "latitude": 8.0001961,
+    "longitude": 98.2968817
+  },
+  {
+    "placeTitle": "39 ร้านขายธูป",
+    "latitude": 7.8789287,
+    "longitude": 98.3973985
+  },
+  {
+    "placeTitle": "56 นิมิตรซอย2",
+    "latitude": 7.8796306,
+    "longitude": 98.3969073
+  },
+  {
+    "placeTitle": "5937 laguna link",
+    "latitude": 8.0052579,
+    "longitude": 98.3007387
+  },
+  {
+    "placeTitle": "ธนาคารกสิกรไทย โลตัส ฉลอง",
+    "latitude": 7.8799281,
+    "longitude": 98.3952993
+  },
+  {
+    "placeTitle": "65/47 laguna water",
+    "latitude": 7.9996502,
+    "longitude": 98.3017996
+  },
+  {
+    "placeTitle": "47/61 laguna water",
+    "latitude": 7.9996416,
+    "longitude": 98.3018923
+  },
+  {
+    "placeTitle": "47/61 laguna water",
+    "latitude": 7.9996416,
+    "longitude": 98.3018923
+  },
+  {
+    "placeTitle": "ซีลอนเทล",
+    "latitude": 7.8773543,
+    "longitude": 98.3918158
+  },
+  {
+    "placeTitle": "411 บ้านร้านการ์ตูน",
+    "latitude": 7.8730383,
+    "longitude": 98.3938672
+  },
+  {
+    "placeTitle": "188/31-32 Sole",
+    "latitude": 7.8940171,
+    "longitude": 98.3021752
+  },
+  {
+    "placeTitle": "dipa ชั้น3",
+    "latitude": 7.8699903,
+    "longitude": 98.3958356
+  },
+  {
+    "placeTitle": "sunwing",
+    "latitude": 7.9899813,
+    "longitude": 98.2917515
+  },
+  {
+    "placeTitle": "sunwing",
+    "latitude": 7.9899813,
+    "longitude": 98.2917515
+  },
+  {
+    "placeTitle": "depa ชั้น2",
+    "latitude": 7.8699275,
+    "longitude": 98.395963
+  },
+  {
+    "placeTitle": "184/18-20 The Crib",
+    "latitude": 7.8918377,
+    "longitude": 98.3016832
+  },
+  {
+    "placeTitle": "ไอยรา วิลล่า8",
+    "latitude": 7.9731747,
+    "longitude": 98.2826569
+  },
+  {
+    "placeTitle": "184/16-17 Lucky13",
+    "latitude": 7.8920006,
+    "longitude": 98.3014195
+  },
+  {
+    "placeTitle": "ร่มไม้กาแฟ",
+    "latitude": 7.8786363,
+    "longitude": 98.3985304
+  },
+  {
+    "placeTitle": "ไอยรา วิลล่า 25",
+    "latitude": 7.9744964,
+    "longitude": 98.2827063
+  },
+  {
+    "placeTitle": "172/2 99นวดแผนไทย",
+    "latitude": 7.8951903,
+    "longitude": 98.2987947
+  },
+  {
+    "placeTitle": "ไอยรา วิลล่า21",
+    "latitude": 7.9744064,
+    "longitude": 98.2824984
+  },
+  {
+    "placeTitle": "165 The Yorkshire",
+    "latitude": 7.893403,
+    "longitude": 98.2991001
+  },
+  {
+    "placeTitle": "ไอยราวิลล่าออฟฟิศ",
+    "latitude": 7.9742768,
+    "longitude": 98.2819674
+  },
+  {
+    "placeTitle": "48/2 Hooters",
+    "latitude": 7.8873538,
+    "longitude": 98.2948267
+  },
+  {
+    "placeTitle": "98/2 สำนักงานทนายความธนวิน",
+    "latitude": 7.8836045,
+    "longitude": 98.399566
+  },
+  {
+    "placeTitle": "Long Bar",
+    "latitude": 7.8879687,
+    "longitude": 98.2919334
+  },
+  {
+    "placeTitle": "158 ศูนย์มาสด้า tiny ร้านกาแฟ",
+    "latitude": 7.8825537,
+    "longitude": 98.3997585
+  },
+  {
+    "placeTitle": "ธคารกสิกรไทย สาขาเชิงทะเล",
+    "latitude": 7.9890333,
+    "longitude": 98.3085717
+  },
+  {
+    "placeTitle": "162/4 The Bloc Hotel",
+    "latitude": 7.895792,
+    "longitude": 98.2966644
+  },
+  {
+    "placeTitle": "32/199",
+    "latitude": 7.8846278,
+    "longitude": 98.3925981
+  },
+  {
+    "placeTitle": "177/16 บ้านวนา",
+    "latitude": 7.9805013,
+    "longitude": 98.3296778
+  },
+  {
+    "placeTitle": "177/42 บ้านวนา",
+    "latitude": 7.9805317,
+    "longitude": 98.3298818
+  },
+  {
+    "placeTitle": "12/3  believe",
+    "latitude": 7.8857614,
+    "longitude": 98.3930186
+  },
+  {
+    "placeTitle": "322/3, 324/2 Di Pantai",
+    "latitude": 7.9169805,
+    "longitude": 98.2915311
+  },
+  {
+    "placeTitle": "ร้านสวย เชิงทะเล",
+    "latitude": 7.9800538,
+    "longitude": 98.3292801
+  },
+  {
+    "placeTitle": "1 อครา สถาปนิก",
+    "latitude": 7.8864583,
+    "longitude": 98.3934874
+  },
+  {
+    "placeTitle": "ร้าน back kettle เชิงทะเล",
+    "latitude": 7.9797635,
+    "longitude": 98.3294351
+  },
+  {
+    "placeTitle": "วัดซิกข์",
+    "latitude": 7.8898906,
+    "longitude": 98.3935329
+  },
+  {
+    "placeTitle": "8 วัดซิกข์",
+    "latitude": 7.889894,
+    "longitude": 98.3935426
+  },
+  {
+    "placeTitle": "ลีโอนาโด กะตะการ์เด้น",
+    "latitude": 7.9130397,
+    "longitude": 98.2958968
+  },
+  {
+    "placeTitle": "โกแดง นาสาด",
+    "latitude": 7.982884,
+    "longitude": 98.3636931
+  },
+  {
+    "placeTitle": "19-Mar",
+    "latitude": 7.8842061,
+    "longitude": 98.3929281
+  },
+  {
+    "placeTitle": "บจก.ห้างทองเบญจพร",
+    "latitude": 7.8827224,
+    "longitude": 98.3926228
+  },
+  {
+    "placeTitle": "รักษ์คุณฟาร์มาร์ซี",
+    "latitude": 7.939937,
+    "longitude": 98.3949149
+  },
+  {
+    "placeTitle": "คุณดาว",
+    "latitude": 7.8986971,
+    "longitude": 98.3048772
+  },
+  {
+    "placeTitle": "บจก.เพาเวอร์บาย  จังซีลอน",
+    "latitude": 7.8940436,
+    "longitude": 98.3693737
+  },
+  {
+    "placeTitle": "บจก.เพาเวอร์บาย  เซ็นทรัล ภูเก็ต",
+    "latitude": 7.8941389,
+    "longitude": 98.3694505
+  },
+  {
+    "placeTitle": "บจก.เพาเวอร์บาย  โฮมเวิร์ค",
+    "latitude": 7.8925881,
+    "longitude": 98.3694293
+  },
+  {
+    "placeTitle": "CU Bank  สหกรณ์เครดิตยูเนี่ยน",
+    "latitude": 7.8830905,
+    "longitude": 98.4105035
+  },
+  {
+    "placeTitle": "บจก.ลาซาด้า เอ็กซ์เพรส",
+    "latitude": 7.9001275,
+    "longitude": 98.3076222
+  },
+  {
+    "placeTitle": "นาคา มาสซาจ",
+    "latitude": 7.8899478,
+    "longitude": 98.3037891
+  },
+  {
+    "placeTitle": "บจก.มีมามี อินเตอร์เนชั่นแนล ลอว์ ออฟฟิศ",
+    "latitude": 7.8963053,
+    "longitude": 98.3659809
+  },
+  {
+    "placeTitle": "ซีลอนเทล อพาร์เม้นท์",
+    "latitude": 7.8773401,
+    "longitude": 98.3918199
+  },
+  {
+    "placeTitle": "56/71",
+    "latitude": 7.8925154,
+    "longitude": 98.3028602
+  },
+  {
+    "placeTitle": "11/4 ข้างวัดป่าตอง",
+    "latitude": 7.8928803,
+    "longitude": 98.3029346
+  },
+  {
+    "placeTitle": "คุณหลิว",
+    "latitude": 7.8792194,
+    "longitude": 98.3876069
+  },
+  {
+    "placeTitle": "56/51",
+    "latitude": 7.892856,
+    "longitude": 98.3029143
+  },
+  {
+    "placeTitle": "พี่อุไร",
+    "latitude": 7.8928771,
+    "longitude": 98.3028775
+  },
+  {
+    "placeTitle": "สอนภาษาครูเจ",
+    "latitude": 7.8789725,
+    "longitude": 98.3671471
+  },
+  {
+    "placeTitle": "บจก.GSD กราฟฟิก โซลูชั่น ดิจิตอล",
+    "latitude": 7.876852,
+    "longitude": 98.3636939
+  },
+  {
+    "placeTitle": "พี่แอ๋ว ผลไม้",
+    "latitude": 7.8919229,
+    "longitude": 98.2941162
+  },
+  {
+    "placeTitle": "บจก.ภูเก็ตพัฒนาทรัพยากร  Sun wing",
+    "latitude": 7.8934496,
+    "longitude": 98.3522484
+  },
+  {
+    "placeTitle": "ห้อง H1 มอ .",
+    "latitude": 7.891475,
+    "longitude": 98.3509667
+  },
+  {
+    "placeTitle": "บจก.สมายล์ บีช",
+    "latitude": 7.8931001,
+    "longitude": 98.2982064
+  },
+  {
+    "placeTitle": "ห้อง I2  มอ.ภูเก็ต",
+    "latitude": 7.8915093,
+    "longitude": 98.350433
+  },
+  {
+    "placeTitle": "51  พี่สันติ",
+    "latitude": 7.8687148,
+    "longitude": 98.3580716
+  },
+  {
+    "placeTitle": "คณะวิเทศศึกษา มอ. มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตภูเก็ต",
+    "latitude": 7.89382,
+    "longitude": 98.3525583
+  },
+  {
+    "placeTitle": "11/51  นาใหญ่",
+    "latitude": 7.8560815,
+    "longitude": 98.3403417
+  },
+  {
+    "placeTitle": "บีลีฟ คอฟฟี แอนด์ เรสเตอรอง",
+    "latitude": 7.897635,
+    "longitude": 98.3546683
+  },
+  {
+    "placeTitle": "ชั้น 6 คณะวิศวะ คอม มอ.",
+    "latitude": 7.8965236,
+    "longitude": 98.3550534
+  },
+  {
+    "placeTitle": "22-Feb",
+    "latitude": 7.8392237,
+    "longitude": 98.351931
+  },
+  {
+    "placeTitle": "บ.ลัคกี้ 13 กะทู้ จำกัด",
+    "latitude": 7.8999858,
+    "longitude": 98.3510273
+  },
+  {
+    "placeTitle": "7/11-12 วิลล่ามะละกา",
+    "latitude": 7.8401909,
+    "longitude": 98.3520548
+  },
+  {
+    "placeTitle": "97/11",
+    "latitude": 7.9029014,
+    "longitude": 98.3452444
+  },
+  {
+    "placeTitle": "บจก.ซีคูลเอฟโวลูชั่น",
+    "latitude": 7.8439638,
+    "longitude": 98.360552
+  },
+  {
+    "placeTitle": "บจก.ภูเก็ต อควา โปรเจคท์",
+    "latitude": 7.8422124,
+    "longitude": 98.3566093
+  },
+  {
+    "placeTitle": "ร้านดอกไม้ครูหยก",
+    "latitude": 7.8990767,
+    "longitude": 98.3436717
+  },
+  {
+    "placeTitle": "140/111",
+    "latitude": 7.9004621,
+    "longitude": 98.3312715
+  },
+  {
+    "placeTitle": "114/20",
+    "latitude": 7.8999514,
+    "longitude": 98.3320108
+  },
+  {
+    "placeTitle": "140/12",
+    "latitude": 7.8993366,
+    "longitude": 98.3322809
+  },
+  {
+    "placeTitle": "140/7",
+    "latitude": 7.8992993,
+    "longitude": 98.3321708
+  },
+  {
+    "placeTitle": "คุณธนพล",
+    "latitude": 7.9176046,
+    "longitude": 98.3328494
+  },
+  {
+    "placeTitle": "16/143",
+    "latitude": 7.9194715,
+    "longitude": 98.3378433
+  },
+  {
+    "placeTitle": "30/64",
+    "latitude": 7.9164803,
+    "longitude": 98.3449647
+  },
+  {
+    "placeTitle": "บจก.ลัคกี้ 13 กะทู้",
+    "latitude": 7.9144088,
+    "longitude": 98.3426255
+  },
+  {
+    "placeTitle": "บจก.พรูเด้นท์ บิวเดอร์",
+    "latitude": 7.9026388,
+    "longitude": 98.3014153
+  },
+  {
+    "placeTitle": "Oasis",
+    "latitude": 7.8862056,
+    "longitude": 98.2941735
+  },
+  {
+    "placeTitle": "Carewell Service Co.,Ltd.",
+    "latitude": 7.908623,
+    "longitude": 98.3556597
+  },
+  {
+    "placeTitle": "บูกิจเฮ้าส์",
+    "latitude": 7.8881489,
+    "longitude": 98.3041756
+  },
+  {
+    "placeTitle": "Horizon Karon Beach Resort And Spa CO;LTD",
+    "latitude": 7.8889433,
+    "longitude": 98.2943326
+  },
+  {
+    "placeTitle": "บจก.ป่าตองพี่น้องทรัพย์",
+    "latitude": 7.8784547,
+    "longitude": 98.3968152
+  },
+  {
+    "placeTitle": "บจก.บี.วาย.ดี. อพาร์ทเม้นท์",
+    "latitude": 7.8785419,
+    "longitude": 98.3967147
+  },
+  {
+    "placeTitle": "ร้านขายอุปกรณ์ไฟฟ้า สาย2",
+    "latitude": 7.9494414,
+    "longitude": 98.2763004
+  },
+  {
+    "placeTitle": "Lucky13 แซนวิช",
+    "latitude": 7.9502807,
+    "longitude": 98.2795737
+  },
+  {
+    "placeTitle": "63/69 พี่บี",
+    "latitude": 7.9485496,
+    "longitude": 98.2997825
+  },
+  {
+    "placeTitle": "64/119 พี่ส้ม",
+    "latitude": 7.9484439,
+    "longitude": 98.300004
+  },
+  {
+    "placeTitle": "169/116 พี่เล็ก",
+    "latitude": 7.8944136,
+    "longitude": 98.3012213
+  },
+  {
+    "placeTitle": "179/79-80 อีส แอนด์ เวส",
+    "latitude": 7.8925773,
+    "longitude": 98.3005955
+  },
+  {
+    "placeTitle": "บจก.ทีซีซี ลักซ์ชูรีโฮเทลส์ และ รีสอร์ท",
+    "latitude": 7.8785257,
+    "longitude": 98.3967259
+  },
+  {
+    "placeTitle": "บจก.อาณาวรรธน์",
+    "latitude": 7.8785257,
+    "longitude": 98.3967259
+  },
+  {
+    "placeTitle": "56/58 ป่าตอง",
+    "latitude": 7.8915,
+    "longitude": 98.348403
+  },
+  {
+    "placeTitle": "ร้านยางกู๊ดเยียร์",
+    "latitude": 7.8784871,
+    "longitude": 98.3966401
+  },
+  {
+    "placeTitle": "วีลล่า มาลาก้า 7/1",
+    "latitude": 7.8799295,
+    "longitude": 98.3808599
+  },
+  {
+    "placeTitle": "คุณ ต้า ภูงาม",
+    "latitude": 7.8888759,
+    "longitude": 98.4279445
+  }
 ]

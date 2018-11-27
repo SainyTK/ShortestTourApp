@@ -2,5 +2,5 @@
 <resources>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBCGQy_slw6UDK7NGzcamjxHc7J_LLixW8</string>
 
-    <string name="node_file_name" translatable="false">nodeDB.json</string>
+    <string name="node_file_name" translatable="false">node.json</string>
 </resources>

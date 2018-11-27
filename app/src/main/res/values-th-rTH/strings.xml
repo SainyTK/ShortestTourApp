@@ -22,4 +22,7 @@
     <string name="cancel">ยกเลิก</string>
     <string name="cannot_add_exist">ไม่สามารถเพิ่มสถานที่ที่มีอยู่แล้วได้</string>
     <string name="task_cancel">ยกเลิกการคำนวณเส้นทาง</string>
+    <string name="fastAlgorithm">แบบเร็ว (Nearest Neighbor)</string>
+    <string name="bestAlgorithm">แบบดีที่สุด (Dynamic Programming)</string>
+    <string name="algorithm">วิธีคำนวณ</string>
 </resources>

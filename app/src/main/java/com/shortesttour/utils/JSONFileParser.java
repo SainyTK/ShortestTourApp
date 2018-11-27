@@ -35,11 +35,9 @@ public class JSONFileParser {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 Place place = new Place();
 
-                place.setPlaceId(i+1);
-                place.setPlaceTitle(jsonObject.getString("userName"));
-                place.setUserName(jsonObject.getString("userName"));
-                place.setLatitude(Double.parseDouble(jsonObject.getString("latitude")));
-                place.setLongitude(Double.parseDouble(jsonObject.getString("longitude")));
+                place.setPlaceTitle(jsonObject.getString("placeTitle"));
+                place.setLatitude(jsonObject.getDouble("latitude"));
+                place.setLongitude(jsonObject.getDouble("longitude"));
 
                 placeList.add(place);
             }

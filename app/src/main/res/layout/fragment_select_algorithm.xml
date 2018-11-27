@@ -11,7 +11,7 @@
         android:layout_height="wrap_content">
         <RadioButton
             android:id="@+id/radio_nnb"
-            android:text="@string/nearest_neighbor"
+            android:text="@string/fastAlgorithm"
             android:textSize="@dimen/text_normal"
             android:padding="10dp"
             android:layout_margin="5dp"
@@ -20,7 +20,7 @@
             android:layout_height="wrap_content" />
         <RadioButton
             android:id="@+id/radio_dp"
-            android:text="@string/dynamic_programming"
+            android:text="@string/bestAlgorithm"
             android:textSize="@dimen/text_normal"
             android:padding="10dp"
             android:layout_margin="5dp"

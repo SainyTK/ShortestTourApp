@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Place implements Parent<String> {
-    private int placeId;
-    private String userName;
+
     private String placeTitle;
     private double latitude;
     private double longitude;
@@ -17,15 +16,18 @@ public class Place implements Parent<String> {
     private int order;
 
     public Place(){
-
+        this.distance = 0;
+        this.duration = 0;
+        this.order = 0;
     }
 
-    public Place(int placeId,String userName,String placeTitle,double latitude,double longitude){
-        this.placeId = placeId;
-        this.userName = userName;
+    public Place(String placeTitle, double latitude, double longitude) {
         this.placeTitle = placeTitle;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.distance = 0;
+        this.duration = 0;
+        this.order = 0;
     }
 
     public String getPlaceTitle() {
@@ -75,22 +77,6 @@ public class Place implements Parent<String> {
 
     public void setDuration(int duration) {
         this.duration = duration;
-    }
-
-    public int getPlaceId() {
-        return placeId;
-    }
-
-    public void setPlaceId(int placeId) {
-        this.placeId = placeId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public int getOrder() {
