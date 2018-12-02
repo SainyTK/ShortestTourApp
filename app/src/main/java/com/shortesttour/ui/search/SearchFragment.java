@@ -44,8 +44,6 @@ public class SearchFragment extends Fragment {
     private List<Place> placeList;
     private PlaceExpandableAdapter adapter;
 
-    private SearchOptionSelectedListener mListener;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -71,7 +69,6 @@ public class SearchFragment extends Fragment {
 
             }
         });
-        adapter.setOptionSelectedListener(mListener);
         recyclerView.setAdapter(adapter);
 
         return root;
@@ -94,10 +91,6 @@ public class SearchFragment extends Fragment {
             Log.e(TAG, "createPlaceList: NULL", e);
         }
         return places;
-    }
-
-    public void setOptionSelectedListener(SearchOptionSelectedListener listener){
-        mListener = listener;
     }
 
 }

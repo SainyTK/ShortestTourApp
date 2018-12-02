@@ -50,14 +50,20 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.shortesttour.R;
+import com.shortesttour.events.AddPlaceEvent;
+import com.shortesttour.events.RemovePlaceEvent;
+import com.shortesttour.events.ShowInMapEvent;
+import com.shortesttour.events.SwapPlaceEvent;
 import com.shortesttour.models.Place;
 import com.shortesttour.ui.search.SearchFragment;
-import com.shortesttour.ui.search.SearchOptionSelectedListener;
 import com.shortesttour.ui.select_algoritm.SelectAlgorithmFragment;
 import com.shortesttour.ui.travel.TravelFragment;
 import com.shortesttour.utils.FragmentUtils;
 import com.shortesttour.utils.PinUtils;
 import com.shortesttour.utils.PrefsUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +72,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements MainContract.View, SearchOptionSelectedListener, OnMapReadyCallback, PlaceListItemClickListener, GoogleMap.OnMapClickListener, SelectAlgorithmFragment.ChangeAlgorithmListener {
+public class MainActivity extends AppCompatActivity implements MainContract.View, OnMapReadyCallback, GoogleMap.OnMapClickListener, SelectAlgorithmFragment.ChangeAlgorithmListener {
 
     private static final String TAG = "MainActivity";
 
@@ -127,12 +133,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private boolean changeAlgorithm = false;
     private int prevAlgorithm;
 
-    //test
-//    private List<Place> testList;
-//    private int testIdx = 0;
-//    int c = 0;
-//    StringBuilder sb;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,25 +156,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         setupLineManager();
 
         prevAlgorithm = PrefsUtil.getAlgorithm(this);
-        //test
-//        sb = new StringBuilder();
-//        sb.append("numOfNode\t\trunTime\t\ttotalDistance\t\ttotalDuration\n");
-//
-//        testList = createPlaceList();
-//        onAddToListClick(testList.get(testIdx));
 
     }
-
-    //test
-//    public List<Place> createPlaceList(){
-//        List<Place> places = null;
-//        try{
-//            places = JSONFileParser.getPlaces(getActivity(),this.getResources().getString(R.string.node_file_name));
-//        }catch (NullPointerException e){
-//            Log.e(TAG, "createPlaceList: NULL", e);
-//        }
-//        return places;
-//    }
 
     private void setupLineManager() {
         mLineList = new ArrayList<>();
@@ -256,24 +239,13 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                 mPresenter.setupCurrentPlace(currentLatLng);
                 showLocation(currentLatLng);
             }
-
             @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
-
+            public void onStatusChanged(String s, int i, Bundle bundle) { }
             @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
+            public void onProviderEnabled(String s) {}
             @Override
-            public void onProviderDisabled(String s) {
-
-            }
+            public void onProviderDisabled(String s) {}
         }, null);
-
-
     }
 
     private void setupBottomSheet() {
@@ -297,7 +269,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                     case BottomSheetBehavior.STATE_SETTLING:
                         bottomSheetContainer.setActivated(false);
                         break;
-
                 }
             }
 
@@ -363,19 +334,16 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         mFragmentUtils = new FragmentUtils(this, R.id.fragment_container);
 
         searchFragment = new SearchFragment();
-        searchFragment.setOptionSelectedListener(this);
     }
 
     private void setupBottomFragment() {
         travelFragment = new TravelFragment();
         selectAlgorithmFragment = new SelectAlgorithmFragment();
 
-        travelFragment.setListener(this);
         selectAlgorithmFragment.setListener(this);
 
         bottomFragmentUtils = new FragmentUtils(this, R.id.bottom_fragment_container);
         bottomFragmentUtils.replace(travelFragment, false);
-
     }
 
     private void setupSearchBox() {
@@ -516,9 +484,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     /*--------------E: map control section------------------*/
-    @Override
-    public void onShowInMapClick(Place place) {
-        Log.d(TAG, "showInMap: ");
+    @Subscribe
+    public void onShowInMapClick(ShowInMapEvent e) {
+        Place place = e.getPlace();
         hideKeyboard();
         showLocation(place.getPlaceLatLng());
         if (!mPresenter.checkHasPlace(mPresenter.getPlaceList(), place))
@@ -695,9 +663,20 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
 
     /*--------------G: place list manage section---------------*/
-    @Override
-    public void onAddToListClick(Place place) {
-        mPresenter.addPlace(place);
+    @Subscribe
+    public void onAddPlace(AddPlaceEvent e) {
+        mPresenter.addPlace(e.getPlace());
+    }
+
+    @Subscribe
+    public void onRemovePlace(RemovePlaceEvent e) {
+        mPresenter.removePlace(e.getPosition());
+    }
+
+    @Subscribe
+    public void onSwapPlace(SwapPlaceEvent e){
+        Log.d(TAG, "onSwapPlace: ");
+        mPresenter.swapPlace(e.getFromPosition(),e.getToPosition());
     }
 
     @Override
@@ -733,37 +712,17 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void onRemovePlace(int position) {
-        Log.d(TAG, "onRemovePlace: " + position);
-        mPresenter.removePlace(position);
-    }
-
-    //test
-    private long startTime;
-
-    @Override
     public void onStartTask() {
         isTaskRunning = true;
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setProgress(0);
 
         travelFragment.showLoadingView();
-
-        //test
-        startTime = System.currentTimeMillis();
     }
-
-    //test
-    String checkStr = "";
 
     @Override
     public void onUpdateValue(int val) {
         progressBar.setProgress(val);
-        String str = "onUpdateValue:  " + val;
-        if (!str.contentEquals(checkStr)) {
-            checkStr = str;
-            Log.d(TAG, "onUpdateValue:  " + val);
-        }
     }
 
     @Override
@@ -780,7 +739,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             changeAlgorithm = false;
         }else{
             PrefsUtil.setAlgorithm(this,prevAlgorithm);
-//            selectAlgorithmFragment.selectAlgorithm(prevAlgorithm);
         }
     }
 
@@ -801,38 +759,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         travelFragment.updateView();
 
         prevAlgorithm = PrefsUtil.getAlgorithm(this);
-
-        float runtime = System.currentTimeMillis() - startTime;
-
-        //test
-//        switch(c){
-//            case 0:
-//                PrefsUtil.setAlgorithm(this,PrefsUtil.DYNAMIC_PROGRAMMING);
-//                mPresenter.calculatePath();
-//                c=1;
-//                break;
-//            case 1:
-//                sb.append("DP-----------------------------------\n");
-//                sb.append((mPresenter.getNumPlace()-1) + "\t\t" + runtime +"\t\t"+ toDistanceText(mPresenter.getSumDistance()) +"\t\t"+ toDurationText(mPresenter.getSumDuration())+"\n");
-//                PrefsUtil.setAlgorithm(this,PrefsUtil.NEAREST_NEIGHBOR);
-//                mPresenter.calculatePath();
-//                c=2;
-//                break;
-//            case 2:
-//                sb.append("NN-----------------------------------\n");
-//                sb.append((mPresenter.getNumPlace()-1) + "\t\t" + runtime +"\t\t"+ toDistanceText(mPresenter.getSumDistance()) +"\t\t"+ toDurationText(mPresenter.getSumDuration())+"\n");
-//                if(testIdx<70){
-//                    testIdx++;
-//                    onAddToListClick(testList.get(testIdx));
-//                }
-//                c=0;
-//                Log.d("TEST ALGOR", sb.toString());
-//                break;
-//        }
-//        Log.d("Time", "Number of nodes : " + (mPresenter.getNumPlace()-1));
-//        Log.d("Time", "Total time : " + (System.currentTimeMillis()-startTime));
-//        Log.d("Time", "Total Distance :  " + toDistanceText(mPresenter.getSumDistance()));
-//        Log.d("Time", "Total Duration :  " + toDurationText(mPresenter.getSumDuration()));
     }
 
     public String toDistanceText(int distance) {
@@ -891,5 +817,17 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void cancelTask(){
         changeAlgorithm = false;
         mPresenter.cancelTask();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 }

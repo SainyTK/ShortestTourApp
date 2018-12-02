@@ -9,17 +9,19 @@ import android.view.ViewGroup;
 
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.shortesttour.R;
+import com.shortesttour.events.AddPlaceEvent;
+import com.shortesttour.events.ShowInMapEvent;
 import com.shortesttour.models.Place;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
 public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<Place,String,PlaceViewHolder,OptionViewHolder>{
 
-    List<Place> places;
-    Context mContext;
-    int allDataCount;
-
-    SearchOptionSelectedListener mListener;
+    private List<Place> places;
+    private Context mContext;
+    private int allDataCount;
 
     public PlaceExpandableAdapter(Context context, @NonNull List<Place> placeList) {
         super(placeList);
@@ -53,18 +55,14 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<Place,Stri
         childViewHolder.setOptionClickListener(new OptionViewHolder.OptionClickListener() {
             @Override
             public void clickShowInMap(int parentPosition) {
-                if(mListener!=null){
-                    Place place = places.get(parentPosition);
-                    mListener.onShowInMapClick(place);
-                }
+                Place place = places.get(parentPosition);
+                EventBus.getDefault().post(new ShowInMapEvent(place));
             }
 
             @Override
             public void clickAddToList(int parentPosition) {
-                if(mListener!=null){
-                    Place place = places.get(parentPosition);
-                    mListener.onAddToListClick(place);
-                }
+                Place place = places.get(parentPosition);
+                EventBus.getDefault().post(new AddPlaceEvent(place));
             }
         });
     }
@@ -82,10 +80,6 @@ public class PlaceExpandableAdapter extends ExpandableRecyclerAdapter<Place,Stri
         places = newData;
         notifyDataSetChanged();
         notifyParentDataSetChanged(false);
-    }
-
-    public void setOptionSelectedListener(SearchOptionSelectedListener listener){
-        mListener = listener;
     }
 
 }

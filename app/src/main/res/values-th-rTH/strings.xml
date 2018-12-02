@@ -25,4 +25,5 @@
     <string name="fastAlgorithm">แบบเร็ว (Nearest Neighbor)</string>
     <string name="bestAlgorithm">แบบดีที่สุด (Dynamic Programming)</string>
     <string name="algorithm">วิธีคำนวณ</string>
+    <string name="delete">ลบ</string>
 </resources>

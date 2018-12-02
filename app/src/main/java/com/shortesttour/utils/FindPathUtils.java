@@ -592,4 +592,11 @@ public class FindPathUtils {
     public GraphNode[][] getGraph(){
         return graphUtils.getGraph();
     }
+
+    public void swapPlace(int fromPosition, int toPosition){
+        graphUtils.reorderPath(fromPosition,toPosition);
+        if(mListener != null)
+            mListener.onComplete();
+        findPath();
+    }
 }

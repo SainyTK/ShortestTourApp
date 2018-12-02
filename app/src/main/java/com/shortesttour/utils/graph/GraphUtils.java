@@ -15,6 +15,8 @@ import java.util.List;
 
 public abstract class GraphUtils{
 
+    private static final String TAG = "GraphUtils";
+
     private GraphNode[][] graph;
     private GraphNode[][] prevGraph;
     private int[] path;
@@ -139,6 +141,15 @@ public abstract class GraphUtils{
         }
 
         Log.d("SHOW GRAPH", "calculatePath: " + this);
+    }
+
+    public void reorderPath(int fromPosition,int toPosition){
+        Log.d(TAG, "reorderPath: before = " + pathText());
+        int temp = path[fromPosition+1];
+        path[fromPosition+1] = path[toPosition+1];
+        path[toPosition+1] = temp;
+
+        Log.d(TAG, "reorderPath: after = " + pathText());
     }
 
     public int[] getNearestPathDuration() {

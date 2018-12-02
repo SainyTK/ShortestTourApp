@@ -42,12 +42,6 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
     }
 
     public void addPlace(Place place){
-//        List<Place> searchPlaceList = searchFragment.getPlaceList();
-//        for(int i=0;i<30;i++){
-//            Place p = searchPlaceList.get(i);
-//            bottomSheetPlaceList.add(p);
-//            mFindPathUtils.addPlace(p);
-//        }
         if(!checkHasPlace(preventRepeatPlaceList,place)){
             mView.displayAddLocation(place.getPlaceTitle());
             preventRepeatPlaceList.add(place);
@@ -132,7 +126,11 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
             preventRepeatPlaceList.remove(position);
             mFindPathUtils.collapseGraph(position+1);
         }
-//        Log.d("test", "removePlace: " + mFindPathUtils.isTaskRunning());
+    }
+
+
+    public void swapPlace(int fromPosition, int toPosition){
+        mFindPathUtils.swapPlace(fromPosition, toPosition);
     }
 
     public void calculatePath(){

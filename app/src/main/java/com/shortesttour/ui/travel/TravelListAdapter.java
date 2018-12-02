@@ -9,21 +9,26 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.shortesttour.R;
+import com.shortesttour.events.RemovePlaceEvent;
+import com.shortesttour.events.SwapPlaceEvent;
 import com.shortesttour.models.Place;
-import com.shortesttour.ui.main.PlaceListItemClickListener;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Holder>{
+public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Holder> implements ItemTouchHelperAdapter{
+
+    private static final String TAG = "TravelListAdapter";
 
     public List<Place> mPlaceList;
-    private PlaceListItemClickListener mListener;
 
-    class Holder extends RecyclerView.ViewHolder {
+    public class Holder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.text_place_title)
         TextView textPlaceTitle;
@@ -31,6 +36,10 @@ public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Ho
         TextView textPlaceDistance;
         @BindView(R.id.place_icon)
         TextView textPlaceIcon;
+        @BindView(R.id.view_background)
+        View viewBackGround;
+        @BindView(R.id.view_foreground)
+        View viewForeGround;
 
         public Holder(View itemView) {
             super(itemView);
@@ -43,11 +52,14 @@ public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Ho
             textPlaceIcon.setText(String.valueOf(position+1));
         }
 
-        @OnClick(R.id.btn_delete_place)
-        void deletePlace(){
-            if(mListener!=null)
-                mListener.onRemovePlace(getAdapterPosition());
+        public View getViewBackGround(){
+            return viewBackGround;
         }
+
+        public View getViewForeGround(){
+            return viewForeGround;
+        }
+
     }
 
     public TravelListAdapter(List<Place> placeList){
@@ -58,7 +70,6 @@ public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Ho
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View root = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_bottomsheet_place_list,parent,false);
-
         return new Holder(root);
     }
 
@@ -69,7 +80,6 @@ public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Ho
         }catch(Exception e){
             Log.e("Error", "onBindViewHolder: ", e);
         }
-
     }
 
     @Override
@@ -77,13 +87,9 @@ public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Ho
         try{
             return mPlaceList.size();
         }catch (Exception e){
-
+            Log.e(TAG, "getItemCount: ", e);
         }
         return 0;
-    }
-
-    public void setListener(PlaceListItemClickListener listener){
-        mListener = listener;
     }
 
     public void setData(List<Place> placeList){
@@ -110,4 +116,32 @@ public class TravelListAdapter extends RecyclerView.Adapter<TravelListAdapter.Ho
     public List<Place> getData(){
         return mPlaceList;
     }
+
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        if(fromPosition < toPosition){
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(mPlaceList, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition ; i--) {
+                Collections.swap(mPlaceList,i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+        return true;
+    }
+
+    @Override
+    public void onItemMoved(int fromPosition, int toPosition) {
+        notifyItemMoved(fromPosition, toPosition);
+        EventBus.getDefault().post(new SwapPlaceEvent(fromPosition,toPosition));
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        removePlace(position);
+        EventBus.getDefault().post(new RemovePlaceEvent(position));
+    }
+
 }

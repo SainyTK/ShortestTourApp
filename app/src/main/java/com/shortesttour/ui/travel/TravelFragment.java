@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,6 @@ import android.widget.TextView;
 import com.shortesttour.R;
 import com.shortesttour.models.Place;
 import com.shortesttour.ui.main.MainActivity;
-import com.shortesttour.ui.main.PlaceListItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +58,7 @@ public class TravelFragment extends Fragment{
             ButterKnife.bind(this,root);
             activity = (MainActivity)getActivity();
 
-            recyclerView.setLayoutManager(new TravelListLayoutManager(container.getContext()));
-            recyclerView.setAdapter(adapter);
+            setupRecyclerView();
 
             updateView();
             return root;
@@ -67,6 +66,15 @@ public class TravelFragment extends Fragment{
             Log.e("error", "onCreateView: ", e);
         }
         return null;
+    }
+
+    private void setupRecyclerView(){
+        recyclerView.setLayoutManager(new TravelListLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
+        ItemTouchHelper helper = new ItemTouchHelper(callback);
+        helper.attachToRecyclerView(recyclerView);
     }
 
 
@@ -181,10 +189,6 @@ public class TravelFragment extends Fragment{
         }
 
         this.sumDuration = sumDuration;
-    }
-
-    public void setListener(PlaceListItemClickListener listener){
-        adapter.setListener(listener);
     }
 
     public void setPlaceList(List<Place> placeList){
