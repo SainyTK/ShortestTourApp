@@ -25,15 +25,12 @@ public abstract class GraphUtils{
     private DynamicProgramming dynamicProgramming;
 
     private Context context;
-    private FindPathUtils utils;
 
     public GraphUtils(Context context,FindPathUtils utils) {
         this.context = context;
         graph = new GraphNode[0][0];
         prevGraph = new GraphNode[0][0];
         path = new int[0];
-
-        this.utils = utils;
 
         nearestNeighbor = new NearestNeighbor(utils) {
             @Override
@@ -209,6 +206,14 @@ public abstract class GraphUtils{
 
     public int[] getPath() {
         return path;
+    }
+
+    public void clearGraph() {
+        graph = new GraphNode[1][1];
+        prevGraph = new GraphNode[0][0];
+        path = new int[0];
+
+        graph[0][0] = new GraphNode();
     }
 
     @Override

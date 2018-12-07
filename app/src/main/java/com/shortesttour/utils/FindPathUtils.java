@@ -599,4 +599,13 @@ public class FindPathUtils {
             mListener.onComplete();
         findPath();
     }
+
+    public void removeAll() {
+        List<Place> places = new ArrayList<>();
+        places.add(mPlaceList.get(0));
+        mPlaceList = places;
+
+        graphUtils.clearGraph();
+        calculatePath();
+    }
 }

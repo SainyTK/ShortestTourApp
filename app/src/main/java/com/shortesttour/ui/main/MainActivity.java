@@ -59,8 +59,12 @@ import com.shortesttour.ui.search.SearchFragment;
 import com.shortesttour.ui.select_algoritm.SelectAlgorithmFragment;
 import com.shortesttour.ui.travel.TravelFragment;
 import com.shortesttour.utils.FragmentUtils;
+import com.shortesttour.utils.JSONFileParser;
 import com.shortesttour.utils.PinUtils;
 import com.shortesttour.utils.PrefsUtil;
+import com.shortesttour.utils.TestUtils;
+
+import junit.framework.Test;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -223,6 +227,53 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         }
 
         setupLocationManager();
+
+        createPlaceList();
+//        startTest();
+    }
+
+    List<Place> placeList;
+    boolean collecting = true;
+
+    //test
+    public void createPlaceList(){
+        List<Place> places = null;
+        try{
+            places = JSONFileParser.getPlaces(getActivity(),getResources().getString(R.string.node_file_name));
+        }catch (NullPointerException e){
+            Log.e(TAG, "createPlaceList: NULL", e);
+        }
+        placeList = places;
+    }
+
+    //test
+    private void startTest(){
+        startNN();
+    }
+
+    //test
+    public void startNN(){
+        PrefsUtil.setAlgorithm(this,PrefsUtil.NEAREST_NEIGHBOR);
+        TestUtils.getInstance().setStartTextNN();
+        for(int r : TestUtils.getInstance().getRandomIndex()){
+            mPresenter.addPlace(placeList.get(r));
+        }
+    }
+
+    //test
+    public void startDP(){
+        PrefsUtil.setAlgorithm(this,PrefsUtil.DYNAMIC_PROGRAMMING);
+        TestUtils.getInstance().setStartTextDP();
+        for(int r : TestUtils.getInstance().getRandomIndex()){
+            mPresenter.addPlace(placeList.get(r));
+        }
+    }
+
+    public void showResult() {
+        TestUtils.getInstance().setPlaceList(mPresenter.getPlaceList());
+        TestUtils.getInstance().showResultTable();
+
+        removeAll();
     }
 
     private void setupLocationManager() {
@@ -689,6 +740,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         showToast(getString(R.string.text_added,placeTitle));
     }
 
+    public void removeAll() {
+        mPresenter.removeAll();
+    }
+
     /*---------------------Location Manage Section-------------*/
 
     /*-----------------------SQLite Database Section----------------*/
@@ -713,6 +768,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     public void onStartTask() {
+        //test
+        TestUtils.getInstance().setStartTime();
+
         isTaskRunning = true;
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setProgress(0);
@@ -744,6 +802,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     public void onFinishCalculatePath() {
+        //test
+        long runtime = TestUtils.getInstance().getRuntime();
+
         progressBar.setProgress(0);
 
         mMap.clear();
@@ -759,26 +820,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         travelFragment.updateView();
 
         prevAlgorithm = PrefsUtil.getAlgorithm(this);
-    }
 
-    public String toDistanceText(int distance) {
-        if (distance < 1000)
-            return distance + " " + getString(R.string.m);
-        else
-            return Math.round(distance / 1000f) + " " + getString(R.string.km);
-    }
-
-    public String toDurationText(int duration) {
-        Log.d("SHOW", "toDurationText: " + duration);
-        int hours = Math.round(duration / 3600);
-        int minutes = Math.round(duration / 60);
-        String durationText = "";
-        if (hours > 0) {
-            durationText = hours + " " + getString(R.string.hr) + " ";
-            minutes = Math.round(duration % 3600 / 60);
-        }
-        durationText = durationText + minutes + " " + getString(R.string.min);
-        return durationText;
+        if(mPresenter.getNumPlace() > 0)
+            TestUtils.getInstance().updateResultTable(mPresenter.getNumPlace(),toDistanceText(mPresenter.getSumDistance()),toDurationText(mPresenter.getSumDuration()),runtime);
     }
 
     @Override
@@ -793,6 +837,26 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             updateShowLineButton();
         }
     }
+
+    public String toDistanceText(int distance) {
+        if (distance < 1000)
+            return distance + " " + getString(R.string.m);
+        else
+            return Math.round(distance / 1000f) + " " + getString(R.string.km);
+    }
+
+    public String toDurationText(int duration) {
+        int hours = Math.round(duration / 3600);
+        int minutes = Math.round(duration / 60);
+        String durationText = "";
+        if (hours > 0) {
+            durationText = hours + " " + getString(R.string.hr) + " ";
+            minutes = Math.round(duration % 3600 / 60);
+        }
+        durationText = durationText + minutes + " " + getString(R.string.min);
+        return durationText;
+    }
+
 
     @Override
     public AppCompatActivity getActivity() {

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.shortesttour.R;
 import com.shortesttour.models.Place;
 import com.shortesttour.ui.main.MainActivity;
+import com.shortesttour.utils.TestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,8 @@ public class TravelFragment extends Fragment{
     TextView textTotalDistance;
     @BindView(R.id.btn_cancel)
     TextView btnCancel;
+    @BindView(R.id.btn_clear)
+    TextView btnRemoveAll;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
@@ -97,6 +100,7 @@ public class TravelFragment extends Fragment{
         textTotalDistance.setVisibility(View.GONE);
         textTotalDuration.setVisibility(View.GONE);
         btnCancel.setVisibility(View.GONE);
+        btnRemoveAll.setVisibility(View.GONE);
     }
 
     private void setButtonHasPlace(){
@@ -105,6 +109,7 @@ public class TravelFragment extends Fragment{
         textGoingTo.setVisibility(View.VISIBLE);
         textTotalDistance.setVisibility(View.VISIBLE);
         textTotalDuration.setVisibility(View.VISIBLE);
+        btnRemoveAll.setVisibility(View.VISIBLE);
 
         //gone
         btnAdd.setVisibility(View.GONE);
@@ -204,5 +209,30 @@ public class TravelFragment extends Fragment{
     @OnClick(R.id.btn_cancel)
     void cancelTask(){
         activity.cancelTask();
+    }
+
+    @OnClick(R.id.btn_clear)
+    void removeAll() {
+        activity.removeAll();
+    }
+
+    @OnClick(R.id.btn_test1)
+    void test1(){
+        activity.startNN();
+    }
+
+    @OnClick(R.id.btn_test2)
+    void test2(){
+        activity.startDP();
+    }
+
+    @OnClick(R.id.btn_random)
+    void random() {
+        TestUtils.getInstance().setRandomIndex();
+    }
+
+    @OnClick(R.id.btn_show)
+    void showResult() {
+        activity.showResult();
     }
 }

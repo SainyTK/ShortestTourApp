@@ -128,6 +128,15 @@ public class MainPresenter implements MainContract.Presenter, FindPathUtils.Task
         }
     }
 
+    public void removeAll(){
+        if(mFindPathUtils.isTaskRunning()){
+            mView.showToast(mView.getActivity().getString(R.string.text_cannot_remove));
+        }else{
+            preventRepeatPlaceList.clear();
+            mFindPathUtils.removeAll();
+        }
+    }
+
 
     public void swapPlace(int fromPosition, int toPosition){
         mFindPathUtils.swapPlace(fromPosition, toPosition);
